@@ -104,8 +104,6 @@ namespace Evo_VI.engine
         {
             _targetProcess = Process.GetProcessesByName(process).FirstOrDefault();
             if (_targetProcess != null) { _targetWindowHandle = _targetProcess.MainWindowHandle; }
-
-            Overlay.lbl_dbg.Text = Overlay.lbl_dbg_oriTxt + " [" + (_targetProcess == null ? "<NULL>" : _targetProcess.ProcessName) + "]";
         }
         #endregion
 

@@ -28,43 +28,34 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.lbl_OverlayTitle = new System.Windows.Forms.Label();
             this.SuspendLayout();
-            // 
-            // lbl_OverlayTitle
-            // 
-            this.lbl_OverlayTitle.AutoSize = true;
-            this.lbl_OverlayTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F);
-            this.lbl_OverlayTitle.Location = new System.Drawing.Point(12, 9);
-            this.lbl_OverlayTitle.Name = "lbl_OverlayTitle";
-            this.lbl_OverlayTitle.Size = new System.Drawing.Size(227, 37);
-            this.lbl_OverlayTitle.TabIndex = 0;
-            this.lbl_OverlayTitle.Text = "Evo VI Overlay";
             // 
             // Overlay
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.Magenta;
-            this.ClientSize = new System.Drawing.Size(555, 305);
-            this.Controls.Add(this.lbl_OverlayTitle);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
+            this.BackColor = System.Drawing.SystemColors.MenuHighlight;
+            this.ClientSize = new System.Drawing.Size(400, 300);
+            this.DoubleBuffered = true;
+            this.Font = new System.Drawing.Font("Lucida Console", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Location = new System.Drawing.Point(20, 20);
+            this.Margin = new System.Windows.Forms.Padding(6);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Overlay";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Opacity = 0.8D;
+            this.ShowInTaskbar = false;
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Evo VI - Overlay";
             this.TopMost = true;
-            this.TransparencyKey = System.Drawing.Color.Magenta;
-            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.TransparencyKey = System.Drawing.Color.Transparent;
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
 
-        private System.Windows.Forms.Label lbl_OverlayTitle;
     }
 }
 
