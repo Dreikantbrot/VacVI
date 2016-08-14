@@ -6,6 +6,8 @@ using System.Speech.Recognition;
 using System.IO;
 using System;
 
+// TODO: Clean up!
+
 namespace Evo_VI.engine
 {
     public class OnSoundStopHandler : ISoundStopEventReceiver
@@ -45,7 +47,6 @@ namespace Evo_VI.engine
                     break;
 
                 case SoundType.SPEECH:
-                    SpeechEngine.SpeechFinished = true;
                     break;
             }
         }
@@ -55,23 +56,76 @@ namespace Evo_VI.engine
 
     public static class SpeechEngine
     {
+        private class OnSpeechStopHandler : ISoundStopEventReceiver
+        {
+            #region Public Functions
+            /// <summary> Plays a new soundtrack if the previous reached the end of it's playtime.
+            /// </summary>
+            /// <param name="sound">The sound object, causing the stop event handler.</param>
+            /// <param name="reason">The sound object's reason (from IrrKlang), why the track stopped.</param>
+            /// <param name="stopCause">The event handler's (custom) reason, why the track stopped.</param>
+            public void OnSoundStopped(ISound sound, StopEventCause reason, object stopCause)
+            {
+                KeyValuePair<OnSoundStopHandler.SoundType, OnSoundStopHandler.StopStates> stopCauseVals = (KeyValuePair<OnSoundStopHandler.SoundType, OnSoundStopHandler.StopStates>)stopCause;
+                switch (stopCauseVals.Key)
+                {
+                    case OnSoundStopHandler.SoundType.SPEECH:
+                        _queue.RemoveAt(0);
+                        if (_queue.Count > 0)
+                        {
+                            Thread starter = new Thread(n => { Say(_queue[0]); });
+                            starter.Start();
+                        }
+                        break;
+                }
+            }
+            #endregion
+        }
+
+
+        public class DialogLine
+        {
+            enum DialogImportance { LOW, NORMAL, HIGH, CRITICAL };
+
+            string _text;
+            DialogImportance _importance;
+
+            private DialogImportance Importance
+            {
+                get { return _importance; }
+                set { _importance = value; }
+            }
+
+
+            public string Text
+            {
+                get { return _text; }
+                set { _text = value; }
+            }
+
+            public DialogLine(string pText, DialogImportance pImportance = DialogImportance.NORMAL)
+            {
+                this._text = pText;
+                this._importance = pImportance;
+            }
+        }
+
+
         #region Enums
         public enum VoiceModulationModes { NORMAL, ROBOTIC };
         #endregion
 
 
         #region Variables
-        private static ISoundEngine soundEngine = new ISoundEngine();
-        private static ISound speechSound;
-        private static OnSoundStopHandler onSoundStop = new OnSoundStopHandler();
+        private static ISoundEngine _soundEngine = new ISoundEngine();
+        private static ISound _speechSound;
+        private static OnSpeechStopHandler _onSpeechStop = new OnSpeechStopHandler();
 
-        private static SpeechSynthesizer synthesizer = new SpeechSynthesizer();
-        private static SpeechRecognitionEngine recognizer = new SpeechRecognitionEngine();
+        private static SpeechSynthesizer _synthesizer = new SpeechSynthesizer();
+        private static SpeechRecognitionEngine _recognizer = new SpeechRecognitionEngine();
 
-        private static VoiceInfo defaultVoice = synthesizer.Voice;
-        private static List<int> queue = new List<int>();
-
-        public static bool SpeechFinished = true;
+        private static VoiceInfo _defaultVoice = _synthesizer.Voice;
+        private static List<DialogLine> _queue = new List<DialogLine>();
         #endregion
 
 
@@ -82,11 +136,8 @@ namespace Evo_VI.engine
 
             if (e.Result.Text == "test")
             {
-                Interactor.SendKey((uint)System.Windows.Forms.Keys.H);
-                Interactor.SendKey((uint)System.Windows.Forms.Keys.E);
-                Interactor.SendKey((uint)System.Windows.Forms.Keys.L);
-                Interactor.SendKey((uint)System.Windows.Forms.Keys.L);
-                Interactor.SendKey((uint)System.Windows.Forms.Keys.O);
+                Say("Hello");
+                Say("Hello");
             }
             else if (e.Result.Text == "refresh") Interactor.Initialize();
         }
@@ -114,64 +165,67 @@ namespace Evo_VI.engine
             GrammarBuilder grammarbuilder;
             grammarbuilder = new GrammarBuilder();
             grammarbuilder.Append(new Choices("test", "refresh"));
-            recognizer.LoadGrammar(new Grammar(grammarbuilder));
+            _recognizer.LoadGrammar(new Grammar(grammarbuilder));
 
-            recognizer.SpeechRecognized += recognized;
-            recognizer.SetInputToDefaultAudioDevice();
-            recognizer.RecognizeAsync(RecognizeMode.Multiple);
+            _recognizer.SpeechRecognized += recognized;
+            _recognizer.SetInputToDefaultAudioDevice();
+            _recognizer.RecognizeAsync(RecognizeMode.Multiple);
         }
 
 
         /// <summary>
         /// Lets the VI say the specified text.
         /// </summary>
-        /// <param name="text"> The text to be spoken.</param>
+        /// <param name="line"> The text to be spoken.</param>
         /// <param name="async"> If set to true, the function will be run asynchronously.</param>
-        public static void Say(string text = "", VoiceModulationModes modulation = VoiceModulationModes.ROBOTIC, bool async = false)
+        public static void Say(string text="", VoiceModulationModes modulation = VoiceModulationModes.ROBOTIC, bool async = false)
         {
-            // Wait for other jobs to finish
-            int textHash = text.GetHashCode();
-            queue.Add(textHash);
-            while ((queue[0] != textHash) && (synthesizer.State != SynthesizerState.Ready)) { Thread.Sleep(100); }
+            Say(new DialogLine(text), modulation, async);
+        }
+
+
+        /// <summary>
+        /// Lets the VI say the specified text.
+        /// </summary>
+        /// <param name="line"> The text to be spoken.</param>
+        /// <param name="async"> If set to true, the function will be run asynchronously.</param>
+        public static void Say(DialogLine dialogLine, VoiceModulationModes modulation = VoiceModulationModes.ROBOTIC, bool async = false)
+        {
+            if (!_queue.Contains(dialogLine)) { _queue.Add(dialogLine); }
+            if (_queue[0] != dialogLine) { return; }
 
             MemoryStream streamAudio = new MemoryStream();
-            synthesizer.SetOutputToWaveStream(streamAudio);
+            _synthesizer.SetOutputToWaveStream(streamAudio);
             
             // TODO: Set emphasis and break lengths
             PromptBuilder prmptBuilder = new PromptBuilder();
-            prmptBuilder.StartVoice(defaultVoice);
+            prmptBuilder.StartVoice(_defaultVoice);
             prmptBuilder.StartSentence();
-            prmptBuilder.AppendText(text);
+            prmptBuilder.AppendText(dialogLine.Text);
             prmptBuilder.EndSentence();
             prmptBuilder.EndVoice();
 
-            synthesizer.Speak(prmptBuilder);
+            _synthesizer.Speak(prmptBuilder);
             
             // Create the modulated sound file by speaking "into RAM"
             streamAudio.Position = 0;
-            soundEngine.RemoveAllSoundSources();
-            soundEngine.AddSoundSourceFromIOStream(streamAudio, "SpokenSentence.wav");
-            speechSound = soundEngine.Play2D("SpokenSentence.wav", false, false, StreamMode.Streaming, true);
+            _soundEngine.RemoveAllSoundSources();
+            _soundEngine.AddSoundSourceFromIOStream(streamAudio, "SpokenSentence.wav");
+            _speechSound = _soundEngine.Play2D("SpokenSentence.wav", false, false, StreamMode.Streaming, true);
 
             if (modulation == VoiceModulationModes.ROBOTIC)
             {
-                speechSound.SoundEffectControl.EnableChorusSoundEffect();
-                speechSound.SoundEffectControl.EnableChorusSoundEffect(50f, 10f, 40f, 1.1f, true, 0f, 90);
+                _speechSound.SoundEffectControl.EnableChorusSoundEffect();
+                _speechSound.SoundEffectControl.EnableChorusSoundEffect(50f, 10f, 40f, 1.1f, true, 0f, 90);
             }
 
+            _soundEngine.Update();
+
             // Prepare event handler
-            speechSound.setSoundStopEventReceiver(
-                onSoundStop,
+            _speechSound.setSoundStopEventReceiver(
+                _onSpeechStop,
                 new KeyValuePair<OnSoundStopHandler.SoundType, OnSoundStopHandler.StopStates>(OnSoundStopHandler.SoundType.SPEECH, OnSoundStopHandler.StopStates.TRACK_FINISHED)
             );
-
-            // Wait until ready before talking
-            while ((!async) && (!SpeechFinished)) { Thread.Sleep(100); }
-            SpeechFinished = false;
-            soundEngine.Update();
-
-            queue.RemoveAt(0);
-            Thread.Sleep(100);
         }
         #endregion
     }
