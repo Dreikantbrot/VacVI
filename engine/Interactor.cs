@@ -122,28 +122,20 @@ namespace Evo_VI.engine
             getAllProcessesByName("EvochronMercenary");
         }
 
-        public static void SendKey(uint key)
+        public static void SendKey(uint key, bool isScancode = false)
         {
-            int nonVirtualKey = MapVirtualKey(key, 2);
-            char mappedChar = Convert.ToChar(nonVirtualKey);
-
-            SpeechEngine.Say("Pressing Key " + mappedChar);
             Input[] inputs;
 
             inputs = new Input[1];
             inputs[0].type = (int)InputType.Keyboard;
-            inputs[0].u = new InputUnion();
-            inputs[0].u.ki = new KeyboardInput();
-            inputs[0].u.ki.wVk = 0;
             inputs[0].u.ki.wScan = (ushort)key;
-            inputs[0].u.ki.dwFlags = (uint)(KeyEventF.KeyDown | KeyEventF.Scancode);
-            inputs[0].u.ki.dwExtraInfo = GetMessageExtraInfo();
+            inputs[0].u.ki.dwFlags = (uint)(KeyEventF.KeyDown | (isScancode ? KeyEventF.Scancode : KeyEventF.Unicode));
 
             SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(Input)));
 
             Thread.Sleep(30);
-            
-            inputs[0].u.ki.dwFlags = (uint)(KeyEventF.KeyUp | KeyEventF.Scancode);
+
+            inputs[0].u.ki.dwFlags = (uint)(KeyEventF.KeyUp | (isScancode ? KeyEventF.Scancode : KeyEventF.Unicode));
 
             SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(Input)));
         }
