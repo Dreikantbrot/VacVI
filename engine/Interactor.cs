@@ -1,22 +1,92 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Threading;
 
 namespace Evo_VI.engine
 {
     public static class Interactor
     {
-        #region User32 DLL Imports
-        [DllImport("User32.dll")]
-        static extern int SetForegroundWindow(IntPtr point);
+        #region DLL Imports
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern uint SendInput(uint nInputs, Input[] pInputs, int cbSize);
 
         [DllImport("user32.dll")]
-        private static extern IntPtr GetForegroundWindow();
+        private static extern IntPtr GetMessageExtraInfo();
+
+        [DllImport("user32.dll")]
+        static extern int MapVirtualKey(uint uCode, uint uMapType);
+        #endregion
+
+
+        #region Flags
+        [Flags]
+        private enum InputType
+        {
+            Mouse = 0,
+            Keyboard = 1,
+            Hardware = 2
+        }
+
+        [Flags]
+        private enum KeyEventF
+        {
+            KeyDown = 0x0000,
+            ExtendedKey = 0x0001,
+            KeyUp = 0x0002,
+            Unicode = 0x0004,
+            Scancode = 0x0008,
+        }
+        #endregion
+
+
+        #region Structs
+        private struct Input
+        {
+            public int type;
+            public InputUnion u;
+        }
+
+        [StructLayout(LayoutKind.Explicit)]
+        private struct InputUnion
+        {
+            [FieldOffset(0)]
+            public readonly MouseInput mi;
+            [FieldOffset(0)]
+            public KeyboardInput ki;
+            [FieldOffset(0)]
+            public readonly HardwareInput hi;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MouseInput
+        {
+            public readonly int dx;
+            public readonly int dy;
+            public readonly uint mouseData;
+            public readonly uint dwFlags;
+            public readonly uint time;
+            public readonly IntPtr dwExtraInfo;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct KeyboardInput
+        {
+            public ushort wVk;
+            public ushort wScan;
+            public uint dwFlags;
+            public readonly uint time;
+            public IntPtr dwExtraInfo;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct HardwareInput
+        {
+            public readonly uint uMsg;
+            public readonly ushort wParamL;
+            public readonly ushort wParamH;
+        }
         #endregion
 
 
@@ -34,7 +104,10 @@ namespace Evo_VI.engine
         static void getAllProcessesByName(string process)
         {
             targetProcess = Process.GetProcessesByName(process).FirstOrDefault();
-            targetWindowHandle = targetProcess.MainWindowHandle;
+            if (targetProcess != null) { targetWindowHandle = targetProcess.MainWindowHandle; }
+
+            Overlay.lbl_dbg.Text = Overlay.lbl_dbg_oriTxt + " [" + (targetProcess == null ? "<NULL>" : targetProcess.ProcessName) + "]";
+            SpeechEngine.Say("Refreshing process");
         }
         #endregion
 
@@ -46,43 +119,33 @@ namespace Evo_VI.engine
         public static void Initialize()
         {
             // TODO: Remove dummy
-            getAllProcessesByName("notepad");
+            getAllProcessesByName("EvochronMercenary");
         }
 
-
-        /// <summary>
-        /// Presses the specified key, if the target process is active.
-        /// </summary>
-        /// <param name="key">The key to press</param>
-        public static void PressKey(Keys key)
+        public static void SendKey(uint key)
         {
-            // TODO: Parse the entire key string instead of just passing a single key
-            IntPtr hwnd = GetForegroundWindow();
-            if (targetWindowHandle != hwnd) { return; }
+            int nonVirtualKey = MapVirtualKey(key, 2);
+            char mappedChar = Convert.ToChar(nonVirtualKey);
 
-            SetForegroundWindow(targetWindowHandle);
+            SpeechEngine.Say("Pressing Key " + mappedChar);
+            Input[] inputs;
 
-            /* Convert Special keys to their correct string */
-            // TODO: Build key library
-            string keyString = key.ToString();
-            switch(key)
-            {
-                case Keys.Back:     keyString = "{BACKSPACE}"; break;
-                case Keys.CapsLock: keyString = "{CAPSLOCK}"; break;
-                case Keys.Enter:    keyString = "{ENTER}"; break;
+            inputs = new Input[1];
+            inputs[0].type = (int)InputType.Keyboard;
+            inputs[0].u = new InputUnion();
+            inputs[0].u.ki = new KeyboardInput();
+            inputs[0].u.ki.wVk = 0;
+            inputs[0].u.ki.wScan = (ushort)key;
+            inputs[0].u.ki.dwFlags = (uint)(KeyEventF.KeyDown | KeyEventF.Scancode);
+            inputs[0].u.ki.dwExtraInfo = GetMessageExtraInfo();
 
-                case Keys.Delete:   keyString = "{DELETE}"; break;
-                case Keys.Home:     keyString = "{HOME}"; break;
-                case Keys.Insert:   keyString = "{INSERT}"; break;
-                case Keys.PageUp:   keyString = "{PGUP}"; break;
-                case Keys.PageDown: keyString = "{PGDN}"; break;
-                
-                case Keys.Up:       keyString = "{UP}"; break;
-                case Keys.Down:     keyString = "{DOWN}"; break;
-                case Keys.Left:     keyString = "{LEFT}"; break;
-                case Keys.Right:    keyString = "{RIGHT}"; break;
-            }
-            SendKeys.SendWait(keyString);
+            SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(Input)));
+
+            Thread.Sleep(30);
+            
+            inputs[0].u.ki.dwFlags = (uint)(KeyEventF.KeyUp | KeyEventF.Scancode);
+
+            SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(Input)));
         }
         #endregion
     }
