@@ -50,8 +50,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="engine\GameDataReader.cs" />
     <Compile Include="engine\Interactor.cs" />
     <Compile Include="engine\SpeechEngine.cs" />
+    <Compile Include="engine\VI.cs" />
     <Compile Include="Overlay.cs">
       <SubType>Form</SubType>
     </Compile>
