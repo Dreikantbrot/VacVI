@@ -12,7 +12,6 @@ namespace Evo_VI
         string _text = "";
         #endregion
 
-
         public Overlay()
         {
             InitializeComponent();
