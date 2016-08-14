@@ -56,6 +56,7 @@ namespace Evo_VI.engine
 
     public static class SpeechEngine
     {
+        #region Private  Classes
         private class OnSpeechStopHandler : ISoundStopEventReceiver
         {
             #region Public Functions
@@ -82,36 +83,58 @@ namespace Evo_VI.engine
             #endregion
         }
 
-
         public class DialogLine
         {
-            enum DialogImportance { LOW, NORMAL, HIGH, CRITICAL };
+            #region Enums
+            /// <summary> The importance of a line of dialog.
+            /// </summary>
+            public enum DialogImportance { LOW, NORMAL, HIGH, CRITICAL };
+            #endregion
 
+
+            #region Variables
             string _text;
             DialogImportance _importance;
+            #endregion
 
-            private DialogImportance Importance
+
+            #region Properties
+            /// <summary> Returns or sets the line's importance.
+            /// </summary>
+            public DialogImportance Importance
             {
                 get { return _importance; }
                 set { _importance = value; }
             }
 
 
+            /// <summary> Returns or sets the line's text.
+            /// </summary>
             public string Text
             {
                 get { return _text; }
                 set { _text = value; }
             }
+            #endregion
 
+
+            /// <summary> Creates a new instance for a line of dialog.
+            /// </summary>
+            /// <param name="pText">The line's text</param>
+            /// <param name="pImportance">The importance this line has over others.</param>
             public DialogLine(string pText, DialogImportance pImportance = DialogImportance.NORMAL)
             {
                 this._text = pText;
                 this._importance = pImportance;
             }
         }
+        #endregion
 
 
         #region Enums
+        /// <summary> Supported voice modulation modes.
+        /// Determines how the VI's voice sound when speaking.
+        /// </summary>
         public enum VoiceModulationModes { NORMAL, ROBOTIC };
         #endregion
 
@@ -130,7 +153,11 @@ namespace Evo_VI.engine
 
 
         #region Event Handlers
-        private static void recognized(object sender, SpeechRecognizedEventArgs e)
+        /// <summary> Fires, when a voice command has been recognized.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The speech recognition engine's event arguments.</param>
+        private static void onSpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
             // TODO: Implement recognized commands (keypresses or audible feedback)
 
@@ -138,6 +165,7 @@ namespace Evo_VI.engine
             {
                 Say("Hello");
                 Say("Hello");
+                Say("Hello - oh lovely world!");
             }
             else if (e.Result.Text == "refresh") Interactor.Initialize();
         }
@@ -145,8 +173,7 @@ namespace Evo_VI.engine
 
 
         #region Public Functions
-        /// <summary>
-        /// Initializes the Speech Engine.
+        /// <summary> Initializes the Speech Engine.
         /// </summary>
         public static void Initialize()
         {
@@ -167,28 +194,28 @@ namespace Evo_VI.engine
             grammarbuilder.Append(new Choices("test", "refresh"));
             _recognizer.LoadGrammar(new Grammar(grammarbuilder));
 
-            _recognizer.SpeechRecognized += recognized;
+            _recognizer.SpeechRecognized += onSpeechRecognized;
             _recognizer.SetInputToDefaultAudioDevice();
             _recognizer.RecognizeAsync(RecognizeMode.Multiple);
         }
 
 
-        /// <summary>
-        /// Lets the VI say the specified text.
+        /// <summary> Lets the VI say the specified text.
         /// </summary>
-        /// <param name="line"> The text to be spoken.</param>
-        /// <param name="async"> If set to true, the function will be run asynchronously.</param>
+        /// <param name="text">The text to speak.</param>
+        /// <param name="modulation">The voice modulation mode.</param>
+        /// <param name="async">If true, speech will be run asynchronously.</param>
         public static void Say(string text="", VoiceModulationModes modulation = VoiceModulationModes.ROBOTIC, bool async = false)
         {
             Say(new DialogLine(text), modulation, async);
         }
 
 
-        /// <summary>
-        /// Lets the VI say the specified text.
+        /// <summary> Lets the VI say the specified dialog line.
         /// </summary>
-        /// <param name="line"> The text to be spoken.</param>
-        /// <param name="async"> If set to true, the function will be run asynchronously.</param>
+        /// <param name="text">The dialog line instance to speak.</param>
+        /// <param name="modulation">The voice modulation mode.</param>
+        /// <param name="async">If true, speech will be run asynchronously.</param>
         public static void Say(DialogLine dialogLine, VoiceModulationModes modulation = VoiceModulationModes.ROBOTIC, bool async = false)
         {
             if (!_queue.Contains(dialogLine)) { _queue.Add(dialogLine); }

@@ -91,30 +91,28 @@ namespace Evo_VI.engine
 
 
         #region Variables
-        private static Process targetProcess = null;
-        private static IntPtr targetWindowHandle;
+        private static Process _targetProcess = null;
+        private static IntPtr _targetWindowHandle;
         #endregion
 
 
         #region Private Functions
-        /// <summary>
-        /// Gets a process by it's name and updates target process and window handle.
+        /// <summary> Gets a process by it's name and updates target process and window handle.
         /// </summary>
-        /// <param name="process">The process name (without file extension)</param>
-        static void getAllProcessesByName(string process)
+        /// <param name="process">The process name (without file extension).</param>
+        private static void getAllProcessesByName(string process)
         {
-            targetProcess = Process.GetProcessesByName(process).FirstOrDefault();
-            if (targetProcess != null) { targetWindowHandle = targetProcess.MainWindowHandle; }
+            _targetProcess = Process.GetProcessesByName(process).FirstOrDefault();
+            if (_targetProcess != null) { _targetWindowHandle = _targetProcess.MainWindowHandle; }
 
-            Overlay.lbl_dbg.Text = Overlay.lbl_dbg_oriTxt + " [" + (targetProcess == null ? "<NULL>" : targetProcess.ProcessName) + "]";
+            Overlay.lbl_dbg.Text = Overlay.lbl_dbg_oriTxt + " [" + (_targetProcess == null ? "<NULL>" : _targetProcess.ProcessName) + "]";
             SpeechEngine.Say("Refreshing process");
         }
         #endregion
 
 
         #region Public Functions
-        /// <summary>
-        /// Initializes the Interactor.
+        /// <summary> Initializes the Interactor.
         /// </summary>
         public static void Initialize()
         {
@@ -122,6 +120,11 @@ namespace Evo_VI.engine
             getAllProcessesByName("EvochronMercenary");
         }
 
+
+        /// <summary> Sends the specified key to the target application, if active.
+        /// </summary>
+        /// <param name="key">The keycode.</param>
+        /// <param name="isScancode">If true, the keycode will be interpreted as a scan code, else as unicode.</param>
         public static void SendKey(uint key, bool isScancode = false)
         {
             Input[] inputs;

@@ -10,7 +10,7 @@ namespace Evo_VI.engine
     {
         public static bool ReadGameData(string filepath)
         {
-            return true;
+            throw new NotImplementedException();
         }
     }
 }
