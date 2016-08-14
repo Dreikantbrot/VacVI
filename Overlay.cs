@@ -20,6 +20,7 @@ namespace Evo_VI
             /* Initialize all components */
             SpeechEngine.Initialize();
             Interactor.Initialize();
+            VI.Initialize();
         }
     }
 }

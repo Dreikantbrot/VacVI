@@ -1,0 +1,99 @@
+<string> Pilot Name
+<integer> Fuel
+<string> Cash
+<string> Cargo Bay 1
+<string> Cargo Bay 2
+<string> Cargo Bay 3
+<string> Cargo Bay 4
+<string> Cargo Bay 5
+<integer> Player Position X
+<integer> Player Position Y
+<integer> Player Position Z
+<integer> Player Position SX
+<integer> Player Position SY
+<integer> Player Position SZ
+<string> Local System Name
+<integer> Energy Level
+<integer> Front Shield level
+<integer> Right Shield level
+<integer> Left Shield level
+<integer> Rear Shield level
+<integer> Shield Level
+<integer> Engine Damage
+<integer> Weapon Damage
+<integer> Nav Damage
+<string> Target Description
+<string> Target Threat Level
+<integer> Target Range
+<integer> Target Front Shield level
+<integer> Target Right Shield level
+<integer> Target Left Shield level
+<integer> Target Rear Shield level
+<integer> Target Engine Damage
+<integer> Target Weapon Damage
+<integer> Target Nav Damage
+<string> Target Cargo Bay 1
+<string> Target Cargo Bay 2
+<string> Target Cargo Bay 3
+<string> Target Cargo Bay 4
+<string> Target Cargo Bay 5
+<integer> Inbound Missile Alert
+<string> Particle Cannon
+<string> Beam Cannon
+<string> Secondary Weapon Slot 1
+<string> Secondary Weapon Slot 2
+<string> Secondary Weapon Slot 3
+<string> Secondary Weapon Slot 4
+<string> Secondary Weapon Slot 5
+<string> Secondary Weapon Slot 6
+<string> Secondary Weapon Slot 7
+<string> Secondary Weapon Slot 8
+<string> Equipment Slot 1
+<string> Equipment Slot 2
+<string> Equipment Slot 3
+<string> Equipment Slot 4
+<string> Equipment Slot 5
+<string> Equipment Slot 6
+<string> Equipment Slot 7
+<string> Equipment Slot 8
+<string> Ship Type
+<integer> Engine Class
+<integer> Shield Class
+<integer> Cargo Capacity
+<integer> Wing and Thruster Class
+<integer> Crew Limit
+<integer> Equipment Limit
+<integer> Countermeasure Limit
+<integer> Hardpoint Limit
+<integer> Total Kills
+<integer> Total Contracts
+<integer> Skill and Proficiency Rating
+<integer> Military Rank
+<integer> Particle Cannon Range
+<integer> Armed Missile Range
+<string> Targeted Subsystem
+<string> Target Faction
+<integer> Target Damage Level
+<integer> Target Velocity
+<integer> Engine/Thruster Heat Indicator
+<integer> MDTS Status
+<integer> Missile Lock Status
+<integer> Countermeasures Remaining
+<string> Energy Bias Setting
+<string> Navigation Waypoint Distance
+<integer> IDS Status
+<integer> IDS Multiplier
+<integer> Afterburner Status
+<integer> Autopilot Status
+<integer> Navigation Console Status
+<integer> Inventory Console Status
+<integer> Trade Console Status
+<integer> Tractor Beam Status
+<integer> HUD Status
+<integer> Target Display Status
+<integer> Total Hostiles in Radar Range
+<integer> Player Ship Velocity
+<integer> Player Ship Set Velocity
+<integer> Player Ship Altitude
+<integer> Gravity Level
+<integer> Heat Signature Level

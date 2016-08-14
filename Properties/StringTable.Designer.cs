@@ -22,14 +22,14 @@ namespace Evo_VI.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    internal class StringTable {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal Resources() {
+        internal StringTable() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace Evo_VI.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Evo_VI.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Evo_VI.Properties.StringTable", typeof(StringTable).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,31 +61,11 @@ namespace Evo_VI.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die &lt;string&gt; Pilot Name
-        ///&lt;integer&gt; Fuel
-        ///&lt;string&gt; Cash
-        ///&lt;string&gt; Cargo Bay 1
-        ///&lt;string&gt; Cargo Bay 2
-        ///&lt;string&gt; Cargo Bay 3
-        ///&lt;string&gt; Cargo Bay 4
-        ///&lt;string&gt; Cargo Bay 5
-        ///&lt;integer&gt; Player Position X
-        ///&lt;integer&gt; Player Position Y
-        ///&lt;integer&gt; Player Position Z
-        ///&lt;integer&gt; Player Position SX
-        ///&lt;integer&gt; Player Position SY
-        ///&lt;integer&gt; Player Position SZ
-        ///&lt;string&gt; Local System Name
-        ///&lt;integer&gt; Energy Level
-        ///&lt;integer&gt; Front Shield level
-        ///&lt;integer&gt; Right Shield level
-        ///&lt;integer&gt; Left Shield level
-        ///&lt;integer&gt; Rear Shield level
-        ///&lt;in [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Error - Could not acquire ship sensor data! ähnelt.
         /// </summary>
-        internal static string savedata_template {
+        internal static string COULD_NOT_ACQUIRE_DATA {
             get {
-                return ResourceManager.GetString("savedata_template", resourceCulture);
+                return ResourceManager.GetString("COULD_NOT_ACQUIRE_DATA", resourceCulture);
             }
         }
     }

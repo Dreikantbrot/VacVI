@@ -106,7 +106,6 @@ namespace Evo_VI.engine
             if (_targetProcess != null) { _targetWindowHandle = _targetProcess.MainWindowHandle; }
 
             Overlay.lbl_dbg.Text = Overlay.lbl_dbg_oriTxt + " [" + (_targetProcess == null ? "<NULL>" : _targetProcess.ProcessName) + "]";
-            SpeechEngine.Say("Refreshing process");
         }
         #endregion
 
