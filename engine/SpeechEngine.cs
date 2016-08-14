@@ -1,59 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
-using IrrKlang;
 using System.Speech.Synthesis;
 using System.Speech.Recognition;
 using System.IO;
-using System;
+using IrrKlang;
+using Evo_VI.classes.dialog;
+using Evo_VI.classes.sound;
 
 // TODO: Clean up!
 
 namespace Evo_VI.engine
 {
-    public class OnSoundStopHandler : ISoundStopEventReceiver
-    {
-        #region Enums
-        /// <summary> The reason why a soundtrack was / had to be stopped
-        /// </summary>
-        public enum StopStates { TRACK_FINISHED, STOPPED_BY_USER, TRACK_SWITCH, PAUSED, INGORE };
-
-        /// <summary> The kind of sound that has been stopped
-        /// </summary>
-        public enum SoundType { MUSIC, SPEECH };
-        #endregion
-
-
-        #region Public Functions
-        /// <summary> Plays a new soundtrack if the previous reached the end of it's playtime.
-        /// </summary>
-        /// <param name="sound">The sound object, causing the stop event handler.</param>
-        /// <param name="reason">The sound object's reason (from IrrKlang), why the track stopped.</param>
-        /// <param name="stopCause">The event handler's (custom) reason, why the track stopped.</param>
-        public void OnSoundStopped(ISound sound, StopEventCause reason, object stopCause)
-        {
-            KeyValuePair<SoundType, StopStates> stopCauseVals = (KeyValuePair<SoundType, StopStates>)stopCause;
-            switch (stopCauseVals.Key)
-            {
-                case SoundType.MUSIC:
-                    switch (stopCauseVals.Value)
-                    {
-                        case StopStates.TRACK_FINISHED:
-                            // TODO: Play next soundtrack
-                            break;
-                        case StopStates.STOPPED_BY_USER: break;
-                        case StopStates.TRACK_SWITCH: break;
-                        case StopStates.PAUSED: break;
-                    }
-                    break;
-
-                case SoundType.SPEECH:
-                    break;
-            }
-        }
-        #endregion
-    }
-
-
     public static class SpeechEngine
     {
         #region Private  Classes
@@ -81,52 +39,6 @@ namespace Evo_VI.engine
                 }
             }
             #endregion
-        }
-
-        public class DialogLine
-        {
-            #region Enums
-            /// <summary> The importance of a line of dialog.
-            /// </summary>
-            public enum DialogImportance { LOW, NORMAL, HIGH, CRITICAL };
-            #endregion
-
-
-            #region Variables
-            string _text;
-            DialogImportance _importance;
-            #endregion
-
-
-            #region Properties
-            /// <summary> Returns or sets the line's importance.
-            /// </summary>
-            public DialogImportance Importance
-            {
-                get { return _importance; }
-                set { _importance = value; }
-            }
-
-
-            /// <summary> Returns or sets the line's text.
-            /// </summary>
-            public string Text
-            {
-                get { return _text; }
-                set { _text = value; }
-            }
-            #endregion
-
-
-            /// <summary> Creates a new instance for a line of dialog.
-            /// </summary>
-            /// <param name="pText">The line's text</param>
-            /// <param name="pImportance">The importance this line has over others.</param>
-            public DialogLine(string pText, DialogImportance pImportance = DialogImportance.NORMAL)
-            {
-                this._text = pText;
-                this._importance = pImportance;
-            }
         }
         #endregion
 
@@ -255,14 +167,5 @@ namespace Evo_VI.engine
             );
         }
         #endregion
-    }
-
-
-    public static class DialogTreeReader
-    {
-        public static PromptBuilder BuildDialogTree()
-        {
-            throw new NotImplementedException(); 
-        }
     }
 }
