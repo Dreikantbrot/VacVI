@@ -173,7 +173,7 @@ namespace Evo_VI.engine
             PromptBuilder prmptBuilder = new PromptBuilder();
             prmptBuilder.StartVoice(_defaultVoice);
             prmptBuilder.StartSentence();
-            prmptBuilder.AppendText(dialogLine.VIText);
+            prmptBuilder.AppendText(dialogLine.ParseVIText());
             prmptBuilder.EndSentence();
             prmptBuilder.EndVoice();
 

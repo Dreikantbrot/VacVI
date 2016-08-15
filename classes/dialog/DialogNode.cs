@@ -97,11 +97,11 @@ namespace Evo_VI.classes.dialog
 
         /// <summary> Parses a randomized composition of the text the VI should speak.
         /// </summary>
-        public string ParseVIText(string txt)
+        public string ParseVIText()
         {
             Random rndNr = new Random();
             string result = "";
-            string[] sentences = txt.Split(';');
+            string[] sentences = this._viText.Split(';');
             string randBaseSentence = sentences[rndNr.Next(0, sentences.Length)];
 
             MatchCollection matches = CHOICES_REGEX.Matches(randBaseSentence);
