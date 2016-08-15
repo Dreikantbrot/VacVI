@@ -35,14 +35,8 @@ namespace Evo_VI
         {
             InitializeComponent();
 
-            /* Initialize all components */
-            SpeechEngine.Initialize();
-            Interactor.Initialize();
-            Database.InGameData.Initialize();
-
             /* Initialize UI */
             _text = this.Text;
-            System.IO.File.SetLastWriteTimeUtc("C:\\sw3dg\\EvochronMercenary\\savedata.txt", DateTime.UtcNow);
             System.IO.File.SetLastWriteTimeUtc("C:\\sw3dg\\EvochronMercenary\\sw.cfg", DateTime.UtcNow);
         }
 
@@ -73,6 +67,7 @@ namespace Evo_VI
         {
             Database.InGameData.ReadGameData(e.FullPath);
         }
+
 
         /// <summary> Fires each time, the "sw.cfg"-file gets changed.
         /// </summary>
