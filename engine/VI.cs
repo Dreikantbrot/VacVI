@@ -1,4 +1,5 @@
 ﻿using Evo_VI.classes.dialog;
+using Evo_VI.PluginContracts;
 using System.Reflection;
 
 namespace Evo_VI.engine
@@ -11,7 +12,7 @@ namespace Evo_VI.engine
 
 
         #region Variables
-        private static ICommand _lastCommand;
+        private static IPlugin _lastCommand;
         private static DialogNode _currentDialogNode;
         private static DialogNode _previousDialogNode;
         private static uint _affiliationToPlayer = 50;

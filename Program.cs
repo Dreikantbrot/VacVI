@@ -18,6 +18,9 @@ namespace Evo_VI
             Database.InGameData.Initialize();
             VI.Initialize();
 
+            /* Load Plugins */
+            PluginLoader.LoadPlugins();
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Overlay());

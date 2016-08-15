@@ -1,4 +1,5 @@
 ﻿using Evo_VI.engine;
+using Evo_VI.PluginContracts;
 using System;
 using System.Collections.Generic;
 using System.Speech.Recognition;
@@ -26,7 +27,7 @@ namespace Evo_VI.classes.dialog
         private string _answerText;
         private DialogImportance _importance;
         private List<Grammar> _grammarList;
-        private ICommand _command;
+        private IPlugin _pluginToStart;
         #endregion
 
 
@@ -75,7 +76,7 @@ namespace Evo_VI.classes.dialog
         /// <param name="e">The speech recognized event arguments.</param>
         private void onAnswerRecognized(object sender, SpeechRecognizedEventArgs e)
         {
-            if (_command != null) { _command.Action(sender, e, this); }
+            if (_pluginToStart != null) { _pluginToStart.OnDialogAction(sender, e, this); }
         }
         #endregion
 

@@ -54,7 +54,7 @@
     <Compile Include="classes\dialog\DialogTreeReader.cs" />
     <Compile Include="classes\sound\OnSoundStopHandler.cs" />
     <Compile Include="engine\Database.cs" />
-    <Compile Include="engine\ICommand.cs" />
+    <Compile Include="engine\IPlugin.cs" />
     <Compile Include="engine\Interactor.cs" />
     <Compile Include="engine\SpeechEngine.cs" />
     <Compile Include="engine\VI.cs" />
@@ -64,6 +64,7 @@
     <Compile Include="Overlay.Designer.cs">
       <DependentUpon>Overlay.cs</DependentUpon>
     </Compile>
+    <Compile Include="PluginLoader.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\StringTable.Designer.cs">
