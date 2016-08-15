@@ -53,6 +53,7 @@
     <Compile Include="classes\dialog\DialogLine.cs" />
     <Compile Include="classes\dialog\DialogTreeReader.cs" />
     <Compile Include="classes\sound\OnSoundStopHandler.cs" />
+    <Compile Include="engine\Database.cs" />
     <Compile Include="engine\Interactor.cs" />
     <Compile Include="engine\SpeechEngine.cs" />
     <Compile Include="engine\VI.cs" />
@@ -100,8 +101,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="_rsc\ModdingKit_savedatasettings.txt" />
-    <Content Include="_rsc\sw_cfg_explanation.txt" />
+    <Content Include="_devRsc\ModdingKit_savedatasettings.txt" />
+    <Content Include="_devRsc\sw_cfg_explanation.txt" />
     <None Include="Resources\savedata_template.txt" />
     <Content Include="_dll\irrKlang.NET4.dll" />
   </ItemGroup>

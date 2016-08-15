@@ -1,7 +1,6 @@
 ﻿using Evo_VI.engine;
 using System;
 using System.IO;
-using System.Threading;
 using System.Windows.Forms;
 using System.Drawing;
 
@@ -39,7 +38,7 @@ namespace Evo_VI
             /* Initialize all components */
             SpeechEngine.Initialize();
             Interactor.Initialize();
-            VI.Initialize();
+            Database.InGameData.Initialize();
 
             /* Initialize UI */
             _text = this.Text;
@@ -72,7 +71,7 @@ namespace Evo_VI
         /// <param name="e">The file system event arguments.</param>
         private void GameDataWatcher_Changed(object sender, System.IO.FileSystemEventArgs e)
         {
-            VI.ReadGameData(e.FullPath);
+            Database.InGameData.ReadGameData(e.FullPath);
         }
 
         /// <summary> Fires each time, the "sw.cfg"-file gets changed.
