@@ -104,8 +104,6 @@ namespace Evo_VI.engine
                 Match match = SlotIdRegex.Match(currLine);
                 _saveDataLayout.Add(new dataEntry(match.Groups[2].Value, match.Groups[1].Value));
             }
-
-            ReadGameData();
         }
 
 

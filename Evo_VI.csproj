@@ -101,6 +101,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="_rsc\ModdingKit_savedatasettings.txt" />
+    <Content Include="_rsc\sw_cfg_explanation.txt" />
     <None Include="Resources\savedata_template.txt" />
     <Content Include="_dll\irrKlang.NET4.dll" />
   </ItemGroup>
