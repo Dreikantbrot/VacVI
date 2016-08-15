@@ -50,10 +50,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="classes\dialog\DialogLine.cs" />
+    <Compile Include="classes\dialog\DialogNode.cs" />
     <Compile Include="classes\dialog\DialogTreeReader.cs" />
     <Compile Include="classes\sound\OnSoundStopHandler.cs" />
     <Compile Include="engine\Database.cs" />
+    <Compile Include="engine\ICommand.cs" />
     <Compile Include="engine\Interactor.cs" />
     <Compile Include="engine\SpeechEngine.cs" />
     <Compile Include="engine\VI.cs" />

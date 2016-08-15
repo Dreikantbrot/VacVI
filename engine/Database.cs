@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Evo_VI.engine
 {
@@ -13,6 +10,11 @@ namespace Evo_VI.engine
         /// </summary>
         public static class InGameData
         {
+            #region Regexes (readonly)
+            readonly static Regex SLOT_ID_REGEX = new Regex(@"<(?<DataType>.*?)>\s*(?<ParamName>.*?)(?:\r|\n|$)");
+            #endregion
+
+
             #region Private Classes
             private class dataEntry
             {
@@ -100,14 +102,12 @@ namespace Evo_VI.engine
                 /* Read savedata template and parse file order */
                 string[] savedataTemplate = Evo_VI.Properties.Resources.savedata_template.Split('\n');
 
-                Regex SlotIdRegex = new Regex(@"<(.*?)>\s*(.*?)(?:\r|\n|$)");
-
                 // Build the database
                 for (int i = 0; i < savedataTemplate.Length; i++)
                 {
                     string currLine = savedataTemplate[i];
-                    Match match = SlotIdRegex.Match(currLine);
-                    _inGameData.Add(new dataEntry(match.Groups[2].Value, match.Groups[1].Value));
+                    Match match = SLOT_ID_REGEX.Match(currLine);
+                    _inGameData.Add(new dataEntry(match.Groups["ParamName"].Value, match.Groups["DataType"].Value));
                 }
             }
 
@@ -162,6 +162,14 @@ namespace Evo_VI.engine
         /// <summary> Contains information about in-game tech.
         /// </summary>
         public static class TechData
+        {
+
+        }
+
+
+        /// <summary> Contains all registered commands.
+        /// </summary>
+        public static class Commands
         {
 
         }

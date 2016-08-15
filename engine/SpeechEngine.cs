@@ -47,7 +47,7 @@ namespace Evo_VI.engine
         /// <summary> Supported voice modulation modes.
         /// Determines how the VI's voice sound when speaking.
         /// </summary>
-        public enum VoiceModulationModes { NORMAL, ROBOTIC };
+        public enum VoiceModulationModes { NORMAL, ROBOTIC, DEFAULT };
         #endregion
 
 
@@ -60,7 +60,10 @@ namespace Evo_VI.engine
         private static SpeechRecognitionEngine _recognizer = new SpeechRecognitionEngine();
 
         private static VoiceInfo _defaultVoice = _synthesizer.Voice;
-        private static List<DialogLine> _queue = new List<DialogLine>();
+        private static List<DialogNode> _queue = new List<DialogNode>();
+
+        private static float _confidenceThreshold = 0.15f;
+        private static VoiceModulationModes _voiceModulation = VoiceModulationModes.ROBOTIC;
         #endregion
 
 
@@ -79,7 +82,32 @@ namespace Evo_VI.engine
                 Say("Hello");
                 Say("Hello - oh lovely world!");
             }
-            else if (e.Result.Text == "refresh") Interactor.Initialize();
+            else if (e.Result.Text == "refresh")
+            {
+                Interactor.Initialize();
+            }
+            else if (e.Result.Confidence >= _confidenceThreshold)
+            {
+                Say("I recognized you say: " + e.Result.Text + " - I am to " + Math.Floor(e.Result.Confidence * 100) + "% certain of that.");
+            }
+        }
+
+
+        /// <summary> Fires, when a voice command has not been recognized.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The speech recognition engine's event arguments.</param>
+        private static void onSpeechRejected(object sender, SpeechRecognitionRejectedEventArgs e)
+        {
+            for (int i = 0; i < e.Result.Alternates.Count; i++)
+            {
+                RecognizedPhrase currAlternative = e.Result.Alternates[i];
+                if (currAlternative.Confidence >= _confidenceThreshold)
+                {
+                    Say("I did not understand that. Did you mean " + e.Result.Alternates[i].Text + "?");
+                    break;
+                }
+            }
         }
         #endregion
 
@@ -89,26 +117,31 @@ namespace Evo_VI.engine
         /// </summary>
         public static void Initialize()
         {
-            // TODO: Build grammar. Example below:
-            /*
-                GrammarBuilder grammarBuilder;
+            DialogNode dialgNode;
 
-                grammarbuilder = new GrammarBuilder();
-                grammarbuilder.Append("i");
-                grammarbuilder.Append(new Choices("love", "hate"));
-                grammarbuilder.Append("evochron");
-                grammarbuilder.Append(new Choices("legend", "mercenary", "legacy"));
-                recognizer.LoadGrammar(new Grammar(grammarbuilder));
-            */
+            dialgNode = new DialogNode("I [absolutely|really] {hate|love} the Evochron {Legend|Mercenary|Legacy} series.");
+            RegisterDialogNode(dialgNode);
 
-            GrammarBuilder grammarbuilder;
-            grammarbuilder = new GrammarBuilder();
-            grammarbuilder.Append(new Choices("test", "refresh"));
-            _recognizer.LoadGrammar(new Grammar(grammarbuilder));
+            dialgNode = new DialogNode("This is a fixed sentence.");
+            RegisterDialogNode(dialgNode);
 
             _recognizer.SpeechRecognized += onSpeechRecognized;
+            _recognizer.SpeechRecognitionRejected += onSpeechRejected;
             _recognizer.SetInputToDefaultAudioDevice();
             _recognizer.RecognizeAsync(RecognizeMode.Multiple);
+        }
+
+
+        /// <summary> Registers a dialog node's answers to the speech recognition engine.
+        /// </summary>
+        /// <param name="node">The dialog node, which answers to add.</param>
+        public static void RegisterDialogNode(DialogNode node)
+        {
+            // Load the node's answers
+            for (int i = 0; i < node.GrammarList.Count; i++)
+            {
+                if (!_recognizer.Grammars.Contains(node.GrammarList[i])) { _recognizer.LoadGrammar(node.GrammarList[i]); }
+            }
         }
 
 
@@ -119,7 +152,7 @@ namespace Evo_VI.engine
         /// <param name="async">If true, speech will be run asynchronously.</param>
         public static void Say(string text="", VoiceModulationModes modulation = VoiceModulationModes.ROBOTIC, bool async = false)
         {
-            Say(new DialogLine(text), modulation, async);
+            Say(new DialogNode(text), modulation, async);
         }
 
 
@@ -128,7 +161,7 @@ namespace Evo_VI.engine
         /// <param name="text">The dialog line instance to speak.</param>
         /// <param name="modulation">The voice modulation mode.</param>
         /// <param name="async">If true, speech will be run asynchronously.</param>
-        public static void Say(DialogLine dialogLine, VoiceModulationModes modulation = VoiceModulationModes.ROBOTIC, bool async = false)
+        public static void Say(DialogNode dialogLine, VoiceModulationModes modulation = VoiceModulationModes.DEFAULT, bool async = false)
         {
             if (!_queue.Contains(dialogLine)) { _queue.Add(dialogLine); }
             if (_queue[0] != dialogLine) { return; }
@@ -140,7 +173,7 @@ namespace Evo_VI.engine
             PromptBuilder prmptBuilder = new PromptBuilder();
             prmptBuilder.StartVoice(_defaultVoice);
             prmptBuilder.StartSentence();
-            prmptBuilder.AppendText(dialogLine.Text);
+            prmptBuilder.AppendText(dialogLine.VIText);
             prmptBuilder.EndSentence();
             prmptBuilder.EndVoice();
 
@@ -152,6 +185,8 @@ namespace Evo_VI.engine
             _soundEngine.AddSoundSourceFromIOStream(streamAudio, "SpokenSentence.wav");
             _speechSound = _soundEngine.Play2D("SpokenSentence.wav", false, false, StreamMode.Streaming, true);
 
+            // Modulate the voice
+            if (modulation == VoiceModulationModes.DEFAULT) { modulation = _voiceModulation; }
             if (modulation == VoiceModulationModes.ROBOTIC)
             {
                 _speechSound.SoundEffectControl.EnableChorusSoundEffect();
