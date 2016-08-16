@@ -38,6 +38,9 @@ namespace EvoVI
             /* Initialize UI */
             _text = this.Text;
             System.IO.File.SetLastWriteTimeUtc("C:\\sw3dg\\EvochronMercenary\\sw.cfg", DateTime.UtcNow);
+
+            /* Initialize Plugins */
+            PluginLoader.InitializeAll();
         }
 
 
@@ -52,7 +55,7 @@ namespace EvoVI
 
             Font debugFont = new System.Drawing.Font(this.Font.FontFamily, 8, this.Font.Style);
             e.Graphics.DrawLine(new Pen(this.ForeColor), 5, this.Height - 40 - 5, this.Width - 5, this.Height - 40 - 5);
-            TextRenderer.DrawText(e.Graphics, "Debug", debugFont, new Point(10, this.Height - 40), this.ForeColor);
+            TextRenderer.DrawText(e.Graphics, PluginLoader.Plugins.Count + " plugins loaded", debugFont, new Point(10, this.Height - 40), this.ForeColor);
 
             // Invalidate to force redraw
             this.Invalidate();

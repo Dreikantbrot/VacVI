@@ -16,6 +16,10 @@ namespace EvoVI.classes.dialog
 
 
         #region Enums
+        /// <summary> The person speaking this piece of dialog.
+        /// </summary>
+        public enum DialogSpeaker { PLAYER, VI, NOBODY };
+
         /// <summary> The importance of a line of dialog.
         /// </summary>
         public enum DialogImportance { LOW, NORMAL, HIGH, CRITICAL };
@@ -23,8 +27,8 @@ namespace EvoVI.classes.dialog
 
 
         #region Variables
-        private string _viText;
-        private string _answerText;
+        private string _text;
+        private DialogSpeaker _speaker;
         private DialogImportance _importance;
         private List<Grammar> _grammarList;
         private IPlugin _pluginToStart;
@@ -41,21 +45,19 @@ namespace EvoVI.classes.dialog
         }
 
 
-        /// <summary> Returns or sets the raw answer text.
+        /// <summary> Returns the parsed dialog text.
         /// </summary>
-        public string AnswerText
+        public string Text
         {
-            get { return _answerText; }
-            set { _answerText = value; }
+            get { return ((_speaker == DialogSpeaker.VI) ? parseVIText() : _text); }
         }
 
 
-        /// <summary> Returns or sets the VI's raw dialog line.
+        /// <summary> Returns the one speaking the dialog's text.
         /// </summary>
-        public string VIText
+        public DialogSpeaker Speaker
         {
-            get { return _viText; }
-            set { _viText = value; }
+            get { return _speaker; }
         }
 
 
@@ -68,7 +70,7 @@ namespace EvoVI.classes.dialog
         #endregion
 
 
-        #region Private Variables
+        #region Private Functions
         /// <summary> Fires each time an answer within this dialog node has been recognized.
         /// Fires the bound command, if available.
         /// </summary>
@@ -78,31 +80,15 @@ namespace EvoVI.classes.dialog
         {
             if (_pluginToStart != null) { _pluginToStart.OnDialogAction(sender, e, this); }
         }
-        #endregion
-
-
-        #region Public Functions
-        /// <summary> Creates a new instance for a node within a dialog tree.
-        /// </summary>
-        /// <param name="pText">The text to be spoken by the VI.</param>
-        /// <param name="pImportance">The importance this line has over others.</param>
-        public DialogNode(string pText, DialogImportance pImportance = DialogImportance.NORMAL)
-        {
-            this._answerText = pText;
-            this._importance = pImportance;
-            this._grammarList = new List<Grammar>();
-
-            ParseAnswers();
-        }
 
 
         /// <summary> Parses a randomized composition of the text the VI should speak.
         /// </summary>
-        public string ParseVIText()
+        private string parseVIText()
         {
             Random rndNr = new Random();
             string result = "";
-            string[] sentences = this._viText.Split(';');
+            string[] sentences = _text.Split(';');
             string randBaseSentence = sentences[rndNr.Next(0, sentences.Length)];
 
             MatchCollection matches = CHOICES_REGEX.Matches(randBaseSentence);
@@ -147,12 +133,12 @@ namespace EvoVI.classes.dialog
 
         /// <summary> Parses the answer dialog and updates the node's grammar for the speech recognition engine.
         /// </summary>
-        public void ParseAnswers()
+        private void parseAnswers()
         {
             _grammarList.Clear();
-            if (VALIDATION_REGEX.Match(this._answerText).Success) { return; }
+            if (VALIDATION_REGEX.Match(this._text).Success) { return; }
 
-            string[] sentences = this._answerText.Split(';');
+            string[] sentences = this._text.Split(';');
 
             for (int i = 0; i < sentences.Length; i++)
             {
@@ -169,7 +155,7 @@ namespace EvoVI.classes.dialog
 
                         // Append "fixed" text
                         string leadingText = sentences[i].Substring(currIndex, matches[u].Index - currIndex);
-                        
+
                         // Commas and semi-colons make recognition harder
                         leadingText = leadingText.Replace(",", "");
                         leadingText = leadingText.Replace(";", "");
@@ -200,5 +186,26 @@ namespace EvoVI.classes.dialog
             }
         }
         #endregion
+
+
+        /// <summary> Creates a new instance for a node within a dialog tree.
+        /// </summary>
+        /// <param name="pText">The text to be spoken by the VI.</param>
+        /// <param name="pImportance">The importance this line has over others.</param>
+        public DialogNode(string pText=" ", DialogSpeaker pSpeaker = DialogSpeaker.NOBODY, DialogImportance pImportance = DialogImportance.NORMAL)
+        {
+            this._text = pText;
+            this._speaker = pSpeaker;
+            this._importance = pImportance;
+            this._grammarList = new List<Grammar>();
+
+            switch(this._speaker)
+            {
+                case DialogSpeaker.PLAYER: parseAnswers(); break;
+                case DialogSpeaker.VI: break;
+
+                default: break;
+            }
+        }
     }
 }

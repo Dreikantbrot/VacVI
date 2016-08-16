@@ -81,7 +81,8 @@ namespace EvoVI.Properties {
         ///&lt;integer&gt; Right Shield level
         ///&lt;integer&gt; Left Shield level
         ///&lt;integer&gt; Rear Shield level
-        ///&lt;in [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        ///&lt;integer&gt; Shield Level
+        /// [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
         internal static string savedata_template {
             get {

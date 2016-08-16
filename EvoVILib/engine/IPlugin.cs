@@ -34,10 +34,10 @@ namespace EvoVI.PluginContracts
         #region Interface Functions
         /// <summary> Initializes the plugin.
         /// </summary>
-        void Initialization();
+        void Initialize();
 
 
-        /// <summary> Is called, when the plugin is beng fired by a dialog.
+        /// <summary> Is called, when the plugin is being fired by a dialog.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The speech recognition engine's event arguments.</param>

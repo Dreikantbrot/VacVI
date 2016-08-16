@@ -119,10 +119,10 @@ namespace EvoVI.engine
         {
             DialogNode dialgNode;
 
-            dialgNode = new DialogNode("I [absolutely|really] {hate|love} the Evochron {Legend|Mercenary|Legacy} series.");
+            dialgNode = new DialogNode("I [absolutely|really] {hate|love} the Evochron {Legend|Mercenary|Legacy} series.", DialogNode.DialogSpeaker.PLAYER);
             RegisterDialogNode(dialgNode);
 
-            dialgNode = new DialogNode("This is a fixed sentence.");
+            dialgNode = new DialogNode("This is a fixed sentence.", DialogNode.DialogSpeaker.PLAYER);
             RegisterDialogNode(dialgNode);
 
             _recognizer.SpeechRecognized += onSpeechRecognized;
@@ -152,7 +152,7 @@ namespace EvoVI.engine
         /// <param name="async">If true, speech will be run asynchronously.</param>
         public static void Say(string text="", VoiceModulationModes modulation = VoiceModulationModes.ROBOTIC, bool async = false)
         {
-            Say(new DialogNode(text), modulation, async);
+            Say(new DialogNode(text, DialogNode.DialogSpeaker.VI), modulation, async);
         }
 
 
@@ -163,6 +163,12 @@ namespace EvoVI.engine
         /// <param name="async">If true, speech will be run asynchronously.</param>
         public static void Say(DialogNode dialogLine, VoiceModulationModes modulation = VoiceModulationModes.DEFAULT, bool async = false)
         {
+            if (
+                (dialogLine.Speaker != DialogNode.DialogSpeaker.VI) ||
+                (String.IsNullOrWhiteSpace(dialogLine.Text))
+            )
+            { return; }
+
             if (!_queue.Contains(dialogLine)) { _queue.Add(dialogLine); }
             if (_queue[0] != dialogLine) { return; }
 
@@ -173,7 +179,7 @@ namespace EvoVI.engine
             PromptBuilder prmptBuilder = new PromptBuilder();
             prmptBuilder.StartVoice(_defaultVoice);
             prmptBuilder.StartSentence();
-            prmptBuilder.AppendText(dialogLine.ParseVIText());
+            prmptBuilder.AppendText(dialogLine.Text);
             prmptBuilder.EndSentence();
             prmptBuilder.EndVoice();
 
