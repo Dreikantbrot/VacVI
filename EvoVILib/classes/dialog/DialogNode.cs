@@ -1,11 +1,11 @@
-﻿using Evo_VI.engine;
-using Evo_VI.PluginContracts;
+﻿using EvoVI.engine;
+using EvoVI.PluginContracts;
 using System;
 using System.Collections.Generic;
 using System.Speech.Recognition;
 using System.Text.RegularExpressions;
 
-namespace Evo_VI.classes.dialog
+namespace EvoVI.classes.dialog
 {
     public class DialogNode
     {

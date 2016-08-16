@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evo_VI", "Evo_VI\Evo_VI.csproj", "{4678B2BE-A622-4781-9A2D-283722D6ABAA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvoVI", "EvoVI\EvoVI.csproj", "{4678B2BE-A622-4781-9A2D-283722D6ABAA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvoVILib", "EvoVILib\EvoVILib.csproj", "{E5D3EB9F-3DBB-42E3-873F-95B5BF24964B}"
 EndProject

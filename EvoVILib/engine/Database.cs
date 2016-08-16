@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace Evo_VI.engine
+namespace EvoVI.engine
 {
     public static class Database
     {
@@ -100,7 +100,7 @@ namespace Evo_VI.engine
                 _inGameData.Clear();
 
                 /* Read savedata template and parse file order */
-                string[] savedataTemplate = Evo_VI.Properties.Resources.savedata_template.Split('\n');
+                string[] savedataTemplate = EvoVI.Properties.Resources.savedata_template.Split('\n');
 
                 // Build the database
                 for (int i = 0; i < savedataTemplate.Length; i++)
@@ -127,7 +127,7 @@ namespace Evo_VI.engine
                 }
                 catch (System.IO.FileNotFoundException)
                 {
-                    SpeechEngine.Say(Evo_VI.Properties.StringTable.COULD_NOT_ACQUIRE_DATA);
+                    SpeechEngine.Say(EvoVI.Properties.StringTable.COULD_NOT_ACQUIRE_DATA);
                     return false;
                 }
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Speech.Synthesis;
 
-namespace Evo_VI.classes.dialog
+namespace EvoVI.classes.dialog
 {
     public static class DialogTreeReader
     {

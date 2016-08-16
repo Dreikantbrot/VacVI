@@ -1,8 +1,8 @@
-﻿using Evo_VI.engine;
+﻿using EvoVI.engine;
 using System;
 using System.Windows.Forms;
 
-namespace Evo_VI
+namespace EvoVI
 {    
     static class Program
     {

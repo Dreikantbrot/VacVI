@@ -1,7 +1,7 @@
-﻿using Evo_VI.classes.dialog;
+﻿using EvoVI.classes.dialog;
 using System.Speech.Recognition;
 
-namespace Evo_VI.PluginContracts 
+namespace EvoVI.PluginContracts 
 {
     public interface IPlugin
     {

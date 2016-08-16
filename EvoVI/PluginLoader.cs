@@ -1,10 +1,10 @@
-﻿using Evo_VI.PluginContracts;
+﻿using EvoVI.PluginContracts;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
-namespace Evo_VI
+namespace EvoVI
 {
     public static class PluginLoader
     {

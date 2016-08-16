@@ -1,10 +1,10 @@
-﻿using Evo_VI.engine;
+﻿using EvoVI.engine;
 using System;
 using System.IO;
 using System.Windows.Forms;
 using System.Drawing;
 
-namespace Evo_VI
+namespace EvoVI
 {
     public partial class Overlay : Form
     {

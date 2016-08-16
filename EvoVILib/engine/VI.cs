@@ -1,8 +1,8 @@
-﻿using Evo_VI.classes.dialog;
-using Evo_VI.PluginContracts;
+﻿using EvoVI.classes.dialog;
+using EvoVI.PluginContracts;
 using System.Reflection;
 
-namespace Evo_VI.engine
+namespace EvoVI.engine
 {
     public static class VI
     {

@@ -7,8 +7,8 @@
     <ProjectGuid>{4678B2BE-A622-4781-9A2D-283722D6ABAA}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Evo_VI</RootNamespace>
-    <AssemblyName>Evo_VI</AssemblyName>
+    <RootNamespace>EvoVI</RootNamespace>
+    <AssemblyName>EvoVI</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

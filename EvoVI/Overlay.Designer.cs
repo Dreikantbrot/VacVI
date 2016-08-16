@@ -1,4 +1,4 @@
-﻿namespace Evo_VI
+﻿namespace EvoVI
 {
     partial class Overlay
     {

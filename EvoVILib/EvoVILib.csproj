@@ -7,7 +7,7 @@
     <ProjectGuid>{E5D3EB9F-3DBB-42E3-873F-95B5BF24964B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Evo_VI</RootNamespace>
+    <RootNamespace>EvoVI</RootNamespace>
     <AssemblyName>EvoVILib</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

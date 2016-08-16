@@ -5,12 +5,12 @@ using System.Speech.Synthesis;
 using System.Speech.Recognition;
 using System.IO;
 using IrrKlang;
-using Evo_VI.classes.dialog;
-using Evo_VI.classes.sound;
+using EvoVI.classes.dialog;
+using EvoVI.classes.sound;
 
 // TODO: Clean up!
 
-namespace Evo_VI.engine
+namespace EvoVI.engine
 {
     public static class SpeechEngine
     {
