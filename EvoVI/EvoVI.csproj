@@ -69,7 +69,6 @@
     <Compile Include="Overlay.Designer.cs">
       <DependentUpon>Overlay.cs</DependentUpon>
     </Compile>
-    <Compile Include="PluginLoader.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Overlay.resx">

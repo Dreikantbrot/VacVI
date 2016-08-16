@@ -33,7 +33,8 @@ namespace EvoVI.engine
         /// </summary>
         public static void CheckGameData()
         {
-
+            // Call OnGameDataUpdate on all plugins
+            for (int i = 0; i < PluginLoader.Plugins.Count; i++) { PluginLoader.Plugins[i].OnGameDataUpdate(); }
         }
         #endregion
     }
