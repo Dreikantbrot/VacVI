@@ -1,4 +1,5 @@
 ﻿using EvoVI.classes.dialog;
+using System;
 using System.Speech.Recognition;
 
 namespace EvoVI.PluginContracts 
@@ -6,28 +7,24 @@ namespace EvoVI.PluginContracts
     public interface IPlugin
     {
         #region Plugin Information
-        /// <summary> Gets the plugin's unique ID.
+        /// <summary> Returns the plugin's unique ID.
         /// </summary>
-        /// <returns>The plugin's ID.</returns>
-        string GetId();
+        Guid Id{ get; }
 
 
-        /// <summary> Gets the plugin name.
+        /// <summary> Returns the plugin name.
         /// </summary>
-        /// <returns>The plugin name.</returns>
-        string GetName();
+        string Name { get; }
 
 
-        /// <summary> Gets the plugin version.
+        /// <summary> Returns the plugin version.
         /// </summary>
-        /// <returns>The plugin version.</returns>
-        string GetVersion();
+        string Version { get; }
 
 
-        /// <summary> Gets the plugin's description.
+        /// <summary> Returns the plugin's description.
         /// </summary>
-        /// <returns>The plugin's description.</returns>
-        string GetDescription();
+        string Description { get; }
         #endregion
 
 
