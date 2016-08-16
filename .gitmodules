@@ -1,0 +1,4 @@
+[submodule "EvoVI_Plugins"]
+	path = EvoVI_Plugins
+	url = C:/Users/KevinLap/OneDrive/Mods/Evochron/Boardcomputer/Git/EvoVI_Plugins
+	branch = develop
