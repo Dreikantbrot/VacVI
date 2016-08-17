@@ -48,6 +48,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="classes\dialog\DialogNode.cs" />
+    <Compile Include="classes\dialog\DialogNodeEmpty.cs" />
+    <Compile Include="classes\dialog\DialogNodePlayer.cs" />
+    <Compile Include="classes\dialog\DialogNodeVI.cs" />
     <Compile Include="classes\dialog\DialogTreeReader.cs" />
     <Compile Include="classes\sound\OnSoundStopHandler.cs" />
     <Compile Include="engine\Database.cs" />

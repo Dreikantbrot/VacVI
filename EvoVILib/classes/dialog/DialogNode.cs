@@ -5,33 +5,38 @@ using System.Collections.Generic;
 using System.Speech.Recognition;
 using System.Text.RegularExpressions;
 
+// TODO: Break this class apart into 3 child-classes - 1 for each speaker
+
 namespace EvoVI.classes.dialog
 {
+    [System.Diagnostics.DebuggerDisplay("{Speaker}: {Text}")]
     public class DialogNode
     {
         #region Regexes (readonly)
-        readonly Regex VALIDATION_REGEX = new Regex(@"^(\s|;|,|.)$");
-        readonly Regex CHOICES_REGEX = new Regex(@"(?:\{(?<Choice>.*?)\})|(?:\[(?<OptChoice>.*?)\])");
+        protected readonly Regex VALIDATION_REGEX = new Regex(@"^(?:\s|\.|,|;|:)*$");
+        protected readonly Regex CHOICES_REGEX = new Regex(@"(?:\{(?<Choice>.*?)\})|(?:\[(?<OptChoice>.*?)\])");
         #endregion
 
 
         #region Enums
         /// <summary> The person speaking this piece of dialog.
         /// </summary>
-        public enum DialogSpeaker { PLAYER, VI, NOBODY };
+        public enum DialogSpeaker { PLAYER, VI, NOBODY, NULL };
 
         /// <summary> The importance of a line of dialog.
         /// </summary>
-        public enum DialogImportance { LOW, NORMAL, HIGH, CRITICAL };
+        public enum DialogImportance { LOW=0, NORMAL=1, HIGH=2, CRITICAL=3 };
         #endregion
 
 
         #region Variables
-        private string _text;
-        private DialogSpeaker _speaker;
-        private DialogImportance _importance;
-        private List<Grammar> _grammarList;
-        private IPlugin _pluginToStart;
+        protected bool _disabled;
+        protected string _text;
+        protected DialogNode _parentNode;
+        protected List<DialogNode> _childNodes;
+        protected DialogSpeaker _speaker;
+        protected DialogImportance _importance;
+        protected IPlugin _pluginToStart;
         #endregion
 
 
@@ -45,11 +50,20 @@ namespace EvoVI.classes.dialog
         }
 
 
+        /// <summary> Returns or sets whether the dialog node is disabled or not.
+        /// </summary>
+        public virtual bool Disabled
+        {
+            get { return _disabled; }
+            set { _disabled = value; }
+        }
+
+
         /// <summary> Returns the parsed dialog text.
         /// </summary>
-        public string Text
+        public virtual string Text
         {
-            get { return ((_speaker == DialogSpeaker.VI) ? parseVIText() : _text); }
+            get { return _text; }
         }
 
 
@@ -61,151 +75,88 @@ namespace EvoVI.classes.dialog
         }
 
 
-        /// <summary> Returns the node's list of grammar instances ("sentences").
+        /// <summary> Returns the node's parent.
         /// </summary>
-        public List<Grammar> GrammarList
+        public DialogNode ParentNode
         {
-            get { return _grammarList; }
+            get { return _parentNode; }
+        }
+
+
+        /// <summary> Returns the node's children.
+        /// </summary>
+        public List<DialogNode> ChildNodes
+        {
+            get { return _childNodes; }
         }
         #endregion
 
 
-        #region Private Functions
-        /// <summary> Fires each time an answer within this dialog node has been recognized.
-        /// Fires the bound command, if available.
-        /// </summary>
-        /// <param name="sender">The event sender object.</param>
-        /// <param name="e">The speech recognized event arguments.</param>
-        private void onAnswerRecognized(object sender, SpeechRecognizedEventArgs e)
-        {
-            if (_pluginToStart != null) { _pluginToStart.OnDialogAction(sender, e, this); }
-        }
-
-
-        /// <summary> Parses a randomized composition of the text the VI should speak.
-        /// </summary>
-        private string parseVIText()
-        {
-            Random rndNr = new Random();
-            string result = "";
-            string[] sentences = _text.Split(';');
-            string randBaseSentence = sentences[rndNr.Next(0, sentences.Length)];
-
-            MatchCollection matches = CHOICES_REGEX.Matches(randBaseSentence);
-
-            int currIndex = 0;
-
-            if (matches.Count > 0)
-            {
-                for (int u = 0; u < matches.Count; u++)
-                {
-                    Match currMatch = matches[u];
-
-                    // Append "fixed" text
-                    string leadingText = randBaseSentence.Substring(currIndex, matches[u].Index - currIndex);
-
-                    // Commas and semi-colons make recognition harder
-                    result += leadingText;
-
-                    // Append choices
-                    if (currMatch.Groups["Choice"].Success)
-                    {
-                        string[] choices = matches[u].Groups["Choice"].Value.Split('|');
-                        result += choices[rndNr.Next(0, choices.Length)].Trim();
-                    }
-                    else if (currMatch.Groups["OptChoice"].Success)
-                    {
-                        string[] choices = (matches[u].Groups["OptChoice"].Value + "|").Split('|');
-                        result += choices[rndNr.Next(0, choices.Length)].Trim();
-                    }
-
-                    currIndex = matches[u].Index + currMatch.Length;
-                }
-            }
-
-            result += randBaseSentence.Substring(currIndex);
-
-            result = Regex.Replace(result, @"(^|\w)\s*,", "$1,");
-            result = Regex.Replace(result, @"(;|\s|,)\1+", "$1");
-            return result;
-        }
-
-
-        /// <summary> Parses the answer dialog and updates the node's grammar for the speech recognition engine.
-        /// </summary>
-        private void parseAnswers()
-        {
-            _grammarList.Clear();
-            if (VALIDATION_REGEX.Match(this._text).Success) { return; }
-
-            string[] sentences = this._text.Split(';');
-
-            for (int i = 0; i < sentences.Length; i++)
-            {
-                GrammarBuilder builder = new GrammarBuilder();
-                MatchCollection matches = CHOICES_REGEX.Matches(sentences[i]);
-
-                int currIndex = 0;
-
-                if (matches.Count > 0)
-                {
-                    for (int u = 0; u < matches.Count; u++)
-                    {
-                        Match currMatch = matches[u];
-
-                        // Append "fixed" text
-                        string leadingText = sentences[i].Substring(currIndex, matches[u].Index - currIndex);
-
-                        // Commas and semi-colons make recognition harder
-                        leadingText = leadingText.Replace(",", "");
-                        leadingText = leadingText.Replace(";", "");
-                        builder.Append(leadingText);
-
-                        // Append choices
-                        if (currMatch.Groups["Choice"].Success)
-                        {
-                            builder.Append(new Choices(matches[u].Groups["Choice"].Value.Split('|')));
-
-                        }
-                        else if (currMatch.Groups["OptChoice"].Success)
-                        {
-                            Choices choices = new Choices(matches[u].Groups["OptChoice"].Value.Split('|'));
-                            choices.Add(" ");
-                            builder.Append(choices);
-                        }
-
-                        currIndex = matches[u].Index + currMatch.Length;
-                    }
-                }
-
-                builder.Append(sentences[i].Substring(currIndex));
-
-                Grammar resultGrammar = new Grammar(builder);
-                resultGrammar.SpeechRecognized += onAnswerRecognized;
-                _grammarList.Add(resultGrammar);
-            }
-        }
-        #endregion
-
-
-        /// <summary> Creates a new instance for a node within a dialog tree.
+       /// <summary> Creates a new instance for a node within a dialog tree.
         /// </summary>
         /// <param name="pText">The text to be spoken by the VI.</param>
         /// <param name="pImportance">The importance this line has over others.</param>
-        public DialogNode(string pText=" ", DialogSpeaker pSpeaker = DialogSpeaker.NOBODY, DialogImportance pImportance = DialogImportance.NORMAL)
+        public DialogNode(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, IPlugin pPluginToStart = null)
         {
             this._text = pText;
-            this._speaker = pSpeaker;
             this._importance = pImportance;
-            this._grammarList = new List<Grammar>();
+            this._pluginToStart = pPluginToStart;
 
-            switch(this._speaker)
-            {
-                case DialogSpeaker.PLAYER: parseAnswers(); break;
-                case DialogSpeaker.VI: break;
-
-                default: break;
-            }
+            this._disabled = false;
+            this._speaker = DialogSpeaker.NULL;
+            this._childNodes = new List<DialogNode>();
         }
+
+
+        #region Public Functions
+        /// <summary> Registers this dialog node as a child node to some other dialog node.
+        /// </summary>
+        /// <param name="targetParentNode">The node to register it to.</param>
+        public void RegisterTo(DialogNode targetParentNode)
+        {
+            // Orphan node ...
+            if (this._parentNode != null) { this._parentNode.RemoveChild(this); }
+
+            // ... and adopt it
+            this._parentNode = targetParentNode;
+            this._parentNode.AddChild(this);
+        }
+
+
+        /// <summary> Adds a child to this dialog node.
+        /// </summary>
+        /// <param name="targetParentNode">The node to add.</param>
+        public void AddChild(DialogNode targetNode)
+        {
+            if (!this._childNodes.Contains(targetNode)) { this._childNodes.Add(targetNode); }
+        }
+
+
+        /// <summary> Removes a child from this dialog node.
+        /// </summary>
+        /// <param name="targetParentNode">The node to remove.</param>
+        public void RemoveChild(DialogNode targetNode)
+        {
+            if (this._childNodes.Contains(targetNode)) { this._childNodes.Remove(targetNode); }
+        }
+
+
+        /// <summary> Sets this dialog node as the currently active one.
+        /// </summary>
+        public virtual void SetActive()
+        {
+            if (_pluginToStart != null) { _pluginToStart.OnDialogAction(this); }
+
+            VI.PreviousDialogNode = VI.CurrentDialogNode;
+            VI.CurrentDialogNode = this;
+        }
+
+
+        /// <summary> Updates the dialog node's status.
+        /// </summary>
+        public virtual void Update()
+        {
+        }
+        #endregion
     }
 }

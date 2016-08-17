@@ -46,6 +46,42 @@ namespace Smalltalk
         public void Initialize()
         {
             // TODO: Build dialog tree
+            DialogTreeStruct[] dialogTree;
+            
+            dialogTree = new DialogTreeStruct[] { 
+                new DialogTreeStruct(
+                    new DialogNodePlayer("{Hey|Hi}[ what's up?];Hello[ there]."),
+                    new DialogTreeStruct[] { 
+                        new DialogTreeStruct(
+                            new DialogNodeVI("Hi"),
+                            new DialogTreeStruct[] {
+                            
+                                new DialogTreeStruct(
+                                    new DialogNodePlayer("Are you okay?"),
+                                    new DialogTreeStruct[] {                                        
+                                        new DialogTreeStruct(
+                                            new DialogNodeVI("Just a little bummed out. I want to be finished soon."),
+                                            new DialogTreeStruct[] { }
+                                        )
+                                    }
+                                ),
+                            
+                                new DialogTreeStruct(
+                                    new DialogNodePlayer("What's new?"),
+                                    new DialogTreeStruct[] {
+                                        new DialogTreeStruct(
+                                            new DialogNodeVI("Nothing new at the western front."),
+                                            new DialogTreeStruct[] { }
+                                        )
+                                    }
+                                )
+                            }
+                        )
+                    }
+                )
+            };
+
+            DialogTreeReader.BuildDialogTree(dialogTree);
         }
 
         public void OnDialogAction(EvoVI.classes.dialog.DialogNode originNode)

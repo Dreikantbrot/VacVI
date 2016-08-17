@@ -74,19 +74,7 @@ namespace EvoVI.engine
         /// <param name="e">The speech recognition engine's event arguments.</param>
         private static void onSpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
-            // TODO: Implement recognized commands (keypresses or audible feedback)
-
-            if (e.Result.Text == "test")
-            {
-                Say("Hello");
-                Say("Hello");
-                Say("Hello - oh lovely world!");
-            }
-            else if (e.Result.Text == "refresh")
-            {
-                Interactor.Initialize();
-            }
-            else if (e.Result.Confidence >= _confidenceThreshold)
+            if (e.Result.Confidence >= _confidenceThreshold)
             {
                 Say("I recognized you say: " + e.Result.Text + " - I am to " + Math.Floor(e.Result.Confidence * 100) + "% certain of that.");
             }
@@ -104,7 +92,8 @@ namespace EvoVI.engine
                 RecognizedPhrase currAlternative = e.Result.Alternates[i];
                 if (currAlternative.Confidence >= _confidenceThreshold)
                 {
-                    Say("I did not understand that. Did you mean " + e.Result.Alternates[i].Text + "?");
+                    Say(String.Format(EvoVI.Properties.StringTable.DID_NOT_UNDERSTAND_DID_YOU_MEAN, e.Result.Alternates[i].Text));
+                    // TODO: Add Yes/No choice
                     break;
                 }
             }
@@ -117,13 +106,20 @@ namespace EvoVI.engine
         /// </summary>
         public static void Initialize()
         {
-            DialogNode dialgNode;
+            /* Standard sentences */
+            DialogTreeStruct[] standardDialogs = new DialogTreeStruct[]{
+                new DialogTreeStruct(
+                    new DialogNodePlayer("{Yes|No}"),
+                    new DialogTreeStruct[]{ }
+                ),
 
-            dialgNode = new DialogNode("I [absolutely|really] {hate|love} the Evochron {Legend|Mercenary|Legacy} series.", DialogNode.DialogSpeaker.PLAYER);
-            RegisterDialogNode(dialgNode);
+                new DialogTreeStruct(
+                    new DialogNodePlayer("Test"),
+                    new DialogTreeStruct[]{ }
+                )
+            };
 
-            dialgNode = new DialogNode("This is a fixed sentence.", DialogNode.DialogSpeaker.PLAYER);
-            RegisterDialogNode(dialgNode);
+            DialogTreeReader.BuildDialogTree(standardDialogs);
 
             _recognizer.SpeechRecognized += onSpeechRecognized;
             _recognizer.SpeechRecognitionRejected += onSpeechRejected;
@@ -135,7 +131,7 @@ namespace EvoVI.engine
         /// <summary> Registers a dialog node's answers to the speech recognition engine.
         /// </summary>
         /// <param name="node">The dialog node, which answers to add.</param>
-        public static void RegisterDialogNode(DialogNode node)
+        public static void RegisterPlayerDialogNode(DialogNodePlayer node)
         {
             // Load the node's answers
             for (int i = 0; i < node.GrammarList.Count; i++)
@@ -152,7 +148,7 @@ namespace EvoVI.engine
         /// <param name="async">If true, speech will be run asynchronously.</param>
         public static void Say(string text="", VoiceModulationModes modulation = VoiceModulationModes.ROBOTIC, bool async = false)
         {
-            Say(new DialogNode(text, DialogNode.DialogSpeaker.VI), modulation, async);
+            Say(new DialogNodeVI(text), modulation, async);
         }
 
 

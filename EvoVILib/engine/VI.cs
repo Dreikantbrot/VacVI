@@ -57,7 +57,7 @@ namespace EvoVI.engine
         /// </summary>
         public static void Initialize()
         {
-
+            _currentDialogNode = DialogTreeReader.RootDialogNode;
         }
 
 
