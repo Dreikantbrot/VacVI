@@ -1,14 +1,11 @@
-﻿using EvoVI.PluginContracts;
+﻿using EvoVI.engine;
+using EvoVI.PluginContracts;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace EvoVI.classes.dialog
 {
-    public class DialogNodeVI : DialogNode
+    public class DialogVI : DialogBase
     {
         #region Properties
         /// <summary> Returns the parsed dialog text.
@@ -20,7 +17,16 @@ namespace EvoVI.classes.dialog
         #endregion
 
 
-        #region Private Functions
+        #region Constructor
+        public DialogVI(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, string pPluginToStart = null) : 
+        base(pText, pImportance, pPluginToStart)
+        {
+            this._speaker = DialogSpeaker.VI;
+        }
+        #endregion
+
+
+        #region Functions
         /// <summary> Parses a randomized composition of the text the VI should speak.
         /// </summary>
         private string parseRandomSentence()
@@ -71,10 +77,25 @@ namespace EvoVI.classes.dialog
         #endregion
 
 
-        public DialogNodeVI(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, IPlugin pPluginToStart = null) : 
-        base(pText, pImportance, pPluginToStart)
+        #region Override Functions
+        /// <summary> Sets this dialog node as the currently active one.
+        /// </summary>
+        public override void SetActive()
         {
-            this._speaker = DialogSpeaker.VI;
+            base.SetActive();
+            
+            // Auto-trigger when active
+            Trigger();
         }
+
+
+        /// <summary> Triggers the dialog node activating it's functions.
+        /// </summary>
+        public override void Trigger()
+        {
+            SpeechEngine.Say(this);
+            base.Trigger();
+        }
+        #endregion
     }
 }

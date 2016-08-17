@@ -15,7 +15,7 @@ namespace EvoVI.engine
             #endregion
 
 
-            #region Private Classes
+            #region Classes
             private class dataEntry
             {
                 #region Enum
@@ -43,7 +43,7 @@ namespace EvoVI.engine
                 {
                     get
                     {
-                        switch (this._type)
+                        switch (_type)
                         {
                             case DataType.INTEGER: return _intVal;
                             case DataType.STRING: return _strVal;
@@ -55,33 +55,35 @@ namespace EvoVI.engine
                 #endregion
 
 
+                #region Constructor
                 /// <summary> Creates a data entry instance holding a single entry from the savedata.txt file.
                 /// </summary>
                 /// <param name="pName">The parameter name.</param>
                 /// <param name="pType">The parameter's data type</param>
                 public dataEntry(string pName, string pType)
                 {
-                    this._id = pName;
+                    _id = pName;
 
                     switch (pType.ToLower())
                     {
                         case "integer":
-                            this._type = DataType.INTEGER;
+                            _type = DataType.INTEGER;
                             break;
                         case "string":
-                            this._type = DataType.STRING;
+                            _type = DataType.STRING;
                             break;
 
                         default:
-                            this._type = DataType.UNKNOWN;
+                            _type = DataType.UNKNOWN;
                             break;
                     }
                 }
+                #endregion
 
 
-                #region Public Functions
-                public void SetValue(string val) { this._strVal = val; }
-                public void SetValue(int val) { this._intVal = val; }
+                #region Functions
+                public void SetValue(string val) { _strVal = val; }
+                public void SetValue(int val) { _intVal = val; }
                 #endregion
             }
             #endregion
@@ -92,7 +94,7 @@ namespace EvoVI.engine
             #endregion
 
 
-            #region Public Functions
+            #region Functions
             /// <summary> Initializes the VI itself.
             /// </summary>
             public static void Initialize()

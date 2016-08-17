@@ -13,8 +13,8 @@ namespace EvoVI.engine
 
         #region Variables
         private static IPlugin _lastCommand;
-        private static DialogNode _currentDialogNode;
-        private static DialogNode _previousDialogNode;
+        private static DialogBase _currentDialogNode;
+        private static DialogBase _previousDialogNode;
         private static uint _affiliationToPlayer = 50;
         private static VIState _state = VIState.READY;
         #endregion
@@ -28,13 +28,13 @@ namespace EvoVI.engine
             set { VI._lastCommand = value; }
         }
 
-        public static DialogNode CurrentDialogNode
+        public static DialogBase CurrentDialogNode
         {
             get { return VI._currentDialogNode; }
             set { VI._currentDialogNode = value; }
         }
 
-        public static DialogNode PreviousDialogNode
+        public static DialogBase PreviousDialogNode
         {
             get { return VI._previousDialogNode; }
             set { VI._previousDialogNode = value; }
@@ -52,7 +52,7 @@ namespace EvoVI.engine
         #endregion
 
 
-        #region Public Function
+        #region Functions
         /// <summary> Initializes the VI.
         /// </summary>
         public static void Initialize()

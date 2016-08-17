@@ -41,7 +41,7 @@ namespace EvoVI.engine
         #endregion
 
 
-        #region Structs
+        #region Structs (private)
         private struct Input
         {
             public int type;
@@ -96,7 +96,7 @@ namespace EvoVI.engine
         #endregion
 
 
-        #region Private Functions
+        #region Functions
         /// <summary> Gets a process by it's name and updates target process and window handle.
         /// </summary>
         /// <param name="process">The process name (without file extension).</param>
@@ -105,10 +105,8 @@ namespace EvoVI.engine
             _targetProcess = Process.GetProcessesByName(process).FirstOrDefault();
             if (_targetProcess != null) { _targetWindowHandle = _targetProcess.MainWindowHandle; }
         }
-        #endregion
+        
 
-
-        #region Public Functions
         /// <summary> Initializes the Interactor.
         /// </summary>
         public static void Initialize()

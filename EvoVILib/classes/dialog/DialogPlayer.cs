@@ -1,20 +1,17 @@
 ﻿using EvoVI.engine;
 using EvoVI.PluginContracts;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Speech.Recognition;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace EvoVI.classes.dialog
 {
-    public class DialogNodePlayer : DialogNode
+    public class DialogPlayer : DialogBase
     {
+        #region Private Structs
         /// <summary> Contains information about a grammar rule's original enabled state, so it can be reset after being enabled or disabled.
         /// </summary>
-        private class GrammarStatus
+        private struct GrammarStatus
         {
             #region Variables
             Grammar _grammar;
@@ -23,28 +20,56 @@ namespace EvoVI.classes.dialog
 
 
             #region Properties
+            /// <summary> Returns or the grammar object's original status.
+            /// </summary>
             public bool OriginalEnabledStatus
             {
                 get { return _originalEnabledStatus; }
-                set { _originalEnabledStatus = value; }
             }
             #endregion
 
 
+            #region Constructor
+            /// <summary> Creates a grammar status object containing the grammar's original enabled state.
+            /// </summary>
+            /// <param name="pGrammar"></param>
             public GrammarStatus(Grammar pGrammar)
             {
                 this._grammar = pGrammar;
                 this._originalEnabledStatus = this._grammar.Enabled;
+
+                Save();
             }
+            #endregion
 
 
             #region Public Functions
-            public void ResetStatus()
+            /// <summary> Resets the grammar's enabled status to the previously saved one.
+            /// </summary>
+            public void Restore()
             {
-                this._grammar.Enabled = this._originalEnabledStatus;
+                _grammar.Enabled = _originalEnabledStatus;
+            }
+
+
+            /// <summary> Sets the grammar's current status (without saving).
+            /// </summary>
+            public void Set(bool enableStatus)
+            {
+                _grammar.Enabled = enableStatus;
+            }
+
+
+            /// <summary> Saves the grammar's current status.
+            /// </summary>
+            public void Save()
+            {
+                _originalEnabledStatus = _grammar.Enabled;
             }
             #endregion
         }
+        #endregion
+
 
         #region Variables
         private List<Grammar> _grammarList;
@@ -59,7 +84,7 @@ namespace EvoVI.classes.dialog
         {
             get
             {
-                for (int i = 0; i < _grammarStatusList.Count; i++) { if (_grammarStatusList[i].OriginalEnabledStatus) return true; }
+                for (int i = 0; i < _grammarList.Count; i++) { if (_grammarList[i].Enabled) return true; }
                 return false;
             }
         }
@@ -71,7 +96,7 @@ namespace EvoVI.classes.dialog
         {
             get
             {
-                for (int i = 0; i < _grammarStatusList.Count; i++) { if (!_grammarStatusList[i].OriginalEnabledStatus) return false; }
+                for (int i = 0; i < _grammarList.Count; i++) { if (!_grammarList[i].Enabled) return false; }
                 return true;
             }
         }
@@ -85,26 +110,25 @@ namespace EvoVI.classes.dialog
         }
 
 
+        /// <summary> Returns whether a node is ready and can be triggered.
+        /// </summary>
+        public override bool IsReady
+        {
+            get { return anyGrammarActive; }
+        }
+
+
         /// <summary> Returns or sets whether the dialog node is disabled or not.
         /// </summary>
         public override bool Disabled
         {
             get { return _disabled; }
-            set { _disabled = value; toggleRecognition(!value); }
+            set { _disabled = value; UpdateState(); }
         }
         #endregion
 
 
-        #region Private Functions
-        /// <summary> Toggles voice recognition rules on or off.
-        /// </summary>
-        /// <param name="enable">Whether to enable the rules.</param>
-        private void toggleRecognition(bool enable)
-        {
-            for (int i = 0; i < _grammarStatusList.Count; i++) { this._grammarStatusList[i].OriginalEnabledStatus = enable; }
-        }
-
-
+        #region Events
         /// <summary> Fires each time an answer within this dialog node has been recognized.
         /// Fires the bound command, if available.
         /// </summary>
@@ -113,6 +137,48 @@ namespace EvoVI.classes.dialog
         private void onDialogDone(object sender, SpeechRecognizedEventArgs e)
         {
             SetActive();
+            Trigger();
+            NextNode();
+        }
+        #endregion
+
+
+        #region Functions
+        /// <summary> Deactivates all voice recognition rules, saving their current status in advance.
+        /// </summary>
+        private void sleep()
+        {
+            for (int i = 0; i < _grammarStatusList.Count; i++)
+            {
+                _grammarStatusList[i].Save();
+                _grammarStatusList[i].Set(false);
+            }
+        }
+
+
+        /// <summary> Restores all voice recognition rules to their saved state.
+        /// </summary>
+        private void wakeUp()
+        {
+            for (int i = 0; i < _grammarStatusList.Count; i++)
+            {
+                _grammarStatusList[i].Restore();
+            }
+        }
+
+
+        /// <summary> Forceably activates or deactivates all grammar rules.
+        /// </summary>
+        /// <param name="enable">Whether to enable the rules.</param>
+        /// <param name="saveNewStatus">Whether to save the newly set state for each grammar.</param>
+        private void setRecognitionStatusAll(bool enable, bool saveNewStatus = false)
+        {
+            for (int i = 0; i < _grammarStatusList.Count; i++)
+            {
+                _grammarStatusList[i].Set(enable);
+
+                if (saveNewStatus) { _grammarStatusList[i].Save(); }
+            }
         }
 
 
@@ -123,9 +189,9 @@ namespace EvoVI.classes.dialog
             _grammarList.Clear();
             _grammarStatusList.Clear();
 
-            if (VALIDATION_REGEX.Match(this._text).Success) { return; }
+            if (VALIDATION_REGEX.Match(_text).Success) { return; }
 
-            string[] sentences = this._text.Split(';');
+            string[] sentences = _text.Split(';');
 
             for (int i = 0; i < sentences.Length; i++)
             {
@@ -180,7 +246,8 @@ namespace EvoVI.classes.dialog
         #endregion
 
 
-        public DialogNodePlayer(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, IPlugin pPluginToStart = null) : 
+        #region Constructor
+        public DialogPlayer(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, string pPluginToStart = null) : 
         base(pText, pImportance, pPluginToStart)
         {
             this._speaker = DialogSpeaker.PLAYER;
@@ -190,45 +257,25 @@ namespace EvoVI.classes.dialog
 
             parseAnswers();
         }
+        #endregion
 
 
-        #region Public Functions
-        /// <summary> Updates the dialog node's  status.
+        #region Override Functions
+        /// <summary> Updates the dialog node's status.
         /// </summary>
-        public override void Update()
+        public override void UpdateState()
         {
-            bool isEnabled = (
-                (this == VI.CurrentDialogNode) ||
-                ((this._parentNode != null) && (this._parentNode == VI.CurrentDialogNode))
-            );
-
-            this.toggleRecognition(isEnabled);
-        }
-
-
-        /// <summary> Sets this dialog node as the currently active one.
-        /// </summary>
-        public override void SetActive()
-        {
-            // Disable the recognized dialog node
-            if (this.Importance <= DialogImportance.NORMAL) { this.toggleRecognition(false); }
-
-            // Enable the recognized child nodes
-            for (int i = 0; i < _childNodes.Count; i++)
+            if (
+                (_importance < DialogImportance.CRITICAL) && 
+                (_disabled || !this.IsNextInTurn)
+            )
             {
-                if (_childNodes[i].Disabled) { continue; }
-
-                if (_childNodes[i].Speaker == DialogSpeaker.VI)
-                {
-                    SpeechEngine.Say(_childNodes[i]);
-                }
-                else if (_childNodes[i].Speaker == DialogSpeaker.PLAYER)
-                {
-                    ((DialogNodePlayer)_childNodes[i]).toggleRecognition(true);
-                }
+                this.sleep();
             }
-
-            base.SetActive();
+            else
+            {
+                this.wakeUp();
+            }
         }
         #endregion
     }

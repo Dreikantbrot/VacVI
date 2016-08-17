@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using EvoVI.classes.dialog;
+using EvoVI.engine;
 
 namespace Smalltalk
 {
@@ -45,48 +46,57 @@ namespace Smalltalk
         #region Interface Functions
         public void Initialize()
         {
-            // TODO: Build dialog tree
-            DialogTreeStruct[] dialogTree;
-            
-            dialogTree = new DialogTreeStruct[] { 
-                new DialogTreeStruct(
-                    new DialogNodePlayer("{Hey|Hi}[ what's up?];Hello[ there]."),
-                    new DialogTreeStruct[] { 
-                        new DialogTreeStruct(
-                            new DialogNodeVI("Hi"),
-                            new DialogTreeStruct[] {
-                            
-                                new DialogTreeStruct(
-                                    new DialogNodePlayer("Are you okay?"),
-                                    new DialogTreeStruct[] {                                        
-                                        new DialogTreeStruct(
-                                            new DialogNodeVI("Just a little bummed out. I want to be finished soon."),
-                                            new DialogTreeStruct[] { }
-                                        )
-                                    }
-                                ),
-                            
-                                new DialogTreeStruct(
-                                    new DialogNodePlayer("What's new?"),
-                                    new DialogTreeStruct[] {
-                                        new DialogTreeStruct(
-                                            new DialogNodeVI("Nothing new at the western front."),
-                                            new DialogTreeStruct[] { }
-                                        )
-                                    }
-                                )
-                            }
-                        )
-                    }
-                )
-            };
+            DialogTreeReader.BuildDialogTree(
+                null,
+                new DialogTreeBranch(
+                    new DialogPlayer("{Hey|Hi}[ what's up?];Hello[ there]."),
+                    new DialogTreeBranch(
 
-            DialogTreeReader.BuildDialogTree(dialogTree);
+                        new DialogVI("Hi", DialogBase.DialogImportance.NORMAL),                            
+                        new DialogTreeBranch(
+                                    
+                            new DialogPlayer("Are you okay?"),                             
+                            new DialogTreeBranch(
+                                new DialogVI("Just a little bummed out. I want to be finished soon.")
+                            )
+                        ),
+                            
+                        new DialogTreeBranch(
+                            new DialogPlayer("Whats new?;Any news?"),
+                            new DialogTreeBranch(
+                                new DialogVI("Nothing new at the western front.")
+                            )
+                        ),
+                    
+                        new DialogTreeBranch(
+                            new DialogPlayer("Anyone there?", DialogBase.DialogImportance.NORMAL)
+                        ),
+
+                        new DialogTreeBranch(
+                            new DialogVI("I can't right now", DialogBase.DialogImportance.NORMAL)
+                        )
+                    )
+                ),
+
+                new DialogTreeBranch(
+                    new DialogPlayer("Start test"),
+                    new DialogTreeBranch(
+                        new DialogCommand("Smalltalk", DialogBase.DialogImportance.NORMAL, "Trigger Smalltalk")
+                    )
+                ),
+
+                new DialogTreeBranch(
+                    new DialogPlayer("Start test number two"),
+                    new DialogTreeBranch(
+                        new DialogCommand("Smalltalk", DialogBase.DialogImportance.NORMAL)
+                    )
+                )
+            );
         }
 
-        public void OnDialogAction(EvoVI.classes.dialog.DialogNode originNode)
+        public void OnDialogAction(EvoVI.classes.dialog.DialogBase originNode)
         {
-
+            SpeechEngine.Say("Oh my! My small-talk subroutine has been triggered.", false);
         }
 
         public void OnGameDataUpdate()

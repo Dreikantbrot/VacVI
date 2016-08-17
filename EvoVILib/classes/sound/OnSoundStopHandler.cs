@@ -16,7 +16,7 @@ namespace EvoVI.classes.sound
         #endregion
 
 
-        #region Public Functions
+        #region Functions
         /// <summary> Plays a new soundtrack if the previous reached the end of it's playtime.
         /// </summary>
         /// <param name="sound">The sound object, causing the stop event handler.</param>

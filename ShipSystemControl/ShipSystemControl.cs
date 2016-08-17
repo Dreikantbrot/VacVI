@@ -43,7 +43,7 @@ namespace ShipSystemControl
             // TODO: Build dialog tree
         }
 
-        public void OnDialogAction(DialogNode originNode)
+        public void OnDialogAction(DialogBase originNode)
         {
 
         }

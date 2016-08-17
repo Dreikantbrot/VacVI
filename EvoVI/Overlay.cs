@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Windows.Forms;
 using System.Drawing;
+using EvoVI.classes.dialog;
 
 namespace EvoVI
 {
@@ -31,6 +32,7 @@ namespace EvoVI
         #endregion
 
 
+        #region Constructor
         public Overlay()
         {
             InitializeComponent();
@@ -42,9 +44,58 @@ namespace EvoVI
             /* Initialize Plugins */
             PluginLoader.InitializeAll();
         }
+        #endregion
 
 
         #region Events
+        private string buildDialogInfo(DialogBase parentNode, int level = 1)
+        {
+            string dialogInfo = "";
+
+            for (int i = 0; i < parentNode.ChildNodes.Count; i++)
+            {
+                DialogBase currChild = parentNode.ChildNodes[i];
+
+                // Is listening mark
+                string listeningMark = currChild.IsReady ? "[!]" : "[ ]";
+
+                // Prepare spacing
+                string arrow = "" +
+                (
+                    currChild.IsActive ? "====" :
+                    (parentNode.IsActive) ? "----" :
+                    "    "
+                );
+
+                string importanceMark = "[";
+                for (DialogBase.DialogImportance u = DialogBase.DialogImportance.LOW; u < currChild.Importance; u++) { importanceMark += "*"; }
+                for (DialogBase.DialogImportance u = currChild.Importance; u < DialogBase.DialogImportance.CRITICAL; u++) { importanceMark += " "; }
+                importanceMark += "]";
+
+                // Prepare "dock"
+                string dock = "|";
+                for (int u = 0; u < level; u++) { dock += "--"; }
+
+                // Draw "is active" mark
+                if (!currChild.Disabled)
+                {
+                    dialogInfo += "" +
+                        listeningMark + "" + 
+                        importanceMark + "" + 
+                        arrow + dock + " " +
+                        currChild.Speaker + ": " + 
+                        (
+                            currChild.Speaker == DialogBase.DialogSpeaker.PLAYER ||
+                            currChild.Speaker == DialogBase.DialogSpeaker.COMMAND
+                            ? currChild.Text : "<???>"
+                        ) + "\n";
+                }
+                dialogInfo += buildDialogInfo(currChild, level + 1);
+            }
+            
+            return dialogInfo;
+        }
+
         /// <summary> Fires each time the form needs to be drawn.
         /// </summary>
         /// <param name="e">The paint event arguments.</param>
@@ -54,6 +105,9 @@ namespace EvoVI
             TextRenderer.DrawText(e.Graphics, _text + info, this.Font, new Point(10, 10), this.ForeColor);
 
             Font debugFont = new System.Drawing.Font(this.Font.FontFamily, 8, this.Font.Style);
+            string dialogInfo = "Current Node: " + VI.CurrentDialogNode.Text + "\nActive Nodes:\n" + buildDialogInfo(DialogTreeReader.RootDialogNode);
+            TextRenderer.DrawText(e.Graphics, dialogInfo, debugFont, new Point(10, 80), this.ForeColor);
+
             e.Graphics.DrawLine(new Pen(this.ForeColor), 5, this.Height - 40 - 5, this.Width - 5, this.Height - 40 - 5);
             TextRenderer.DrawText(e.Graphics, PluginLoader.Plugins.Count + " plugins loaded", debugFont, new Point(10, this.Height - 40), this.ForeColor);
 
@@ -98,7 +152,7 @@ namespace EvoVI
         #endregion
 
 
-        #region Private Functions
+        #region Functions
         /// <summary> Adjusts the overlay's background and text color to match the HUD.
         /// </summary>
         /// <param name="newR">The new red channel intensity.</param>

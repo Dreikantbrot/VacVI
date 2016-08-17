@@ -39,7 +39,7 @@ namespace EvoVI.PluginContracts
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The speech recognition engine's event arguments.</param>
         /// <param name="originNode">The DialogNode instance that called the plugin.</param>
-        void OnDialogAction(DialogNode originNode);
+        void OnDialogAction(DialogBase originNode);
 
 
         /// <summary> Gets the plugin's unique ID.

@@ -14,10 +14,68 @@ namespace EvoVI.engine
 {
     public static class SpeechEngine
     {
-        #region Private  Classes
+        #region Structs
+        private struct SpeechStopCause
+        {
+            #region Variables
+            private OnSoundStopHandler.SoundType _soundType;
+            private OnSoundStopHandler.StopStates _soundState;
+            private DialogVI _originDialogNode;
+            private bool _playedAsync;
+            #endregion
+
+
+            #region Properties
+            public OnSoundStopHandler.SoundType SoundType
+            {
+                get { return _soundType; }
+            }
+
+            public OnSoundStopHandler.StopStates SoundState
+            {
+                get { return _soundState; }
+            }
+
+            public DialogVI OriginDialogNode
+            {
+                get { return _originDialogNode; }
+            }
+
+            public bool PlayedAsync
+            {
+                get { return _playedAsync; }
+                set { _playedAsync = value; }
+            }
+            #endregion
+
+
+            #region Constructor
+            /// <summary> Creates a struct containing info about the stop reason of a sentence spoken by the VI.
+            /// </summary>
+            /// <param name="pSoundType">The played sound's sound type.</param>
+            /// <param name="pSoundState">The played sound's stop state (the reason why the track stopped).</param>
+            /// <param name="pOriginDialogNode">The dialog node that has been sopken by the system.</param>
+            public SpeechStopCause(
+                OnSoundStopHandler.SoundType pSoundType,
+                OnSoundStopHandler.StopStates pSoundState,
+                DialogVI pOriginDialogNode,
+                bool pPlayedAsync
+            )
+            {
+                this._soundType = pSoundType;
+                this._soundState = pSoundState;
+                this._originDialogNode = pOriginDialogNode;
+                this._playedAsync = pPlayedAsync;
+            }
+            #endregion
+        }
+        #endregion
+
+
+        #region Classes
         private class OnSpeechStopHandler : ISoundStopEventReceiver
         {
-            #region Public Functions
+            #region Functions
             /// <summary> Plays a new soundtrack if the previous reached the end of it's playtime.
             /// </summary>
             /// <param name="sound">The sound object, causing the stop event handler.</param>
@@ -25,8 +83,8 @@ namespace EvoVI.engine
             /// <param name="stopCause">The event handler's (custom) reason, why the track stopped.</param>
             public void OnSoundStopped(ISound sound, StopEventCause reason, object stopCause)
             {
-                KeyValuePair<OnSoundStopHandler.SoundType, OnSoundStopHandler.StopStates> stopCauseVals = (KeyValuePair<OnSoundStopHandler.SoundType, OnSoundStopHandler.StopStates>)stopCause;
-                switch (stopCauseVals.Key)
+                SpeechStopCause speechStopCause = (SpeechStopCause)stopCause;
+                switch (speechStopCause.SoundType)
                 {
                     case OnSoundStopHandler.SoundType.SPEECH:
                         _queue.RemoveAt(0);
@@ -35,8 +93,12 @@ namespace EvoVI.engine
                             Thread starter = new Thread(n => { Say(_queue[0]); });
                             starter.Start();
                         }
+
+                        if (!speechStopCause.PlayedAsync) { _speechDone = true; }
                         break;
                 }
+
+                speechStopCause.OriginDialogNode.NextNode();
             }
             #endregion
         }
@@ -60,8 +122,9 @@ namespace EvoVI.engine
         private static SpeechRecognitionEngine _recognizer = new SpeechRecognitionEngine();
 
         private static VoiceInfo _defaultVoice = _synthesizer.Voice;
-        private static List<DialogNode> _queue = new List<DialogNode>();
+        private static List<DialogVI> _queue = new List<DialogVI>();
 
+        private static bool _speechDone = false;
         private static float _confidenceThreshold = 0.15f;
         private static VoiceModulationModes _voiceModulation = VoiceModulationModes.ROBOTIC;
         #endregion
@@ -76,7 +139,7 @@ namespace EvoVI.engine
         {
             if (e.Result.Confidence >= _confidenceThreshold)
             {
-                Say("I recognized you say: " + e.Result.Text + " - I am to " + Math.Floor(e.Result.Confidence * 100) + "% certain of that.");
+                //Say("I recognized you say: " + e.Result.Text + " - I am to " + Math.Floor(e.Result.Confidence * 100) + "% certain of that.");
             }
         }
 
@@ -101,25 +164,17 @@ namespace EvoVI.engine
         #endregion
 
 
-        #region Public Functions
+        #region Functions
         /// <summary> Initializes the Speech Engine.
         /// </summary>
         public static void Initialize()
         {
             /* Standard sentences */
-            DialogTreeStruct[] standardDialogs = new DialogTreeStruct[]{
-                new DialogTreeStruct(
-                    new DialogNodePlayer("{Yes|No}"),
-                    new DialogTreeStruct[]{ }
-                ),
+            DialogTreeBranch standardDialogs = new DialogTreeBranch(
+                new DialogPlayer("{Yes|No}", DialogBase.DialogImportance.CRITICAL)
+            );
 
-                new DialogTreeStruct(
-                    new DialogNodePlayer("Test"),
-                    new DialogTreeStruct[]{ }
-                )
-            };
-
-            DialogTreeReader.BuildDialogTree(standardDialogs);
+            DialogTreeReader.BuildDialogTree(null, standardDialogs);
 
             _recognizer.SpeechRecognized += onSpeechRecognized;
             _recognizer.SpeechRecognitionRejected += onSpeechRejected;
@@ -131,7 +186,7 @@ namespace EvoVI.engine
         /// <summary> Registers a dialog node's answers to the speech recognition engine.
         /// </summary>
         /// <param name="node">The dialog node, which answers to add.</param>
-        public static void RegisterPlayerDialogNode(DialogNodePlayer node)
+        public static void RegisterPlayerDialogNode(DialogPlayer node)
         {
             // Load the node's answers
             for (int i = 0; i < node.GrammarList.Count; i++)
@@ -146,9 +201,9 @@ namespace EvoVI.engine
         /// <param name="text">The text to speak.</param>
         /// <param name="modulation">The voice modulation mode.</param>
         /// <param name="async">If true, speech will be run asynchronously.</param>
-        public static void Say(string text="", VoiceModulationModes modulation = VoiceModulationModes.ROBOTIC, bool async = false)
+        public static void Say(string text = "", bool async = false, VoiceModulationModes modulation = VoiceModulationModes.ROBOTIC)
         {
-            Say(new DialogNodeVI(text), modulation, async);
+            Say(new DialogVI(text), async, modulation);
         }
 
 
@@ -157,16 +212,18 @@ namespace EvoVI.engine
         /// <param name="text">The dialog line instance to speak.</param>
         /// <param name="modulation">The voice modulation mode.</param>
         /// <param name="async">If true, speech will be run asynchronously.</param>
-        public static void Say(DialogNode dialogLine, VoiceModulationModes modulation = VoiceModulationModes.DEFAULT, bool async = false)
+        public static void Say(DialogVI dialogNode, bool async = false, VoiceModulationModes modulation = VoiceModulationModes.DEFAULT)
         {
             if (
-                (dialogLine.Speaker != DialogNode.DialogSpeaker.VI) ||
-                (String.IsNullOrWhiteSpace(dialogLine.Text))
+                (dialogNode.Speaker != DialogBase.DialogSpeaker.VI) ||
+                (String.IsNullOrWhiteSpace(dialogNode.Text))
             )
             { return; }
 
-            if (!_queue.Contains(dialogLine)) { _queue.Add(dialogLine); }
-            if (_queue[0] != dialogLine) { return; }
+            if (!_queue.Contains(dialogNode)) { _queue.Add(dialogNode); }
+            if (_queue[0] != dialogNode) { return; }
+
+            _speechDone = false;
 
             MemoryStream streamAudio = new MemoryStream();
             _synthesizer.SetOutputToWaveStream(streamAudio);
@@ -175,7 +232,7 @@ namespace EvoVI.engine
             PromptBuilder prmptBuilder = new PromptBuilder();
             prmptBuilder.StartVoice(_defaultVoice);
             prmptBuilder.StartSentence();
-            prmptBuilder.AppendText(dialogLine.Text);
+            prmptBuilder.AppendText(dialogNode.Text);
             prmptBuilder.EndSentence();
             prmptBuilder.EndVoice();
 
@@ -200,8 +257,16 @@ namespace EvoVI.engine
             // Prepare event handler
             _speechSound.setSoundStopEventReceiver(
                 _onSpeechStop,
-                new KeyValuePair<OnSoundStopHandler.SoundType, OnSoundStopHandler.StopStates>(OnSoundStopHandler.SoundType.SPEECH, OnSoundStopHandler.StopStates.TRACK_FINISHED)
+                new SpeechStopCause(
+                    OnSoundStopHandler.SoundType.SPEECH,
+                    OnSoundStopHandler.StopStates.TRACK_FINISHED,
+                    dialogNode,
+                    async
+                )
             );
+
+            while (!_speechDone && !async) { }
+            _speechDone = true;
         }
         #endregion
     }

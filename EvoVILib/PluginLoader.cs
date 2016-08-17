@@ -8,12 +8,12 @@ namespace EvoVI
 {
     public static class PluginLoader
     {
-        #region Public Variables
+        #region Variables
         public static List<IPlugin> Plugins = new List<IPlugin>();
         #endregion
 
 
-        #region Public Functions
+        #region Functions
         /// <summary> Loads all plugins inside the [ApplicationPath]/Plugins folder.
         /// </summary>
         public static void LoadPlugins()
@@ -56,7 +56,17 @@ namespace EvoVI
         }
 
 
-        /// <summary> Initiallizes all loaded plugins.
+        /// <summary> Gets a plugin by Id.
+        /// </summary>
+        public static IPlugin GetPlugin(string pluginName)
+        {
+            for (int i = 0; i < Plugins.Count; i++) { if (Plugins[i].Name == pluginName) return Plugins[i]; }
+
+            return null;
+        }
+
+
+        /// <summary> Initializes all loaded plugins.
         /// </summary>
         public static void InitializeAll()
         {

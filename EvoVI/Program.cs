@@ -13,10 +13,10 @@ namespace EvoVI
         static void Main()
         {
             /* Initialize all components */
+            VI.Initialize();
             SpeechEngine.Initialize();
             Interactor.Initialize();
             Database.InGameData.Initialize();
-            VI.Initialize();
 
             /* Load Plugins */
             PluginLoader.LoadPlugins();
