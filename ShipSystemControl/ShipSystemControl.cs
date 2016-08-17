@@ -1,4 +1,5 @@
-﻿using EvoVI.PluginContracts;
+﻿using EvoVI.classes.dialog;
+using EvoVI.PluginContracts;
 using System;
 
 namespace ShipSystemControl
@@ -6,7 +7,7 @@ namespace ShipSystemControl
     public class ShipSystemControl : IPlugin
     {
         #region GUID (readonly)
-        readonly Guid GUID = new Guid("Ship System Control");
+        readonly Guid GUID = Guid.NewGuid();
         #endregion
 
 
@@ -42,7 +43,7 @@ namespace ShipSystemControl
             // TODO: Build dialog tree
         }
 
-        public void OnDialogAction(object sender, System.Speech.Recognition.SpeechRecognizedEventArgs e, EvoVI.classes.dialog.DialogNode originNode)
+        public void OnDialogAction(DialogNode originNode)
         {
 
         }

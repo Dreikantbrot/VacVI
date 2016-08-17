@@ -20,6 +20,38 @@ namespace EvoVI.engine
         #endregion
 
 
+        #region Properties
+
+        public static IPlugin LastCommand
+        {
+            get { return VI._lastCommand; }
+            set { VI._lastCommand = value; }
+        }
+
+        public static DialogNode CurrentDialogNode
+        {
+            get { return VI._currentDialogNode; }
+            set { VI._currentDialogNode = value; }
+        }
+
+        public static DialogNode PreviousDialogNode
+        {
+            get { return VI._previousDialogNode; }
+            set { VI._previousDialogNode = value; }
+        }
+
+        public static uint AffiliationToPlayer
+        {
+            get { return VI._affiliationToPlayer; }
+        }
+
+        private static VIState State
+        {
+            get { return VI._state; }
+        }
+        #endregion
+
+
         #region Public Function
         /// <summary> Initializes the VI.
         /// </summary>

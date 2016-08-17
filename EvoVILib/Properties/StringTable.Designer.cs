@@ -68,5 +68,14 @@ namespace EvoVI.Properties {
                 return ResourceManager.GetString("COULD_NOT_ACQUIRE_DATA", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die I did not understand that. Did you mean {0}? ähnelt.
+        /// </summary>
+        internal static string DID_NOT_UNDERSTAND_DID_YOU_MEAN {
+            get {
+                return ResourceManager.GetString("DID_NOT_UNDERSTAND_DID_YOU_MEAN", resourceCulture);
+            }
+        }
     }
 }

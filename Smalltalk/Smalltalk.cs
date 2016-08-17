@@ -3,13 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using EvoVI.classes.dialog;
 
 namespace Smalltalk
 {
     public class Smalltalk : IPlugin
     {
         #region GUID (readonly)
-        readonly Guid GUID = new Guid("Smalltalk");
+        readonly Guid GUID = Guid.NewGuid();
         #endregion
 
 
@@ -47,7 +48,7 @@ namespace Smalltalk
             // TODO: Build dialog tree
         }
 
-        public void OnDialogAction(object sender, System.Speech.Recognition.SpeechRecognizedEventArgs e, EvoVI.classes.dialog.DialogNode originNode)
+        public void OnDialogAction(EvoVI.classes.dialog.DialogNode originNode)
         {
 
         }

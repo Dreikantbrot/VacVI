@@ -99,7 +99,7 @@ namespace EvoVI.engine
             {
                 _inGameData.Clear();
 
-                /* Read savedata template and parse file order */
+                /* Read savedata template and parse parameters */
                 string[] savedataTemplate = EvoVI.Properties.Resources.savedata_template.Split('\n');
 
                 // Build the database
@@ -125,7 +125,7 @@ namespace EvoVI.engine
                 {
                     fileContent = System.IO.File.ReadAllLines(filepath);
                 }
-                catch (System.IO.FileNotFoundException)
+                catch (Exception)
                 {
                     SpeechEngine.Say(EvoVI.Properties.StringTable.COULD_NOT_ACQUIRE_DATA);
                     return false;
@@ -162,6 +162,22 @@ namespace EvoVI.engine
         /// <summary> Contains information about in-game tech.
         /// </summary>
         public static class TechData
+        {
+
+        }
+
+
+        /// <summary> Contains information about in-game items.
+        /// </summary>
+        public static class ItemData
+        {
+
+        }
+
+
+        /// <summary> Contains information about (known) in-game systems.
+        /// </summary>
+        public static class SystemData
         {
 
         }
