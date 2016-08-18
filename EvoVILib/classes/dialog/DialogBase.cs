@@ -12,7 +12,7 @@ namespace EvoVI.classes.dialog
     {
         #region Regexes (readonly)
         protected readonly Regex VALIDATION_REGEX = new Regex(@"^(?:\s|\.|,|;|:)*$");
-        protected readonly Regex CHOICES_REGEX = new Regex(@"(?:\{(?<Choice>.*?)\})|(?:\[(?<OptChoice>.*?)\])");
+        protected readonly Regex CHOICES_REGEX = new Regex(@"(?:\$\{(?<Choice>.*?)\})|(?:\$\[(?<OptChoice>.*?)\])");
         #endregion
 
 

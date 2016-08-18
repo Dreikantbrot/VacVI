@@ -171,7 +171,7 @@ namespace EvoVI.engine
         {
             /* Standard sentences */
             DialogTreeBranch standardDialogs = new DialogTreeBranch(
-                new DialogPlayer("{Yes|No}", DialogBase.DialogImportance.CRITICAL)
+                new DialogPlayer("${Yes|No}", DialogBase.DialogImportance.CRITICAL)
             );
 
             DialogTreeReader.BuildDialogTree(null, standardDialogs);
