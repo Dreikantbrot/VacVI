@@ -40,9 +40,11 @@ namespace EvoVI
             /* Initialize UI */
             _text = this.Text;
             System.IO.File.SetLastWriteTimeUtc("C:\\sw3dg\\EvochronMercenary\\sw.cfg", DateTime.UtcNow);
+            System.IO.File.SetLastWriteTimeUtc("C:\\sw3dg\\EvochronMercenary\\savedata.txt", DateTime.UtcNow);
 
             /* Initialize Plugins */
             PluginLoader.InitializeAll();
+            
         }
         #endregion
 
@@ -122,7 +124,7 @@ namespace EvoVI
         /// <param name="e">The file system event arguments.</param>
         private void GameDataWatcher_Changed(object sender, System.IO.FileSystemEventArgs e)
         {
-            Database.InGameData.ReadGameData(e.FullPath);
+            Database.SaveDataReader.ReadGameData(e.FullPath);
         }
 
 

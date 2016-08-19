@@ -16,7 +16,7 @@ namespace EvoVI
             VI.Initialize();
             SpeechEngine.Initialize();
             Interactor.Initialize();
-            Database.InGameData.Initialize();
+            Database.SaveDataReader.Initialize();
 
             /* Load Plugins */
             PluginLoader.LoadPlugins();

@@ -46,6 +46,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="classes\dialog\DialogBase.cs" />
@@ -53,6 +54,7 @@
     <Compile Include="classes\dialog\DialogPlayer.cs" />
     <Compile Include="classes\dialog\DialogVI.cs" />
     <Compile Include="classes\dialog\DialogTreeReader.cs" />
+    <Compile Include="classes\math\Vector3D.cs" />
     <Compile Include="classes\sound\OnSoundStopHandler.cs" />
     <Compile Include="engine\Database.cs" />
     <Compile Include="engine\Interactor.cs" />
