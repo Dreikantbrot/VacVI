@@ -59,15 +59,6 @@ namespace EvoVI.engine
         {
             _currentDialogNode = DialogTreeReader.RootDialogNode;
         }
-
-
-        /// <summary> Checks the game data and triggers events.
-        /// </summary>
-        public static void CheckGameData()
-        {
-            // Call OnGameDataUpdate on all plugins
-            for (int i = 0; i < PluginLoader.Plugins.Count; i++) { PluginLoader.Plugins[i].OnGameDataUpdate(); }
-        }
         #endregion
     }
 }

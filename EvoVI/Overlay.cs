@@ -124,7 +124,7 @@ namespace EvoVI
         /// <param name="e">The file system event arguments.</param>
         private void GameDataWatcher_Changed(object sender, System.IO.FileSystemEventArgs e)
         {
-            Database.SaveDataReader.ReadGameData(e.FullPath);
+            Database.IngameData.SaveDataReader.ReadGameData(e.FullPath);
         }
 
 
