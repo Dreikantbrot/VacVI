@@ -14,6 +14,14 @@ namespace EvoVI.classes.dialog
         {
             get { return parseRandomSentence(); }
         }
+
+
+        /// <summary> Returns the strng to display on the GUI.
+        /// </summary>
+        public override string GUIDisplayText
+        {
+            get { return "<...>"; }
+        }
         #endregion
 
 

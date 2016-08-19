@@ -117,6 +117,14 @@ namespace EvoVI.classes.dialog
                 );
             }
         }
+
+
+        /// <summary> Returns the strng to display on the GUI.
+        /// </summary>
+        public virtual string GUIDisplayText
+        {
+            get { return this._text; }
+        }
         #endregion
 
 

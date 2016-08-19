@@ -85,12 +85,7 @@ namespace EvoVI
                         listeningMark + "" + 
                         importanceMark + "" + 
                         arrow + dock + " " +
-                        currChild.Speaker + ": " + 
-                        (
-                            currChild.Speaker == DialogBase.DialogSpeaker.PLAYER ||
-                            currChild.Speaker == DialogBase.DialogSpeaker.COMMAND
-                            ? currChild.Text : "<???>"
-                        ) + "\n";
+                        currChild.Speaker + ": " + currChild.GUIDisplayText + "\n";
                 }
                 dialogInfo += buildDialogInfo(currChild, level + 1);
             }
@@ -107,7 +102,7 @@ namespace EvoVI
             TextRenderer.DrawText(e.Graphics, _text + info, this.Font, new Point(10, 10), this.ForeColor);
 
             Font debugFont = new System.Drawing.Font(this.Font.FontFamily, 8, this.Font.Style);
-            string dialogInfo = "Current Node: " + VI.CurrentDialogNode.Text + "\nActive Nodes:\n" + buildDialogInfo(DialogTreeReader.RootDialogNode);
+            string dialogInfo = "Current Node: " + VI.CurrentDialogNode.GUIDisplayText + "\nActive Nodes:\n" + buildDialogInfo(DialogTreeReader.RootDialogNode);
             TextRenderer.DrawText(e.Graphics, dialogInfo, debugFont, new Point(10, 80), this.ForeColor);
 
             e.Graphics.DrawLine(new Pen(this.ForeColor), 5, this.Height - 40 - 5, this.Width - 5, this.Height - 40 - 5);
