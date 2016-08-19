@@ -16,7 +16,7 @@ namespace EvoVI.classes.dialog
         }
 
 
-        /// <summary> Returns the strng to display on the GUI.
+        /// <summary> Returns the string to display on the GUI.
         /// </summary>
         public override string GUIDisplayText
         {
