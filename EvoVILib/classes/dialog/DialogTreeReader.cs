@@ -44,8 +44,10 @@ namespace EvoVI.classes.dialog
             for (int i = 0; i < dialogTree.Length; i++)
             {
                 DialogTreeBranch currStruct = dialogTree[i];
-                currStruct._node.RegisterTo((parentNode != null) ? parentNode : RootDialogNode);
 
+                if (currStruct._node == null) { continue; }
+
+                currStruct._node.RegisterTo((parentNode != null) ? parentNode : RootDialogNode);
                 currStruct._node.UpdateState();
 
                 BuildDialogTree(currStruct._node, currStruct._children);
