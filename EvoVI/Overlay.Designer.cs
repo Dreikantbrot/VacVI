@@ -73,6 +73,7 @@
             this.Text = "Evo VI - Overlay";
             this.TopMost = true;
             this.TransparencyKey = System.Drawing.Color.Transparent;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Overlay_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.ConfigWatcher)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.GameDataWatcher)).EndInit();
             this.ResumeLayout(false);
