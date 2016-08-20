@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace EvoVI.engine
+namespace EvoVI.Engine
 {
     public static class Interactor
     {

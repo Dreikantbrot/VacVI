@@ -1,7 +1,7 @@
 ﻿using IrrKlang;
 using System.Collections.Generic;
 
-namespace EvoVI.classes.sound
+namespace EvoVI.Classes.Sound
 {
     public class OnSoundStopHandler : ISoundStopEventReceiver
     {

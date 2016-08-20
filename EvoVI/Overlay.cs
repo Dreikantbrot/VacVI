@@ -1,10 +1,11 @@
-﻿using EvoVI.engine;
+﻿using EvoVI.Engine;
 using System;
 using System.IO;
 using System.Windows.Forms;
 using System.Drawing;
-using EvoVI.classes.dialog;
+using EvoVI.Classes.Dialog;
 using System.Threading;
+using EvoVI.Database;
 
 namespace EvoVI
 {
@@ -159,7 +160,7 @@ namespace EvoVI
         /// <param name="e">The file system event arguments.</param>
         private void GameDataWatcher_Changed(object sender, System.IO.FileSystemEventArgs e)
         {
-            Database.IngameData.SaveDataReader.ReadGameData(e.FullPath);
+            SaveDataReader.ReadGameData(e.FullPath);
             _savedataUpdated = true;
         }
 

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EvoVI.classes.math
+namespace EvoVI.Classes.Math
 {
     public class Vector3D
     {
@@ -47,7 +47,7 @@ namespace EvoVI.classes.math
         /// </summary>
         public double Pitch
         {
-            get { return Math.Atan2(_z, _x); }
+            get { return System.Math.Atan2(_z, _x); }
         }
 
 
@@ -55,7 +55,7 @@ namespace EvoVI.classes.math
         /// </summary>
         public double Azimuth
         {
-            get { return Math.Atan2(_y, _x); }
+            get { return System.Math.Atan2(_y, _x); }
         }
         #endregion
 
@@ -77,7 +77,7 @@ namespace EvoVI.classes.math
         /// <returns>The vector's length.</returns>
         public double GetLength()
         {
-            if ((_x == 0) && (_y == 0) && (_z == 0)) { return Math.Sqrt(Math.Pow(_x, 2) + Math.Pow(_y, 2) + Math.Pow(_z, 2)); }
+            if ((_x == 0) && (_y == 0) && (_z == 0)) { return System.Math.Sqrt(System.Math.Pow(_x, 2) + System.Math.Pow(_y, 2) + System.Math.Pow(_z, 2)); }
 
             return 0;
         }
@@ -126,7 +126,7 @@ namespace EvoVI.classes.math
 
             if ((deltaX == 0) && (deltaY == 0) && (deltaZ == 0))
             {
-                return Math.Sqrt(Math.Pow(deltaX, 2) + Math.Pow(deltaY, 2) + Math.Pow(deltaZ, 2));
+                return System.Math.Sqrt(System.Math.Pow(deltaX, 2) + System.Math.Pow(deltaY, 2) + System.Math.Pow(deltaZ, 2));
             }
 
             return 0;

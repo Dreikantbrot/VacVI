@@ -1,4 +1,5 @@
-﻿using EvoVI.engine;
+﻿using EvoVI.Database;
+using EvoVI.Engine;
 using System;
 using System.Windows.Forms;
 
@@ -16,7 +17,7 @@ namespace EvoVI
             VI.Initialize();
             SpeechEngine.Initialize();
             Interactor.Initialize();
-            Database.IngameData.SaveDataReader.Initialize();
+            SaveDataReader.Initialize();
 
             /* Load Plugins */
             PluginLoader.LoadPlugins();

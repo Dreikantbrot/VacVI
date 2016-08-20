@@ -1,4 +1,4 @@
-﻿using EvoVI.classes.dialog;
+﻿using EvoVI.Classes.Dialog;
 using System;
 using System.Speech.Recognition;
 

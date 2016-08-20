@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Speech.Synthesis;
 
-namespace EvoVI.classes.dialog
+namespace EvoVI.Classes.Dialog
 {
     public struct DialogTreeBranch
     {

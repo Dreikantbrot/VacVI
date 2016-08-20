@@ -3,8 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using EvoVI.classes.dialog;
-using EvoVI.engine;
+using EvoVI.Classes.Dialog;
+using EvoVI.Engine;
 
 namespace Smalltalk
 {
@@ -94,7 +94,7 @@ namespace Smalltalk
             );
         }
 
-        public void OnDialogAction(EvoVI.classes.dialog.DialogBase originNode)
+        public void OnDialogAction(EvoVI.Classes.Dialog.DialogBase originNode)
         {
             SpeechEngine.Say("Oh my! My small-talk subroutine has been triggered.", false);
         }

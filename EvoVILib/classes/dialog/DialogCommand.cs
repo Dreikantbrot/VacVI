@@ -1,6 +1,6 @@
 ﻿using EvoVI.PluginContracts;
 
-namespace EvoVI.classes.dialog
+namespace EvoVI.Classes.Dialog
 {
     public class DialogCommand : DialogBase
     {

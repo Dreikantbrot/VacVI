@@ -1,10 +1,10 @@
-﻿using EvoVI.engine;
+﻿using EvoVI.Engine;
 using EvoVI.PluginContracts;
 using System.Collections.Generic;
 using System.Speech.Recognition;
 using System.Text.RegularExpressions;
 
-namespace EvoVI.classes.dialog
+namespace EvoVI.Classes.Dialog
 {
     public class DialogPlayer : DialogBase
     {
