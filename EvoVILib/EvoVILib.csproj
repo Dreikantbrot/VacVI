@@ -57,6 +57,7 @@
     <Compile Include="Classes\Math\Vector3D.cs" />
     <Compile Include="Classes\Sound\OnSoundStopHandler.cs" />
     <Compile Include="Database\GameMeta.cs" />
+    <Compile Include="Database\LoreData.cs" />
     <Compile Include="Database\SaveDataReader.cs" />
     <Compile Include="Database\EnviornmentalData.cs" />
     <Compile Include="Database\HudData.cs" />

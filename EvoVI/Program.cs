@@ -18,6 +18,9 @@ namespace EvoVI
             SpeechEngine.Initialize();
             Interactor.Initialize();
             SaveDataReader.BuildDatabase();
+            LoreData.Items.BuildItemDatabase();
+            LoreData.Systems.BuildSystemDatabase();
+            LoreData.Tech.BuildTechDatabase();
 
             /* Load Plugins */
             PluginLoader.LoadPlugins();

@@ -21,6 +21,16 @@ namespace EvoVILIib_Tests
         }
 
         [TestMethod]
+        public void LoreDatabaseBuildTest()
+        {
+            GameMeta.GamePath = @"D:\" + GameMeta.CurrentGameDefaultFolderName;
+
+            LoreData.Items.BuildItemDatabase();
+            LoreData.Systems.BuildSystemDatabase();
+            LoreData.Tech.BuildTechDatabase();
+        }
+
+        [TestMethod]
         public void DatabasePropertyTest()
         {
             SaveDataReader.BuildDatabase();

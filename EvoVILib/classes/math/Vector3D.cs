@@ -60,7 +60,7 @@ namespace EvoVI.Classes.Math
         #endregion
 
         #region Constructors
-        public Vector3D(double pX, double pY, double pZ)
+        public Vector3D(double pX, double pY, double pZ=0)
         {
             this._x = pX;
             this._y = pY;
