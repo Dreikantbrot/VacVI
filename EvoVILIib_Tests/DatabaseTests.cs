@@ -1,12 +1,19 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using EvoVI.Database;
+using EvoVI.Engine;
 
 namespace EvoVILIib_Tests
 {
     [TestClass]
     public class DatabaseTests
     {
+        [TestInitialize]
+        public void Initialize()
+        {
+
+        }
+
         [TestMethod]
         public void DatabaseBuildTest()
         {
@@ -14,9 +21,6 @@ namespace EvoVILIib_Tests
             DatabasePropertyTest();
 
             GameMeta.CurrentGame = GameMeta.SupportedGame.EVOCHRON_LEGACY;
-            DatabasePropertyTest();
-
-            GameMeta.CurrentGame = GameMeta.SupportedGame.NONE;
             DatabasePropertyTest();
         }
 
@@ -34,8 +38,10 @@ namespace EvoVILIib_Tests
         public void DatabasePropertyTest()
         {
             SaveDataReader.BuildDatabase();
+            if (!SaveDataReader.ReadGameData()) { return; }
             object obj;
 
+            EnvironmentalData.Update();
             obj = EnvironmentalData.InboundMissileAlert;
             obj = EnvironmentalData.WaypointCoordinates;
             obj = EnvironmentalData.WaypointSectorCoordinates;
@@ -43,6 +49,7 @@ namespace EvoVILIib_Tests
             obj = EnvironmentalData.LocalSystemName;
             obj = EnvironmentalData.GravityLevel;
 
+            TargetShipData.Update();
             obj = TargetShipData.CargoBay;
             obj = TargetShipData.CapitalShipTurret;
             obj = TargetShipData.ShieldLevel;
@@ -61,6 +68,7 @@ namespace EvoVILIib_Tests
             obj = TargetShipData.ModuleType;
             obj = TargetShipData.WingClass;
 
+            HudData.Update();
             obj = HudData.TotalHostilesOnRadar;
             obj = HudData.NavigationConsole;
             obj = HudData.BuildConsole;
@@ -69,6 +77,7 @@ namespace EvoVILIib_Tests
             obj = HudData.Hud;
             obj = HudData.TargetDisplay;
 
+            PlayerData.Update();
             obj = PlayerData.Name;
             obj = PlayerData.TotalKills;
             obj = PlayerData.TotalContracts;
@@ -76,6 +85,7 @@ namespace EvoVILIib_Tests
             obj = PlayerData.MilitaryRating;
             obj = PlayerData.Cash;
 
+            PlayerShipData.Update();
             obj = PlayerShipData.Fuel;
             obj = PlayerShipData.EnergyLevel;
             obj = PlayerShipData.EngineDamage;
