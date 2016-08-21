@@ -12,7 +12,11 @@ namespace EvoVI.Database
     {
         #region Enums
         [Flags]
-        public enum SupportedGame { NONE, EVOCHRON_MERCENARY, EVOCHRON_LEGACY };
+        public enum SupportedGame {
+            NONE = ~(EVOCHRON_MERCENARY | EVOCHRON_LEGACY),
+            EVOCHRON_MERCENARY = 1,
+            EVOCHRON_LEGACY = 2
+        };
         #endregion
 
 

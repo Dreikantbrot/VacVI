@@ -37,34 +37,115 @@ namespace EvoVI.Database
 
 
         #region Variables - Converted values
-        private static string[] _cargoBay = new string[5];
+        private static string[] _cargoBay = new string[10];
         private static string[] _capitalShipTurret = new string[5];
         private static Dictionary<ShieldLevelState, int> _shieldLevel = new Dictionary<ShieldLevelState, int>();
         #endregion
 
 
         #region Properties - Converted values
-        public static string[] CargoBay { get { return TargetShipData._cargoBay; } }
-        public static string[] CapitalShipTurret { get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? TargetShipData._capitalShipTurret : null; } }
-        public static Dictionary<ShieldLevelState, int> ShieldLevel { get { return TargetShipData._shieldLevel; } }
+        public static string[] CargoBay 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? TargetShipData._cargoBay : null; }
+		}
+
+
+        public static string[] CapitalShipTurret 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? TargetShipData._capitalShipTurret : null; }
+		}
+
+
+        public static Dictionary<ShieldLevelState, int> ShieldLevel 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? TargetShipData._shieldLevel : null; }
+		}
         #endregion
 
 
         #region Properties - Unconverted Values
-        public static string Description { get { return (string)SaveDataReader.GetEntry(PARAM_TARGET_DESCRIPTION).Value; } }
-        public static string ThreatLevel { get { return (string)SaveDataReader.GetEntry(PARAM_TARGET_THREAT_LEVEL).Value; } }
-        public static int Range { get { return (int)SaveDataReader.GetEntry(PARAM_TARGET_RANGE).Value; } }
-        public static int EngineDamage { get { return (int)SaveDataReader.GetEntry(PARAM_TARGET_ENGINE_DAMAGE).Value; } }
-        public static int WeaponDamage { get { return (int)SaveDataReader.GetEntry(PARAM_TARGET_WEAPON_DAMAGE).Value; } }
-        public static int NavDamage { get { return (int)SaveDataReader.GetEntry(PARAM_TARGET_NAV_DAMAGE).Value; } }
-        public static string Faction { get { return (string)SaveDataReader.GetEntry(PARAM_TARGET_FACTION).Value; } }
-        public static int DamageLevel { get { return (int)SaveDataReader.GetEntry(PARAM_TARGET_DAMAGE_LEVEL).Value; } }
-        public static int Velocity { get { return (int)SaveDataReader.GetEntry(PARAM_TARGET_VELOCITY).Value; } }
-        public static int EngineClass { get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int)SaveDataReader.GetEntry(PARAM_TARGET_ENGINE_CLASS).Value : -1; } }
-        public static int ResistorPacks { get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int)SaveDataReader.GetEntry(PARAM_TARGET_RESISTOR_PACKS).Value : -1; } }
-        public static int HullPlating { get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int)SaveDataReader.GetEntry(PARAM_TARGET_HULL_PLATING).Value : -1; } }
-        public static int ModuleType { get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int)SaveDataReader.GetEntry(PARAM_TARGET_MODULE_TYPE).Value : -1; } }
-        public static int WingClass { get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int)SaveDataReader.GetEntry(PARAM_TARGET_WING_CLASS).Value : -1; } }
+        public static string Description 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (string)SaveDataReader.GetEntry(PARAM_TARGET_DESCRIPTION).Value : string.Empty; }
+		}
+
+
+        public static string ThreatLevel 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (string)SaveDataReader.GetEntry(PARAM_TARGET_THREAT_LEVEL).Value : string.Empty; }
+		}
+
+
+        public static int? Range 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_TARGET_RANGE).Value : null; }
+		}
+
+
+        public static int? EngineDamage 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_TARGET_ENGINE_DAMAGE).Value : null; }
+		}
+
+
+        public static int? WeaponDamage 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_TARGET_WEAPON_DAMAGE).Value : null; }
+		}
+
+
+        public static int? NavDamage 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_TARGET_NAV_DAMAGE).Value : null; }
+		}
+
+
+        public static string Faction 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (string)SaveDataReader.GetEntry(PARAM_TARGET_FACTION).Value : string.Empty; }
+		}
+
+
+        public static int? DamageLevel 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_TARGET_DAMAGE_LEVEL).Value : null; }
+		}
+
+
+        public static int? Velocity 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_TARGET_VELOCITY).Value : null; }
+		}
+
+
+        public static int? EngineClass 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int?)SaveDataReader.GetEntry(PARAM_TARGET_ENGINE_CLASS).Value : null; }
+		}
+
+
+        public static int? ResistorPacks 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int?)SaveDataReader.GetEntry(PARAM_TARGET_RESISTOR_PACKS).Value : null; }
+		}
+
+
+        public static int? HullPlating 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int?)SaveDataReader.GetEntry(PARAM_TARGET_HULL_PLATING).Value : null; }
+		}
+
+
+        public static int? ModuleType 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int?)SaveDataReader.GetEntry(PARAM_TARGET_MODULE_TYPE).Value : null; }
+		}
+
+
+        public static int? WingClass 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int?)SaveDataReader.GetEntry(PARAM_TARGET_WING_CLASS).Value : null; }
+		}
         #endregion
 
 

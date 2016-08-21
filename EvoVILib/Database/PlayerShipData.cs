@@ -100,55 +100,276 @@ namespace EvoVI.Database
 
 
         #region Properties - Converted values
-        public static string[] CargoBay { get { return PlayerShipData._cargoBay; } }
-        public static Vector3D Position { get { return PlayerShipData._position; } }
-        public static Vector3D SectorPosition { get { return PlayerShipData._sectorPosition; } }
-        public static Dictionary<ShieldLevelState, int> ShieldLevel { get { return PlayerShipData._shieldLevel; } }
-        public static string[] SecWeapon { get { return PlayerShipData._secWeapon; } }
-        public static string[] EquipmentSlot { get { return PlayerShipData._equipmentSlot; } }
-        public static HeatState Heat { get { return PlayerShipData._heat; } }
-        public static MTDSState Mtds { get { return PlayerShipData._mtds; } }
-        public static MissileState MissileLock { get { return PlayerShipData._missileLock; } }
-        public static int ShieldBias { get { return PlayerShipData._shieldBias; } }
-        public static int WeaponBias { get { return PlayerShipData._weaponBias; } }
-        public static OnOffState Ids { get { return PlayerShipData._ids; } }
-        public static OnOffState Afterburner { get { return PlayerShipData._afterburner; } }
-        public static AutopilotState Autopilot { get { return PlayerShipData._autopilot; } }
-        public static OnOffState TractorBeam { get { return PlayerShipData._tractorBeam; } }
+        public static string[] CargoBay 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? PlayerShipData._cargoBay : null; }
+		}
+
+
+        public static Vector3D Position 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? PlayerShipData._position : null; }
+		}
+
+
+        public static Vector3D SectorPosition 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? PlayerShipData._sectorPosition : null; }
+		}
+
+
+        public static Dictionary<ShieldLevelState, int> ShieldLevel 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? PlayerShipData._shieldLevel : null; }
+		}
+
+
+        public static string[] SecWeapon 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? PlayerShipData._secWeapon : null; }
+		}
+
+
+        public static string[] EquipmentSlot 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? PlayerShipData._equipmentSlot : null; }
+		}
+
+
+        public static HeatState? Heat 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (HeatState?)PlayerShipData._heat : null; }
+		}
+
+
+        public static MTDSState? Mtds 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (MTDSState?)PlayerShipData._mtds : null; }
+		}
+
+
+        public static MissileState? MissileLock 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (MissileState?)PlayerShipData._missileLock : null; }
+		}
+
+
+        public static int? ShieldBias 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)PlayerShipData._shieldBias : null; }
+		}
+
+
+        public static int? WeaponBias 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)PlayerShipData._weaponBias : null; }
+		}
+
+
+        public static OnOffState? Ids 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (OnOffState?)PlayerShipData._ids : null; }
+		}
+
+
+        public static OnOffState? Afterburner 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (OnOffState?)PlayerShipData._afterburner : null; }
+		}
+
+
+        public static AutopilotState? Autopilot 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (AutopilotState?)PlayerShipData._autopilot : null; }
+		}
+
+
+        public static OnOffState? TractorBeam 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (OnOffState?)PlayerShipData._tractorBeam : null; }
+		}
         #endregion
 
 
         #region Properties - Unconverted Values
-        public static int Fuel { get { return (int)SaveDataReader.GetEntry(PARAM_FUEL).Value; } }
-        public static int EnergyLevel { get { return (int)SaveDataReader.GetEntry(PARAM_ENERGY_LEVEL).Value; } }
-        public static int EngineDamage { get { return (int)SaveDataReader.GetEntry(PARAM_ENGINE_DAMAGE).Value; } }
-        public static int WeaponDamage { get { return (int)SaveDataReader.GetEntry(PARAM_WEAPON_DAMAGE).Value; } }
-        public static int NavDamage { get { return (int)SaveDataReader.GetEntry(PARAM_NAV_DAMAGE).Value; } }
-        public static string ParticleCannon { get { return (string)SaveDataReader.GetEntry(PARAM_PARTICLE_CANNON).Value; } }
-        public static string BeamCannon { get { return (string)SaveDataReader.GetEntry(PARAM_BEAM_CANNON).Value; } }
-        public static string ShipType { get { return (string)SaveDataReader.GetEntry(PARAM_SHIP_TYPE).Value; } }
-        public static int EngineClass { get { return (int)SaveDataReader.GetEntry(PARAM_ENGINE_CLASS).Value; } }
-        public static int ShieldClass { get { return (int)SaveDataReader.GetEntry(PARAM_SHIELD_CLASS).Value; } }
-        public static int CargoCapacity { get { return (int)SaveDataReader.GetEntry(PARAM_CARGO_CAPACITY).Value; } }
-        public static int WingClass { get { return (int)SaveDataReader.GetEntry(PARAM_WING_AND_THRUSTER_CLASS).Value; } }
-        public static int ThrusterClass { get { return WingClass; } }
-        public static int CrewLimit { get { return (int)SaveDataReader.GetEntry(PARAM_CREW_LIMIT).Value; } }
-        public static int EquipmentLimit { get { return (int)SaveDataReader.GetEntry(PARAM_EQUIPMENT_LIMIT).Value; } }
-        public static int CountermeasureLimit { get { return (int)SaveDataReader.GetEntry(PARAM_COUNTERMEASURE_LIMIT).Value; } }
-        public static int HardpointLimit { get { return (int)SaveDataReader.GetEntry(PARAM_HARDPOINT_LIMIT).Value; } }
-        public static int ArmorLimit { get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int)SaveDataReader.GetEntry(PARAM_ARMOR_LIMIT).Value : -1; } }
-        public static int ParticleCannonRange { get { return (int)SaveDataReader.GetEntry(PARAM_PARTICLE_CANNON_RANGE).Value; } }
-        public static int MissileRange { get { return (int)SaveDataReader.GetEntry(PARAM_ARMED_MISSILE_RANGE).Value; } }
-        public static string TargetedSubsystem { get { return (string)SaveDataReader.GetEntry(PARAM_TARGETED_SUBSYSTEM).Value; } }
-        public static int CounterMeasures { get { return (int)SaveDataReader.GetEntry(PARAM_COUNTERMEASURES_REMAINING).Value; } }
-        public static int IDSMultiplier { get { return (int)SaveDataReader.GetEntry(PARAM_IDS_MULTIPLIER).Value; } }
-        public static int Velocity { get { return (int)SaveDataReader.GetEntry(PARAM_PLAYER_SHIP_VELOCITY).Value; } }
-        public static int SetVelocity { get { return (int)SaveDataReader.GetEntry(PARAM_PLAYER_SHIP_SET_VELOCITY).Value; } }
-        public static int Altitude { get { return (int)SaveDataReader.GetEntry(PARAM_PLAYER_SHIP_ALTITUDE).Value; } }
-        public static int HeatSignatureLevel { get { return (int)SaveDataReader.GetEntry(PARAM_HEAT_SIGNATURE_LEVEL).Value; } }
-        public static int TotalVelocity { get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int)SaveDataReader.GetEntry(PARAM_PLAYER_SHIP_TOTAL_VELOCITY_AVL).Value : -1; } }
-        public static int Heading { get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int)SaveDataReader.GetEntry(PARAM_PLAYER_SHIP_HEADING).Value : -1; } }
-        public static int Pitch { get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int)SaveDataReader.GetEntry(PARAM_PLAYER_SHIP_PITCH).Value : -1; } }
+        public static int? Fuel 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_FUEL).Value : null; }
+		}
+
+
+        public static int? EnergyLevel 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_ENERGY_LEVEL).Value : null; }
+		}
+
+
+        public static int? EngineDamage 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_ENGINE_DAMAGE).Value : null; }
+		}
+
+
+        public static int? WeaponDamage 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_WEAPON_DAMAGE).Value : null; }
+		}
+
+
+        public static int? NavDamage 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_NAV_DAMAGE).Value : null; }
+		}
+
+
+        public static string ParticleCannon 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (string)SaveDataReader.GetEntry(PARAM_PARTICLE_CANNON).Value : null; }
+		}
+
+
+        public static string BeamCannon 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (string)SaveDataReader.GetEntry(PARAM_BEAM_CANNON).Value : null; }
+		}
+
+
+        public static string ShipType 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (string)SaveDataReader.GetEntry(PARAM_SHIP_TYPE).Value : null; }
+		}
+
+
+        public static int? EngineClass 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_ENGINE_CLASS).Value : null; }
+		}
+
+
+        public static int? ShieldClass 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_SHIELD_CLASS).Value : null; }
+		}
+
+
+        public static int? CargoCapacity 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_CARGO_CAPACITY).Value : null; }
+		}
+
+
+        public static int? WingClass 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_WING_AND_THRUSTER_CLASS).Value : null; }
+		}
+
+
+        public static int? ThrusterClass 
+		{
+			get { return WingClass; }
+		}
+
+
+        public static int? CrewLimit 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_CREW_LIMIT).Value : null; }
+		}
+
+
+        public static int? EquipmentLimit 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_EQUIPMENT_LIMIT).Value : null; }
+		}
+
+
+        public static int? CountermeasureLimit 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_COUNTERMEASURE_LIMIT).Value : null; }
+		}
+
+
+        public static int? HardpointLimit 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_HARDPOINT_LIMIT).Value : null; }
+		}
+
+
+        public static int? ArmorLimit 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int?)SaveDataReader.GetEntry(PARAM_ARMOR_LIMIT).Value : null; }
+		}
+
+
+        public static int? ParticleCannonRange 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_PARTICLE_CANNON_RANGE).Value : null; }
+		}
+
+
+        public static int? MissileRange 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_ARMED_MISSILE_RANGE).Value : null; }
+		}
+
+
+        public static string TargetedSubsystem 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (string)SaveDataReader.GetEntry(PARAM_TARGETED_SUBSYSTEM).Value : null; }
+		}
+
+
+        public static int? CounterMeasures 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_COUNTERMEASURES_REMAINING).Value : null; }
+		}
+
+
+        public static int? IDSMultiplier 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_IDS_MULTIPLIER).Value : null; }
+		}
+
+
+        public static int? Velocity 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_PLAYER_SHIP_VELOCITY).Value : null; }
+		}
+
+
+        public static int? SetVelocity 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_PLAYER_SHIP_SET_VELOCITY).Value : null; }
+		}
+
+
+        public static int? Altitude 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_PLAYER_SHIP_ALTITUDE).Value : null; }
+		}
+
+
+        public static int? HeatSignatureLevel 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_HEAT_SIGNATURE_LEVEL).Value : null; }
+		}
+
+
+        public static int? TotalVelocity 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int?)SaveDataReader.GetEntry(PARAM_PLAYER_SHIP_TOTAL_VELOCITY_AVL).Value : null; }
+		}
+
+
+        public static int? Heading 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int?)SaveDataReader.GetEntry(PARAM_PLAYER_SHIP_HEADING).Value : null; }
+		}
+
+
+        public static int? Pitch 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int?)SaveDataReader.GetEntry(PARAM_PLAYER_SHIP_PITCH).Value : null; }
+		}
         #endregion
 
 

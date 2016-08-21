@@ -28,16 +28,42 @@ namespace EvoVI.Database
 
 
         #region Properties - Converted values
-        public static OnOffState InboundMissileAlert { get { return EnvironmentalData._inboundMissileAlert; } }
-        public static Vector3D WaypointCoordinates { get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? EnvironmentalData._waypointCoordinates : null; } }
-        public static Vector3D WaypointSectorCoordinates { get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? EnvironmentalData._waypointSectorCoordinates : null; } }
-        public static int NavPointDistance { get { return EnvironmentalData._navPointDistance; } }
+        public static OnOffState? InboundMissileAlert 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (OnOffState?)EnvironmentalData._inboundMissileAlert : null; }
+		}
+
+
+        public static Vector3D WaypointCoordinates 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? EnvironmentalData._waypointCoordinates : null; }
+		}
+
+
+        public static Vector3D WaypointSectorCoordinates 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? EnvironmentalData._waypointSectorCoordinates : null; }
+		}
+
+
+        public static int? NavPointDistance 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)EnvironmentalData._navPointDistance : null; }
+		}
         #endregion
 
 
         #region Properties - Unconverted values
-        public static string LocalSystemName { get { return (string)SaveDataReader.GetEntry(PARAM_LOCAL_SYSTEM_NAME).Value; } }
-        public static int GravityLevel { get { return (int)SaveDataReader.GetEntry(PARAM_GRAVTY_LEVEL).Value; } }
+        public static string LocalSystemName 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (string)SaveDataReader.GetEntry(PARAM_LOCAL_SYSTEM_NAME).Value : null; }
+		}
+
+
+        public static int? GravityLevel 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_GRAVTY_LEVEL).Value : null; }
+		}
         #endregion
 
 

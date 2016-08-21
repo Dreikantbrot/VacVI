@@ -1,6 +1,7 @@
 ﻿using EvoVI.Engine;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 
 namespace EvoVI.Database
@@ -177,8 +178,6 @@ namespace EvoVI.Database
             _saveData.Clear();
             _indexTable.Clear();
 
-            if (GameMeta.CurrentGame == GameMeta.SupportedGame.NONE) { return; }
-
             /* Read savedata template and parse parameters; Template is based upon Evochron Legacy as it's just an expansion on all the others */
             string[] savedataTemplate = EvoVI.Properties.Resources.Savedata_Layout.Split('\n');
 
@@ -232,15 +231,13 @@ namespace EvoVI.Database
             string filepath = GameMeta.DefaultSavedataPath;
 
             // Try to read the file
-            try
-            {
-                fileContent = System.IO.File.ReadAllLines(filepath);
-            }
-            catch (Exception)
+            if (!File.Exists(filepath))
             {
                 SpeechEngine.Say(EvoVI.Properties.StringTable.COULD_NOT_ACQUIRE_DATA);
                 return false;
             }
+
+            fileContent = File.ReadAllLines(filepath);
 
             // Get all in-game values and store them inside the database
             for (int i = 0; i < Math.Min(fileContent.Length, _saveData.Count); i++)

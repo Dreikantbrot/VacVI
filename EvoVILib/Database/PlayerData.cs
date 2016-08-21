@@ -20,16 +20,42 @@ namespace EvoVI.Database
 
 
         #region Properties (Converted Values)
-        public static int Cash { get { return _cash; } }
+        public static int? Cash 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)_cash : null; }
+		}
         #endregion
 
 
         #region Properties (Unconverted Values)
-        public static string Name { get { return (string)SaveDataReader.GetEntry(PARAM_PILOT_NAME).Value; } }
-        public static int TotalKills { get { return (int)SaveDataReader.GetEntry(PARAM_TOTAL_KILLS).Value; } }
-        public static int TotalContracts { get { return (int)SaveDataReader.GetEntry(PARAM_TOTAL_CONTRACTS).Value; } }
-        public static int SkillAndProficiencyRating { get { return (int)SaveDataReader.GetEntry(PARAM_SKILL_AND_PROFICIENCY_RATING).Value; } }
-        public static int MilitaryRating { get { return (int)SaveDataReader.GetEntry(PARAM_MILITARY_RANK).Value; } }
+        public static string Name 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (string)SaveDataReader.GetEntry(PARAM_PILOT_NAME).Value : null; }
+		}
+
+
+        public static int? TotalKills 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_TOTAL_KILLS).Value : null; }
+		}
+
+
+        public static int? TotalContracts 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_TOTAL_CONTRACTS).Value : null; }
+		}
+
+
+        public static int? SkillAndProficiencyRating 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_SKILL_AND_PROFICIENCY_RATING).Value : null; }
+		}
+
+
+        public static int? MilitaryRating 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_MILITARY_RANK).Value : null; }
+		}
         #endregion
 
 

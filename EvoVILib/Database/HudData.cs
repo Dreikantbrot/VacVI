@@ -31,17 +31,48 @@ namespace EvoVI.Database
 
 
         #region Properties - Converted values
-        public static OnOffState NavigationConsole { get { return HudData._navigationConsole; } }
-        public static OnOffState BuildConsole { get { return HudData._buildConsole; } }
-        public static OnOffState InventoryConsole { get { return HudData._inventoryConsole; } }
-        public static OnOffState TradeConsole { get { return HudData._tradeConsole; } }
-        public static HudStatus Hud { get { return HudData._hud; } }
-        public static TargetDisplayStatus TargetDisplay { get { return HudData._targetDisplay; } }
+        public static OnOffState? NavigationConsole 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (OnOffState?)HudData._navigationConsole : null; }
+		}
+
+
+        public static OnOffState? BuildConsole 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (OnOffState?)HudData._buildConsole : null; }
+		}
+
+
+        public static OnOffState? InventoryConsole 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (OnOffState?)HudData._inventoryConsole : null; }
+		}
+
+
+        public static OnOffState? TradeConsole 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (OnOffState?)HudData._tradeConsole : null; }
+		}
+
+
+        public static HudStatus? Hud 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (HudStatus?)HudData._hud : null; }
+		}
+
+
+        public static TargetDisplayStatus? TargetDisplay 
+		{
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (TargetDisplayStatus?)HudData._targetDisplay : null; }
+		}
         #endregion
 
 
         #region Properties - Unconverted Values
-        public static int TotalHostilesOnRadar { get { return (int)SaveDataReader.GetEntry(PARAM_TOTAL_HOSTILES_IN_RADAR_RANGE).Value; } }
+        public static int? TotalHostilesOnRadar 
+		{
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_TOTAL_HOSTILES_IN_RADAR_RANGE).Value : null; }
+		}
         #endregion
 
 
