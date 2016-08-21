@@ -1,4 +1,5 @@
 ﻿using EvoVI.Classes.Dialog;
+using EvoVI.Database;
 using EvoVI.PluginContracts;
 using System;
 
@@ -12,6 +13,11 @@ namespace ShipSystemControl
 
 
         #region Plugin Info
+        public GameMeta.SupportedGame CompatibilityFlags
+        {
+            get { return (GameMeta.SupportedGame.EVOCHRON_MERCENARY | GameMeta.SupportedGame.EVOCHRON_LEGACY); }
+        }
+
         public string Description
         {
             get

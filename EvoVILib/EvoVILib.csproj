@@ -56,14 +56,15 @@
     <Compile Include="Classes\Dialog\DialogTreeReader.cs" />
     <Compile Include="Classes\Math\Vector3D.cs" />
     <Compile Include="Classes\Sound\OnSoundStopHandler.cs" />
-    <Compile Include="Database\Database.cs" />
+    <Compile Include="Database\GameMeta.cs" />
+    <Compile Include="Database\SaveDataReader.cs" />
     <Compile Include="Database\EnviornmentalData.cs" />
     <Compile Include="Database\HudData.cs" />
     <Compile Include="Database\PlayerData.cs" />
     <Compile Include="Database\PlayerShipData.cs" />
     <Compile Include="Database\TargetShipData.cs" />
     <Compile Include="Engine\Interactor.cs" />
-    <Compile Include="Engine\IPlugin.cs" />
+    <Compile Include="Classes\Interfaces\IPlugin.cs" />
     <Compile Include="Engine\SpeechEngine.cs" />
     <Compile Include="Engine\VI.cs" />
     <Compile Include="PluginLoader.cs" />

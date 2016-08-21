@@ -1,10 +1,8 @@
 ﻿using EvoVI.PluginContracts;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using EvoVI.Classes.Dialog;
 using EvoVI.Engine;
+using EvoVI.Database;
 
 namespace Smalltalk
 {
@@ -16,6 +14,11 @@ namespace Smalltalk
 
 
         #region Plugin Info
+        public GameMeta.SupportedGame CompatibilityFlags
+        {
+            get { return (GameMeta.SupportedGame.EVOCHRON_MERCENARY | GameMeta.SupportedGame.EVOCHRON_LEGACY); }
+        }
+
         public string Description
         {
             get

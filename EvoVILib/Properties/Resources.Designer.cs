@@ -61,32 +61,18 @@ namespace EvoVI.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die &lt;string&gt; Pilot Name
-        ///&lt;integer&gt; Fuel
-        ///&lt;string&gt; Cash
-        ///&lt;string&gt; Cargo Bay 1
-        ///&lt;string&gt; Cargo Bay 2
-        ///&lt;string&gt; Cargo Bay 3
-        ///&lt;string&gt; Cargo Bay 4
-        ///&lt;string&gt; Cargo Bay 5
-        ///&lt;integer&gt; Player Position X
-        ///&lt;integer&gt; Player Position Y
-        ///&lt;integer&gt; Player Position Z
-        ///&lt;integer&gt; Player Position SX
-        ///&lt;integer&gt; Player Position SY
-        ///&lt;integer&gt; Player Position SZ
-        ///&lt;string&gt; Local System Name
-        ///&lt;integer&gt; Energy Level
-        ///&lt;integer&gt; Front Shield level
-        ///&lt;integer&gt; Right Shield level
-        ///&lt;integer&gt; Left Shield level
-        ///&lt;integer&gt; Rear Shield level
-        ///&lt;integer&gt; Shield Level
-        /// [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die [EM | EL]	[ PlayerData ]			&lt;string&gt;	Pilot Name 							(string)
+        ///[EM | EL]	[ PlayerShipData ]		&lt;integer&gt;	Fuel 								(integer)
+        ///[EM | EL]	[ PlayerData ]			&lt;string&gt;	Cash 								(string, includes commas)
+        ///[EM | EL]	[ PlayerShipData ]		&lt;string&gt;	Cargo Bay 1 						(string, cargo type and number, or will display &apos;Empty&apos; if nothing)
+        ///[EM | EL]	[ PlayerShipData ]		&lt;string&gt;	Cargo Bay 2
+        ///[EM | EL]	[ PlayerShipData ]		&lt;string&gt;	Cargo Bay 3
+        ///[EM | EL]	[ PlayerShipData ]		&lt;string&gt;	Cargo Bay 4
+        ///[EM | EL]	[ PlayerShipData [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
-        internal static string savedata_template {
+        internal static string Savedata_Layout {
             get {
-                return ResourceManager.GetString("savedata_template", resourceCulture);
+                return ResourceManager.GetString("Savedata_Layout", resourceCulture);
             }
         }
     }

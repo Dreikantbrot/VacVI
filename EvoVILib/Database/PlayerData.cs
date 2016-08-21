@@ -4,8 +4,18 @@ namespace EvoVI.Database
 {
     public static class PlayerData
     {
+        #region Constants (Parameter Names)
+        const string PARAM_PILOT_NAME = "PILOT NAME";
+        const string PARAM_TOTAL_KILLS = "TOTAL KILLS";
+        const string PARAM_TOTAL_CONTRACTS = "TOTAL CONTRACTS";
+        const string PARAM_SKILL_AND_PROFICIENCY_RATING = "SKILL AND PROFICIENCY RATING";
+        const string PARAM_MILITARY_RANK = "MILITARY RANK";
+        const string PARAM_CASH = "CASH";
+        #endregion
+
+
         #region Variables - Converted Values
-        private static int _cash = 0;
+        private static int _cash;
         #endregion
 
 
@@ -15,11 +25,11 @@ namespace EvoVI.Database
 
 
         #region Properties (Unconverted Values)
-        public static string Name { get { return (string)SaveDataReader.SaveData[0].Value; } }
-        public static int TotalKills { get { return (int)SaveDataReader.SaveData[67].Value; } }
-        public static int TotalContracts { get { return (int)SaveDataReader.SaveData[68].Value; } }
-        public static int SkillAndProficiencyRating { get { return (int)SaveDataReader.SaveData[69].Value; } }
-        public static int MilitaryRating { get { return (int)SaveDataReader.SaveData[70].Value; } }
+        public static string Name { get { return (string)SaveDataReader.GetEntry(PARAM_PILOT_NAME).Value; } }
+        public static int TotalKills { get { return (int)SaveDataReader.GetEntry(PARAM_TOTAL_KILLS).Value; } }
+        public static int TotalContracts { get { return (int)SaveDataReader.GetEntry(PARAM_TOTAL_CONTRACTS).Value; } }
+        public static int SkillAndProficiencyRating { get { return (int)SaveDataReader.GetEntry(PARAM_SKILL_AND_PROFICIENCY_RATING).Value; } }
+        public static int MilitaryRating { get { return (int)SaveDataReader.GetEntry(PARAM_MILITARY_RANK).Value; } }
         #endregion
 
 
@@ -28,8 +38,8 @@ namespace EvoVI.Database
         /// </summary>
         public static void Update()
         {
-            // Convert cash (line 3)
-            Int32.TryParse(((string)SaveDataReader.SaveData[2].Value).Replace(",", ""), out _cash);
+            // Convert cash
+            int.TryParse(((string)SaveDataReader.GetEntry(PARAM_CASH).Value).Replace(",", ""), out _cash);
         }
         #endregion
     }

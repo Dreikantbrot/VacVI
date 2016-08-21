@@ -28,20 +28,20 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.ConfigWatcher = new System.IO.FileSystemWatcher();
+            this.GameConfigWatcher = new System.IO.FileSystemWatcher();
             this.GameDataWatcher = new System.IO.FileSystemWatcher();
-            ((System.ComponentModel.ISupportInitialize)(this.ConfigWatcher)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.GameConfigWatcher)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.GameDataWatcher)).BeginInit();
             this.SuspendLayout();
             // 
-            // ConfigWatcher
+            // GameConfigWatcher
             // 
-            this.ConfigWatcher.EnableRaisingEvents = true;
-            this.ConfigWatcher.Filter = "sw.cfg";
-            this.ConfigWatcher.NotifyFilter = ((System.IO.NotifyFilters)((System.IO.NotifyFilters.LastWrite | System.IO.NotifyFilters.CreationTime)));
-            this.ConfigWatcher.Path = "C:\\sw3dg\\EvochronMercenary";
-            this.ConfigWatcher.SynchronizingObject = this;
-            this.ConfigWatcher.Changed += new System.IO.FileSystemEventHandler(this.ConfigWatcher_Changed);
+            this.GameConfigWatcher.EnableRaisingEvents = true;
+            this.GameConfigWatcher.Filter = "sw.cfg";
+            this.GameConfigWatcher.NotifyFilter = ((System.IO.NotifyFilters)((System.IO.NotifyFilters.LastWrite | System.IO.NotifyFilters.CreationTime)));
+            this.GameConfigWatcher.Path = "C:\\sw3dg\\EvochronMercenary";
+            this.GameConfigWatcher.SynchronizingObject = this;
+            this.GameConfigWatcher.Changed += new System.IO.FileSystemEventHandler(this.ConfigWatcher_Changed);
             // 
             // GameDataWatcher
             // 
@@ -74,7 +74,7 @@
             this.TopMost = true;
             this.TransparencyKey = System.Drawing.Color.Transparent;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Overlay_FormClosing);
-            ((System.ComponentModel.ISupportInitialize)(this.ConfigWatcher)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.GameConfigWatcher)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.GameDataWatcher)).EndInit();
             this.ResumeLayout(false);
 
@@ -82,7 +82,7 @@
 
         #endregion
 
-        private System.IO.FileSystemWatcher ConfigWatcher;
+        private System.IO.FileSystemWatcher GameConfigWatcher;
         private System.IO.FileSystemWatcher GameDataWatcher;
 
     }

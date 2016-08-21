@@ -1,4 +1,5 @@
 ﻿using EvoVI.Classes.Dialog;
+using EvoVI.Database;
 using System;
 using System.Speech.Recognition;
 
@@ -13,6 +14,7 @@ namespace EvoVI.PluginContracts
 
 
         /// <summary> Returns the plugin name.
+        /// This field must not be empty or consisting of whitespaces only!
         /// </summary>
         string Name { get; }
 
@@ -25,6 +27,11 @@ namespace EvoVI.PluginContracts
         /// <summary> Returns the plugin's description.
         /// </summary>
         string Description { get; }
+
+
+        /// <summary> Returns the plugin's compatibility Flags.
+        /// </summary>
+        GameMeta.SupportedGame CompatibilityFlags { get; }
         #endregion
 
 
@@ -42,7 +49,8 @@ namespace EvoVI.PluginContracts
         void OnDialogAction(DialogBase originNode);
 
 
-        /// <summary> Gets the plugin's unique ID.
+        /// <summary> Gets called each time game data has been retrieved and updated.
+        /// The interval is dependant on the user's savedatasettings.txt file content.
         /// </summary>
         void OnGameDataUpdate();
         #endregion

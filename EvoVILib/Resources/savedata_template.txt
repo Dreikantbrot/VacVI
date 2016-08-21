@@ -1,99 +1,131 @@
-<string> Pilot Name
-<integer> Fuel
-<string> Cash
-<string> Cargo Bay 1
-<string> Cargo Bay 2
-<string> Cargo Bay 3
-<string> Cargo Bay 4
-<string> Cargo Bay 5
-<integer> Player Position X
-<integer> Player Position Y
-<integer> Player Position Z
-<integer> Player Position SX
-<integer> Player Position SY
-<integer> Player Position SZ
-<string> Local System Name
-<integer> Energy Level
-<integer> Front Shield level
-<integer> Right Shield level
-<integer> Left Shield level
-<integer> Rear Shield level
-<integer> Shield Level
-<integer> Engine Damage
-<integer> Weapon Damage
-<integer> Nav Damage
-<string> Target Description
-<string> Target Threat Level
-<integer> Target Range
-<integer> Target Front Shield level
-<integer> Target Right Shield level
-<integer> Target Left Shield level
-<integer> Target Rear Shield level
-<integer> Target Engine Damage
-<integer> Target Weapon Damage
-<integer> Target Nav Damage
-<string> Target Cargo Bay 1
-<string> Target Cargo Bay 2
-<string> Target Cargo Bay 3
-<string> Target Cargo Bay 4
-<string> Target Cargo Bay 5
-<integer> Inbound Missile Alert
-<string> Particle Cannon
-<string> Beam Cannon
-<string> Secondary Weapon Slot 1
-<string> Secondary Weapon Slot 2
-<string> Secondary Weapon Slot 3
-<string> Secondary Weapon Slot 4
-<string> Secondary Weapon Slot 5
-<string> Secondary Weapon Slot 6
-<string> Secondary Weapon Slot 7
-<string> Secondary Weapon Slot 8
-<string> Equipment Slot 1
-<string> Equipment Slot 2
-<string> Equipment Slot 3
-<string> Equipment Slot 4
-<string> Equipment Slot 5
-<string> Equipment Slot 6
-<string> Equipment Slot 7
-<string> Equipment Slot 8
-<string> Ship Type
-<integer> Engine Class
-<integer> Shield Class
-<integer> Cargo Capacity
-<integer> Wing and Thruster Class
-<integer> Crew Limit
-<integer> Equipment Limit
-<integer> Countermeasure Limit
-<integer> Hardpoint Limit
-<integer> Total Kills
-<integer> Total Contracts
-<integer> Skill and Proficiency Rating
-<integer> Military Rank
-<integer> Particle Cannon Range
-<integer> Armed Missile Range
-<string> Targeted Subsystem
-<string> Target Faction
-<integer> Target Damage Level
-<integer> Target Velocity
-<integer> Engine/Thruster Heat Indicator
-<integer> MDTS Status
-<integer> Missile Lock Status
-<integer> Countermeasures Remaining
-<string> Energy Bias Setting
-<string> Navigation Waypoint Distance
-<integer> IDS Status
-<integer> IDS Multiplier
-<integer> Afterburner Status
-<integer> Autopilot Status
-<integer> Navigation Console Status
-<integer> Inventory Console Status
-<integer> Trade Console Status
-<integer> Tractor Beam Status
-<integer> HUD Status
-<integer> Target Display Status
-<integer> Total Hostiles in Radar Range
-<integer> Player Ship Velocity
-<integer> Player Ship Set Velocity
-<integer> Player Ship Altitude
-<integer> Gravity Level
-<integer> Heat Signature Level
+[EM | EL]	[ PlayerData ]			<string>	Pilot Name 							(string)
+[EM | EL]	[ PlayerShipData ]		<integer>	Fuel 								(integer)
+[EM | EL]	[ PlayerData ]			<string>	Cash 								(string, includes commas)
+[EM | EL]	[ PlayerShipData ]		<string>	Cargo Bay 1 						(string, cargo type and number, or will display 'Empty' if nothing)
+[EM | EL]	[ PlayerShipData ]		<string>	Cargo Bay 2
+[EM | EL]	[ PlayerShipData ]		<string>	Cargo Bay 3
+[EM | EL]	[ PlayerShipData ]		<string>	Cargo Bay 4
+[EM | EL]	[ PlayerShipData ]		<string>	Cargo Bay 5
+[   | EL]	[ PlayerShipData ]		<string>	Cargo Bay 6
+[   | EL]	[ PlayerShipData ]		<string>	Cargo Bay 7
+[   | EL]	[ PlayerShipData ]		<string>	Cargo Bay 8
+[   | EL]	[ PlayerShipData ]		<string>	Cargo Bay 9
+[   | EL]	[ PlayerShipData ]		<string>	Cargo Bay 10
+[EM | EL]	[ PlayerShipData ]		<integer>	Player Position X 					(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Player Position Y 					(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Player Position Z 					(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Player Position SX 					(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Player Position SY 					(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Player Position SZ 					(integer)
+[EM | EL]	[ EnvironmentalData ]	<string>	Local System Name 					(string)
+[EM | EL]	[ PlayerShipData ]		<integer>	Energy Level 						(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Front Shield level 					(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Right Shield level 					(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Left Shield level 					(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Rear Shield level 					(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Shield Level 						(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Engine Damage 						(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Weapon Damage 						(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Nav Damage 							(integer)
+[EM | EL]	[ TargetShipData ]		<string>	Target Description 					(string)
+[EM | EL]	[ TargetShipData ]		<string>	Target Threat Level 				(string)
+[EM | EL]	[ TargetShipData ]		<integer>	Target Range 						(integer)
+[EM | EL]	[ TargetShipData ]		<integer>	Target Front Shield level 			(integer)
+[EM | EL]	[ TargetShipData ]		<integer>	Target Right Shield level 			(integer)
+[EM | EL]	[ TargetShipData ]		<integer>	Target Left Shield level 			(integer)
+[EM | EL]	[ TargetShipData ]		<integer>	Target Rear Shield level 			(integer)
+[EM | EL]	[ TargetShipData ]		<integer>	Target Engine Damage 				(integer)
+[EM | EL]	[ TargetShipData ]		<integer>	Target Weapon Damage 				(integer)
+[EM | EL]	[ TargetShipData ]		<integer>	Target Nav Damage 					(integer)
+[   | EL]	[ TargetShipData ]		<float>		Capital Ship Weapon Turret 1 		(float, will be 0 if no capital ship is targeted)
+[   | EL]	[ TargetShipData ]		<float>		Capital Ship Weapon Turret 2 		(float)
+[   | EL]	[ TargetShipData ]		<float>		Capital Ship Weapon Turret 3 		(float)
+[   | EL]	[ TargetShipData ]		<float>		Capital Ship Weapon Turret 4 		(float)
+[EM | EL]	[ TargetShipData ]		<string>	Target Cargo Bay 1 					(string, cargo type and number, or will display nothing if out of sensor range)
+[EM | EL]	[ TargetShipData ]		<string>	Target Cargo Bay 2
+[EM | EL]	[ TargetShipData ]		<string>	Target Cargo Bay 3
+[EM | EL]	[ TargetShipData ]		<string>	Target Cargo Bay 4
+[EM | EL]	[ TargetShipData ]		<string>	Target Cargo Bay 5
+[   | EL]	[ TargetShipData ]		<string>	Target Cargo Bay 6
+[   | EL]	[ TargetShipData ]		<string>	Target Cargo Bay 7
+[   | EL]	[ TargetShipData ]		<string>	Target Cargo Bay 8
+[   | EL]	[ TargetShipData ]		<string>	Target Cargo Bay 9
+[   | EL]	[ TargetShipData ]		<string>	Target Cargo Bay 10
+[EM | EL]	[ EnvironmentalData ]	<integer>	Inbound Missile Alert 				(0 for off, 1 for on)
+[EM | EL]	[ PlayerShipData ]		<string>	Particle Cannon 					(string)
+[EM | EL]	[ PlayerShipData ]		<string>	Beam Cannon 						(string)
+[EM | EL]	[ PlayerShipData ]		<string>	Secondary Weapon Slot 1 			(string, will display 'Empty' if no weapon is loaded)
+[EM | EL]	[ PlayerShipData ]		<string>	Secondary Weapon Slot 2
+[EM | EL]	[ PlayerShipData ]		<string>	Secondary Weapon Slot 3
+[EM | EL]	[ PlayerShipData ]		<string>	Secondary Weapon Slot 4
+[EM | EL]	[ PlayerShipData ]		<string>	Secondary Weapon Slot 5
+[EM | EL]	[ PlayerShipData ]		<string>	Secondary Weapon Slot 6
+[EM | EL]	[ PlayerShipData ]		<string>	Secondary Weapon Slot 7
+[EM | EL]	[ PlayerShipData ]		<string>	Secondary Weapon Slot 8
+[EM | EL]	[ PlayerShipData ]		<string>	Equipment Slot 1
+[EM | EL]	[ PlayerShipData ]		<string>	Equipment Slot 2
+[EM | EL]	[ PlayerShipData ]		<string>	Equipment Slot 3
+[EM | EL]	[ PlayerShipData ]		<string>	Equipment Slot 4
+[EM | EL]	[ PlayerShipData ]		<string>	Equipment Slot 5
+[EM | EL]	[ PlayerShipData ]		<string>	Equipment Slot 6
+[EM | EL]	[ PlayerShipData ]		<string>	Equipment Slot 7
+[EM | EL]	[ PlayerShipData ]		<string>	Equipment Slot 8
+[   | EL]	[ PlayerShipData ]		<string>	Equipment Slot 9
+[   | EL]	[ PlayerShipData ]		<string>	Equipment Slot 10
+[EM | EL]	[ PlayerShipData ]		<string>	Ship Type 							(string)
+[EM | EL]	[ PlayerShipData ]		<integer>	Engine Class 						(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Shield Class 						(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Cargo Capacity 						(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Wing and Thruster Class 			(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Crew Limit 							(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Equipment Limit 					(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Countermeasure Limit 				(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Hardpoint Limit 					(integer)
+[   | EL]	[ PlayerShipData ]		<integer>	Armor Limit 						(integer)
+[EM | EL]	[ PlayerData ]			<integer>	Total Kills 						(integer)
+[EM | EL]	[ PlayerData ]			<integer>	Total Contracts 					(integer)
+[EM | EL]	[ PlayerData ]			<integer>	Skill and Proficiency Rating 		(integer)
+[EM | EL]	[ PlayerData ]			<integer>	Military Rank 						(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Particle Cannon Range 				(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Armed Missile Range 				(integer)
+[EM | EL]	[ PlayerShipData ]		<string>	Targeted Subsystem 					(string, will display '----' if no subsystem targeted)
+[EM | EL]	[ TargetShipData ]		<string>	Target Faction 						(string)
+[EM | EL]	[ TargetShipData ]		<integer>	Target Damage Level 				(integer)
+[EM | EL]	[ TargetShipData ]		<integer>	Target Velocity 					(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Engine/Thruster Heat Indicator 		(integer, 0 = none/low, 1 = detectable heat signature)
+[EM | EL]	[ PlayerShipData ]		<integer>	MDTS Status 						(integer, 0 = off, 1 = on, 2 = locked)
+[EM | EL]	[ PlayerShipData ]		<integer>	Missile Lock Status 				(integer, 0 = no lock, 1 = locked)
+[EM | EL]	[ PlayerShipData ]		<integer>	Countermeasures Remaining 			(integer)
+[EM | EL]	[ PlayerShipData ]		<string>	Energy Bias Setting 				(string, [shields]S/[weapons]W)
+[   | EL]	[ EnvironmentalData ]	<integer>	In-Sector Waypoint X Coordinate 	(integer)
+[   | EL]	[ EnvironmentalData ]	<integer>	In-Sector Waypoint Y Coordinate 	(integer)
+[   | EL]	[ EnvironmentalData ]	<integer>	In-Sector Waypoint Z Coordinate 	(integer)
+[   | EL]	[ EnvironmentalData ]	<integer>	Sector Waypoint SX Coordinate 		(integer)
+[   | EL]	[ EnvironmentalData ]	<integer>	Sector Waypoint SY Coordinate 		(integer)
+[   | EL]	[ EnvironmentalData ]	<integer>	Sector Waypoint SZ Coordinate 		(integer)
+[EM | EL]	[ EnvironmentalData ]	<string>	Navigation Waypoint Distance 		(string)
+[EM | EL]	[ PlayerShipData ]		<integer>	IDS Status 							(integer, 0 = on, 1 = off)
+[EM | EL]	[ PlayerShipData ]		<integer>	IDS Multiplier 						(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Afterburner Status 					(integer, 0 = off, 1 = on)
+[EM | EL]	[ PlayerShipData ]		<integer>	Autopilot Status 					(integer, 0 = off, 1 = form on target, 2 = fly to nav point)
+[EM | EL]	[ HudData ]				<integer>	Navigation Console Status 			(integer, 0 = off, 1 = on)
+[   | EL]	[ HudData ]				<integer>	Build Console Status 				(integer, 0 = off, 1 = on)
+[EM | EL]	[ HudData ]				<integer>	Inventory Console Status 			(integer, 0 = off, 1 = on)
+[EM | EL]	[ HudData ]				<integer>	Trade Console Status 				(integer, 0 = off, 1 = on)
+[EM | EL]	[ PlayerShipData ]		<integer>	Tractor Beam Status 				(integer, 0 = off, 1 = on)
+[EM | EL]	[ HudData ]				<integer>	HUD Status 							(integer, 0 = off, 1 = partial, 2 = full)
+[EM | EL]	[ HudData ]				<integer>	Target Display Status 				(integer, 0 = detail, 1 = list)
+[EM | EL]	[ HudData ]				<integer>	Total Hostiles in Radar Range 		(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Player Ship Velocity 				(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Player Ship Set Velocity			(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Player Ship Altitude 				(integer)
+[EM | EL]	[ EnvironmentalData ]	<integer>	Gravity Level 						(integer)
+[EM | EL]	[ PlayerShipData ]		<integer>	Heat Signature Level 				(integer)
+[   | EL]	[ PlayerShipData ]		<integer>	Player Ship Total Velocity, AVL 	(integer)
+[   | EL]	[ PlayerShipData ]		<integer>	Player Ship Heading			 		(integer)
+[   | EL]	[ TargetShipData ]		<integer>	Target Engine Class 				(integer)
+[   | EL]	[ TargetShipData ]		<integer>	Target Resistor Packs 				(integer)
+[   | EL]	[ TargetShipData ]		<integer>	Target Hull Plating 				(integer)
+[   | EL]	[ TargetShipData ]		<integer>	Target Module Type 					(integer)
+[   | EL]	[ TargetShipData ]		<integer>	Target Wing Class 					(integer)
+[   | EL]	[ PlayerShipData ]		<integer>	Player Ship Pitch 					(integer)

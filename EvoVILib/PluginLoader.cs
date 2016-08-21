@@ -51,12 +51,23 @@ namespace EvoVI
                     }
                 }
 
-                foreach (Type type in pluginTypes) { Plugins.Add((IPlugin)Activator.CreateInstance(type)); }
+                foreach (Type type in pluginTypes)
+                {
+                    IPlugin plugin = (IPlugin)Activator.CreateInstance(type);
+                    
+                    // Check for plugin integrity before adding it to the list
+                    if (
+                        (String.IsNullOrWhiteSpace(plugin.Name))
+                    )
+                    { continue; }
+                    
+                    Plugins.Add(plugin);
+                }
             }
         }
 
 
-        /// <summary> Gets a plugin by Id.
+        /// <summary> Gets a plugin by name.
         /// </summary>
         public static IPlugin GetPlugin(string pluginName)
         {

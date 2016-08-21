@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Smalltalk", "Smalltalk\Smal
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShipSystemControl", "ShipSystemControl\ShipSystemControl.csproj", "{0CB4CD15-C21D-4235-83E7-2B45F10E8267}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvoVILIib_Tests", "EvoVILIib_Tests\EvoVILIib_Tests.csproj", "{F2AF0806-E20F-4140-AFED-27D80FD9C6F0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{0CB4CD15-C21D-4235-83E7-2B45F10E8267}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0CB4CD15-C21D-4235-83E7-2B45F10E8267}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0CB4CD15-C21D-4235-83E7-2B45F10E8267}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2AF0806-E20F-4140-AFED-27D80FD9C6F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2AF0806-E20F-4140-AFED-27D80FD9C6F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2AF0806-E20F-4140-AFED-27D80FD9C6F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2AF0806-E20F-4140-AFED-27D80FD9C6F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

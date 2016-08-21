@@ -91,7 +91,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="_devRsc\sw_modKit_savedatasettings.txt" />
-    <Content Include="_devRsc\sw_savedata_db.txt" />
     <Content Include="_devRsc\sw_cfg_explanation.txt" />
     <Content Include="_devRsc\sw_savedata_exmpl.txt" />
   </ItemGroup>

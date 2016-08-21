@@ -44,8 +44,8 @@ namespace EvoVI
 
             /* Initialize UI */
             _text = this.Text;
-            System.IO.File.SetLastWriteTimeUtc("C:\\sw3dg\\EvochronMercenary\\sw.cfg", DateTime.UtcNow);
-            System.IO.File.SetLastWriteTimeUtc("C:\\sw3dg\\EvochronMercenary\\savedata.txt", DateTime.UtcNow);
+            System.IO.File.SetLastWriteTimeUtc(GameMeta.DefaultGameSettingsPath, DateTime.UtcNow);
+            if (File.Exists(GameMeta.DefaultSavedataPath)) { System.IO.File.SetLastWriteTimeUtc(GameMeta.DefaultSavedataPath, DateTime.UtcNow); }
 
             /* Initialize Plugins */
             PluginLoader.InitializeAll();
@@ -54,14 +54,9 @@ namespace EvoVI
             ContextMenu trayMenu = new ContextMenu();
             trayMenu.MenuItems.Add("Exit", OnExit);
 
-            // Create a tray icon. In this example we use a
-            // standard system icon for simplicity, but you
-            // can of course use your own custom icon too.
             trayIcon = new NotifyIcon();
             trayIcon.Text = this.Text;
             trayIcon.Icon = new Icon(this.Icon, 40, 40);
-
-            // Add menu to tray icon and show it.
             trayIcon.ContextMenu = trayMenu;
             trayIcon.Visible = true;
         }
@@ -69,49 +64,6 @@ namespace EvoVI
 
 
         #region Events
-        private string buildDialogInfo(DialogBase parentNode, int level = 1)
-        {
-            string dialogInfo = "";
-
-            for (int i = 0; i < parentNode.ChildNodes.Count; i++)
-            {
-                DialogBase currChild = parentNode.ChildNodes[i];
-
-                // Is listening mark
-                string listeningMark = currChild.IsReady ? "[!]" : "[ ]";
-
-                // Prepare spacing
-                string arrow = "" +
-                (
-                    currChild.IsActive ? "====" :
-                    (parentNode.IsActive) ? "----" :
-                    "    "
-                );
-
-                string importanceMark = "[";
-                for (DialogBase.DialogImportance u = DialogBase.DialogImportance.LOW; u < currChild.Importance; u++) { importanceMark += "*"; }
-                for (DialogBase.DialogImportance u = currChild.Importance; u < DialogBase.DialogImportance.CRITICAL; u++) { importanceMark += " "; }
-                importanceMark += "]";
-
-                // Prepare "dock"
-                string dock = "|";
-                for (int u = 0; u < level; u++) { dock += "--"; }
-
-                // Draw "is active" mark
-                if (!currChild.Disabled)
-                {
-                    dialogInfo += "" +
-                        listeningMark + "" + 
-                        importanceMark + "" + 
-                        arrow + dock + " " +
-                        currChild.Speaker + ": " + currChild.GUIDisplayText + "\n";
-                }
-                dialogInfo += buildDialogInfo(currChild, level + 1);
-            }
-            
-            return dialogInfo;
-        }
-
         /// <summary> Fires each time the form needs to be drawn.
         /// </summary>
         /// <param name="e">The paint event arguments.</param>
@@ -160,7 +112,7 @@ namespace EvoVI
         /// <param name="e">The file system event arguments.</param>
         private void GameDataWatcher_Changed(object sender, System.IO.FileSystemEventArgs e)
         {
-            SaveDataReader.ReadGameData(e.FullPath);
+            SaveDataReader.ReadGameData();
             _savedataUpdated = true;
         }
 
@@ -179,10 +131,10 @@ namespace EvoVI
             int newB = HUD_BASE_COLOR[hueMode].B;
             string[] configContent = File.ReadAllLines(e.FullPath);
 
-            Int32.TryParse(configContent[24], out newR);
-            Int32.TryParse(configContent[25], out newG);
-            Int32.TryParse(configContent[26], out newB);
-            Int32.TryParse(configContent[23], out hueMode);
+            int.TryParse(configContent[24], out newR);
+            int.TryParse(configContent[25], out newG);
+            int.TryParse(configContent[26], out newB);
+            int.TryParse(configContent[23], out hueMode);
 
             hueMode = 2 - hueMode;
 
@@ -237,6 +189,15 @@ namespace EvoVI
 
             float colorFactor = 1 - ((float)Math.Max(this.BackColor.R, Math.Max(this.BackColor.G, this.BackColor.B)) / 255);
             this.ForeColor = Color.FromArgb((int)(255 * colorFactor), (int)(255 * colorFactor), (int)(255 * colorFactor));
+        }
+
+
+        /// <summary> Updates the filepath filters for all file watchers.
+        /// </summary>
+        public void UpdatePaths()
+        {
+            GameDataWatcher.Filter = GameMeta.DefaultSavedataPath;
+            GameConfigWatcher.Filter = GameMeta.DefaultGameSettingsPath;
         }
         #endregion
 
@@ -375,6 +336,52 @@ namespace EvoVI
 
                 return createParams;
             }
+        }
+        #endregion
+
+
+        #region [[ Debug ]]
+        private string buildDialogInfo(DialogBase parentNode, int level = 1)
+        {
+            string dialogInfo = "";
+
+            for (int i = 0; i < parentNode.ChildNodes.Count; i++)
+            {
+                DialogBase currChild = parentNode.ChildNodes[i];
+
+                // Is listening mark
+                string listeningMark = currChild.IsReady ? "[!]" : "[ ]";
+
+                // Prepare spacing
+                string arrow = (
+                    currChild.IsActive ? "====" :
+                    (parentNode.IsActive) ? "----" :
+                    "    "
+                );
+
+                string importanceMark = "[";
+                for (DialogBase.DialogImportance u = DialogBase.DialogImportance.LOW; u < currChild.Importance; u++) { importanceMark += "*"; }
+                for (DialogBase.DialogImportance u = currChild.Importance; u < DialogBase.DialogImportance.CRITICAL; u++) { importanceMark += " "; }
+                importanceMark += "]";
+
+                // Prepare "dock"
+                System.Text.StringBuilder dock = new System.Text.StringBuilder();
+                dock.Append("|");
+                dock.Append('-', level * 2);
+
+                // Draw "is active" mark
+                if (!currChild.Disabled)
+                {
+                    dialogInfo += "" +
+                        listeningMark + "" +
+                        importanceMark + "" +
+                        arrow + dock + " " +
+                        currChild.Speaker + ": " + currChild.GUIDisplayText + "\n";
+                }
+                dialogInfo += buildDialogInfo(currChild, level + 1);
+            }
+
+            return dialogInfo;
         }
         #endregion
     }
