@@ -32,6 +32,7 @@ namespace EvoVI.Database
         private static string _gamePath = "";
         private static SupportedGame _currentGame = SupportedGame.EVOCHRON_MERCENARY;
         private static Dictionary<SupportedGame, string> _folderNames = new Dictionary<SupportedGame, string>();
+        private static Dictionary<SupportedGame, string> _gameNames = new Dictionary<SupportedGame, string>();
         #endregion
 
 
@@ -84,6 +85,17 @@ namespace EvoVI.Database
         {
             _folderNames.Add(SupportedGame.EVOCHRON_MERCENARY, "EvochronMercenary");
             _folderNames.Add(SupportedGame.EVOCHRON_LEGACY, "EvochronLegacy");
+
+            _gameNames.Add(SupportedGame.EVOCHRON_MERCENARY, "Evochron Mercenary");
+            _gameNames.Add(SupportedGame.EVOCHRON_LEGACY, "Evochron Legacy");
+        }
+        #endregion
+
+
+        #region Functions
+        public static string GetSupportedGameName(SupportedGame game)
+        {
+            return _gameNames[game];
         }
         #endregion
     }
