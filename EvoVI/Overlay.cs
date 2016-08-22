@@ -34,6 +34,10 @@ namespace EvoVI
         private NotifyIcon trayIcon;
         private bool _savedataUpdated = false;
         private Thread _resetSaveDataNotifier;
+        private int _defaultWidth;
+        private int _defaultHeight;
+        private double _defaultOpacity;
+        private Point _startPosition;
         #endregion
 
 
@@ -41,6 +45,16 @@ namespace EvoVI
         public Overlay()
         {
             InitializeComponent();
+
+            _defaultWidth = this.Width;
+            _defaultHeight = this.Height;
+            _defaultOpacity = this.Opacity;
+
+            _startPosition = new Point(this.Location.X, this.Location.Y);
+            
+            this.Width = 0;
+            this.Height = 0;
+            this.Opacity = 0;
 
             /* Initialize UI */
             _text = this.Text;
@@ -69,6 +83,11 @@ namespace EvoVI
         /// <param name="e">The paint event arguments.</param>
         protected override void OnPaint(PaintEventArgs e)
         {
+            // Invalidate to force redraw
+            this.Invalidate();
+            
+            Expand();
+
             string updateMark = "[" + (_savedataUpdated ? "!" : " ") + "]";
             TextRenderer.DrawText(
                 e.Graphics, 
@@ -100,9 +119,25 @@ namespace EvoVI
 
             e.Graphics.DrawLine(new Pen(this.ForeColor), 5, this.Height - 40 - 5, this.Width - 5, this.Height - 40 - 5);
             TextRenderer.DrawText(e.Graphics, PluginLoader.Plugins.Count + " plugins loaded", debugFont, new Point(10, this.Height - 40), this.ForeColor);
+        }
 
-            // Invalidate to force redraw
-            this.Invalidate();
+
+        public void Expand()
+        {
+
+            if (this.Width < _defaultWidth)
+            {
+                // if (expandBottomToTop) { this.Left = (_startPosition.Y + _defaultWidth) - this.Width - 40; }
+                this.Width = Math.Min(this.Width + 5, _defaultWidth);
+            }
+            
+            if (this.Height < _defaultHeight)
+            {
+                // if (expandRightToLeft) { this.Top = (_startPosition.Y + _defaultHeight) - this.Height - 40; }
+                this.Height = Math.Min(this.Height + 5, _defaultHeight);
+            }
+
+            if (this.Opacity < _defaultOpacity) { this.Opacity = Math.Min(this.Opacity + 0.01, _defaultOpacity); }
         }
 
 
@@ -167,7 +202,7 @@ namespace EvoVI
         /// <param name="e">The event arguments.</param>
         private void OnExit(object sender, EventArgs e)
         {
-            Application.Exit();
+            this.Close();
         }
         #endregion
 
