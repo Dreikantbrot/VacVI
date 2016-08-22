@@ -24,6 +24,16 @@ namespace EvoVI.PluginContracts
         string Version { get; }
 
 
+        /// <summary> Returns the author of the plugin.
+        /// </summary>
+        string Author { get; }
+
+
+        /// <summary> Returns the homepage of the author / plugin forum thread.
+        /// </summary>
+        string Homepage { get; }
+
+
         /// <summary> Returns the plugin's description.
         /// </summary>
         string Description { get; }

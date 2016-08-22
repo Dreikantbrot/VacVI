@@ -43,6 +43,16 @@ namespace Smalltalk
         {
             get { return "0.1"; }
         }
+
+        public string Author
+        {
+            get { return "Scavenger4711"; }
+        }
+
+        public string Homepage
+        {
+            get { return ""; }
+        }
         #endregion
 
 

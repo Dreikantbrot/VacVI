@@ -22,7 +22,7 @@ namespace ShipSystemControl
         {
             get
             {
-                return "Enables the VI to control basic ship functions like switching weapons and intiating intiating jumps.";
+                return "Enables the VI to control basic ship functions like switching weapons and initiating jumps.";
             }
         }
 
@@ -39,6 +39,16 @@ namespace ShipSystemControl
         public string Version
         {
             get { return "0.1"; }
+        }
+
+        public string Author
+        {
+            get { return "Scavenger4711"; }
+        }
+
+        public string Homepage
+        {
+            get { return ""; }
         }
         #endregion
 
