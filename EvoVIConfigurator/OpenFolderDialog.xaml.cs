@@ -2,6 +2,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 
 namespace EvoVIConfigurator
 {
@@ -25,6 +26,9 @@ namespace EvoVIConfigurator
         private string _startFolder = DEFAULT_START_FOLDER;
         private bool _displayHiddenFolders = false;
         private bool _selectedFolderConfirmed = false;
+
+        private BitmapImage _openedDirectoryImage = new BitmapImage(new Uri(@"Resources/DirectoryOpened_12x12.png", UriKind.RelativeOrAbsolute));
+        private BitmapImage _closedDirectoryImage = new BitmapImage(new Uri(@"Resources/DirectoryClosed_12x12.png", UriKind.RelativeOrAbsolute));
         #endregion
 
 
@@ -95,14 +99,30 @@ namespace EvoVIConfigurator
         /// <param name="e">The routed event arguments.</param>
         private void onBranchExpanded(object sender, System.Windows.RoutedEventArgs e)
         {
-            // Update the sender's children
+            // Change icon + update the sender's children
             TreeViewItem treeView = ((TreeViewItem)sender);
+
+            ((Image)((StackPanel)treeView.Header).Children[0]).Source = _openedDirectoryImage;
 
             for (int i = 0; i < treeView.Items.Count; i++)
             {
                 TreeViewItem currChild = ((TreeViewItem)treeView.Items[i]);
                 if (currChild.Items.Count == 0) { addChildrenFromPath((string)currChild.Tag, currChild); }
             }
+        }
+
+        /// <summary> Fires when a node in the treeview has been collapsed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void onBranchCollapsed(object sender, System.Windows.RoutedEventArgs e)
+        {
+            // Change icon
+            TreeViewItem treeView = ((TreeViewItem)sender);
+
+            ((Image)((StackPanel)treeView.Header).Children[0]).Source = _closedDirectoryImage;
+            
+            e.Handled = true;
         }
 
 
@@ -227,11 +247,10 @@ namespace EvoVIConfigurator
             StackPanel stack = new StackPanel();
             stack.Orientation = Orientation.Horizontal;
 
-            Label label1 = new Label();
-            label1.Content = (dir.Parent != null) ? "[DIR] " : "[HDD] ";
-            label1.Margin = new System.Windows.Thickness(0);
-            label1.Padding = new System.Windows.Thickness(0);
-            stack.Children.Add(label1);
+            Image img = new Image();
+            img.Source = _closedDirectoryImage;
+            img.Margin = new Thickness(0, 0, 5, 0);
+            stack.Children.Add(img);
             
             Label label = new Label();
             label.Content = dir.Name;
@@ -245,6 +264,7 @@ namespace EvoVIConfigurator
 
             newBranch.Selected += onBranchSelected;
             newBranch.Expanded += onBranchExpanded;
+            newBranch.Collapsed += onBranchCollapsed;
 
             return newBranch;
         }

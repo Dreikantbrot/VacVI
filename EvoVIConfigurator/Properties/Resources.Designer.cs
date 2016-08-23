@@ -63,6 +63,26 @@ namespace EvoVIConfigurator.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap DirectoryClosed_12x12 {
+            get {
+                object obj = ResourceManager.GetObject("DirectoryClosed_12x12", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap DirectoryOpened_12x12 {
+            get {
+                object obj = ResourceManager.GetObject("DirectoryOpened_12x12", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap EvoVIConfigurator_Background {
             get {
                 object obj = ResourceManager.GetObject("EvoVIConfigurator_Background", resourceCulture);
