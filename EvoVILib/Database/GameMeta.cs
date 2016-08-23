@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,8 +15,11 @@ namespace EvoVI.Database
         #region Enums
         [Flags]
         public enum SupportedGame {
-            NONE = ~(EVOCHRON_MERCENARY | EVOCHRON_LEGACY),
+            [Description("None")]
+            NONE = 0,
+            [Description("Evochron Mercenary")]
             EVOCHRON_MERCENARY = 1,
+            [Description("Evochron Legacy")]
             EVOCHRON_LEGACY = 2
         };
         #endregion
@@ -32,7 +37,6 @@ namespace EvoVI.Database
         private static string _gamePath = "";
         private static SupportedGame _currentGame = SupportedGame.EVOCHRON_MERCENARY;
         private static Dictionary<SupportedGame, string> _folderNames = new Dictionary<SupportedGame, string>();
-        private static Dictionary<SupportedGame, string> _gameNames = new Dictionary<SupportedGame, string>();
         #endregion
 
 
@@ -85,17 +89,27 @@ namespace EvoVI.Database
         {
             _folderNames.Add(SupportedGame.EVOCHRON_MERCENARY, "EvochronMercenary");
             _folderNames.Add(SupportedGame.EVOCHRON_LEGACY, "EvochronLegacy");
-
-            _gameNames.Add(SupportedGame.EVOCHRON_MERCENARY, "Evochron Mercenary");
-            _gameNames.Add(SupportedGame.EVOCHRON_LEGACY, "Evochron Legacy");
         }
         #endregion
 
 
         #region Functions
-        public static string GetSupportedGameName(SupportedGame game)
+        public static string GetDescription(SupportedGame game)
         {
-            return _gameNames[game];
+            Type valType = game.GetType();
+            string name = Enum.GetName(valType, game);
+
+            if (name != null)
+            {
+                FieldInfo field = valType.GetField(name);
+                if (field != null)
+                {
+                    DescriptionAttribute attribute = (DescriptionAttribute)Attribute.GetCustomAttribute(field,typeof(DescriptionAttribute));
+                    
+                    if (attribute != null) { return attribute.Description; }
+                }
+            }
+            return null;
         }
         #endregion
     }
