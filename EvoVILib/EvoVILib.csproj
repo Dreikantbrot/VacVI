@@ -58,6 +58,7 @@
     <Compile Include="Classes\Dialog\DialogTreeReader.cs" />
     <Compile Include="Classes\Math\Vector3D.cs" />
     <Compile Include="Classes\Sound\OnSoundStopHandler.cs" />
+    <Compile Include="Classes\IniFile.cs" />
     <Compile Include="Database\GameMeta.cs" />
     <Compile Include="Database\LoreData.cs" />
     <Compile Include="Database\SaveDataReader.cs" />
@@ -66,10 +67,10 @@
     <Compile Include="Database\PlayerData.cs" />
     <Compile Include="Database\PlayerShipData.cs" />
     <Compile Include="Database\TargetShipData.cs" />
-    <Compile Include="Engine\Interactor.cs" />
+    <Compile Include="VI\Interactor.cs" />
     <Compile Include="Classes\Interfaces\IPlugin.cs" />
-    <Compile Include="Engine\SpeechEngine.cs" />
-    <Compile Include="Engine\VI.cs" />
+    <Compile Include="VI\SpeechEngine.cs" />
+    <Compile Include="VI\VI.cs" />
     <Compile Include="PluginLoader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\StringTable.Designer.cs">

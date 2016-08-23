@@ -16,13 +16,16 @@ namespace EvoVI
         #region Functions
         /// <summary> Loads all plugins inside the [ApplicationPath]/Plugins folder.
         /// </summary>
-        public static void LoadPlugins()
+        public static void LoadPlugins(bool loadDisabledPlugins=false)
         {
             Plugins.Clear();
 
             string[] dllFileNames = null;
             string appPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase).Replace("file:\\", "");
             string pluginPath = appPath + "\\" + "Plugins";
+
+            IniFile pluginConfig = new IniFile(pluginPath + "\\" + "plugins.ini");
+            pluginConfig.Read();
 
             if (Directory.Exists(pluginPath))
             {
@@ -57,7 +60,15 @@ namespace EvoVI
                     
                     // Check for plugin integrity before adding it to the list
                     if (
-                        (String.IsNullOrWhiteSpace(plugin.Name))
+                        // Plugin with invalid name
+                        (String.IsNullOrWhiteSpace(plugin.Name)) ||
+
+                        // Plugins that have *explicitly* been disabled
+                        (
+                            (!loadDisabledPlugins) &&
+                            (pluginConfig.HasKey(plugin.Name, "Enabled")) &&
+                            (!pluginConfig.ValueIsBoolAndTrue(plugin.Name, "Enabled"))
+                        )
                     )
                     { continue; }
                     

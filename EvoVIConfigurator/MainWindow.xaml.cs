@@ -61,7 +61,7 @@ namespace EvoVIConfigurator
             comBox_GameSelection.SelectedIndex = 0;
 
             /* Fill plugin list */
-            PluginLoader.LoadPlugins();
+            PluginLoader.LoadPlugins(true);
             for (int i = 0; i < PluginLoader.Plugins.Count; i++)
             {
                 ComboBoxItem cmbx = new ComboBoxItem();
