@@ -83,7 +83,7 @@ namespace EvoVIConfigurator
         {
             // Open file browse dialog
             OpenFolderDialog folderDialog = new OpenFolderDialog();
-            folderDialog.StartFolder = @"C:\sw3dg";
+            folderDialog.StartFolder = txt_InstallDir.Text;
             folderDialog.ShowDialog();
             if (!String.IsNullOrWhiteSpace(folderDialog.SelectedFolder)) { txt_InstallDir.Text = folderDialog.SelectedFolder; }
         }
@@ -150,29 +150,37 @@ namespace EvoVIConfigurator
         /// </summary>
         private void verifyInstallDir()
         {
+            GameEntry newItemGame = (GameEntry)comBox_GameSelection.SelectedItem;
+            txtBox_StatusText.Visibility = System.Windows.Visibility.Visible;
+
             if (String.IsNullOrWhiteSpace(txt_InstallDir.Text))
             {
                 // No path entered
-                GameEntry newItemGame = (GameEntry)comBox_GameSelection.SelectedItem;
-                txtBox_StatusText.Visibility = System.Windows.Visibility.Visible;
                 txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Colors.White);
                 txtBox_StatusText.Text = "Please enter the installation path for " + newItemGame.DisplayValue + "!";
+
+                return;
             }
-            else if (!Directory.Exists(txt_InstallDir.Text))
+
+            
+            /* Check whether the entered path is a valid installation directory */
+            bool pathIsValid = (
+                (Directory.Exists(txt_InstallDir.Text)) &&
+                (Directory.GetFiles(txt_InstallDir.Text, GameMeta.GetDescription(newItemGame.Value).Replace(' ', '*') + ".exe").Length > 0) &&
+                (Directory.GetFiles(txt_InstallDir.Text, "EvochronData.evo").Length > 0)
+            );
+
+            if (pathIsValid)
             {
-                // Path exists
-                GameEntry newItemGame = (GameEntry)comBox_GameSelection.SelectedItem;
-                txtBox_StatusText.Visibility = System.Windows.Visibility.Visible;
-                txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Color.FromRgb(220, 0, 0));
-                txtBox_StatusText.Text = "Error: The path given is not a valid " + newItemGame.DisplayValue + " installation directory!";
+                // Entered path does not exist
+                txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Color.FromRgb(0, 240, 0));
+                txtBox_StatusText.Text = "Your installation path for " + newItemGame.DisplayValue + " is valid!";
             }
             else
             {
-                // Entered path does not exist
-                GameEntry newItemGame = (GameEntry)comBox_GameSelection.SelectedItem;
-                txtBox_StatusText.Visibility = System.Windows.Visibility.Visible;
-                txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Color.FromRgb(0, 240, 0));
-                txtBox_StatusText.Text = "Your installation path for " + newItemGame.DisplayValue + " is valid!";
+                // Path exists
+                txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Color.FromRgb(220, 0, 0));
+                txtBox_StatusText.Text = "Error: The path given is not a valid " + newItemGame.DisplayValue + " installation directory!";
             }
         }
         #endregion

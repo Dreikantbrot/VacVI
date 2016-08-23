@@ -14,13 +14,15 @@ namespace EvoVIConfigurator
         readonly Image CD_ICON;
         readonly Image HDD_ICON;
         readonly Image DIR_ICON;
+
+        const string DEFAULT_START_FOLDER = "";
         #endregion
 
 
         #region Variables
         private string _rootFolder = null;
         private string _selectedFolder = "";
-        private string _startFolder = "";
+        private string _startFolder = DEFAULT_START_FOLDER;
         private bool _displayHiddenFolders = false;
         private bool _selectedFolderConfirmed = false;
         #endregion
@@ -176,7 +178,7 @@ namespace EvoVIConfigurator
         /// <param name="e">The routed event arguments.</param>
         private void OpenFolderDialog_Window_Loaded(object sender, RoutedEventArgs e)
         {
-            // Select start folder
+            // Select start folder, if it exists
             selectNodeByPath(_startFolder);
         }
         #endregion
@@ -277,9 +279,18 @@ namespace EvoVIConfigurator
                 {
                     // The current path is *part* of the destination filepath
                     currItem.IsExpanded = true;
+                    currItem.BringIntoView();
                     selectNodeByPath(filepath, currItem);
                     return;
                 }
+            }
+
+            // Not found - select how far you've come so far
+            if (currNode != null)
+            {
+                currNode.IsExpanded = true;
+                currNode.IsSelected = true;
+                currNode.BringIntoView();
             }
         }
         #endregion
