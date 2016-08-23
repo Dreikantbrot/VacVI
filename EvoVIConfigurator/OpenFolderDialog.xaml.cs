@@ -18,7 +18,7 @@ namespace EvoVIConfigurator
 
 
         #region Variables
-        private string _rootFolder = "%HOMEPATH%";
+        private string _rootFolder = null;
         private string _selectedFolder = "";
         private string _startFolder = "";
         private bool _displayHiddenFolders = false;
@@ -27,24 +27,34 @@ namespace EvoVIConfigurator
 
 
         #region Properties
+        /// <summary> Returns or sets the root scan folder.
+        /// </summary>
         public string RootFolder
         {
             get { return _rootFolder; }
             set { _rootFolder = value; }
         }
 
+
+        /// <summary> Returns the folder path selected by the user. 
+        /// </summary>
         public string SelectedFolder
         {
             get { return _selectedFolder; }
-            set { _selectedFolder = value; }
         }
 
+
+        /// <summary> Returns or sets the start folder to select when opening the dialog.
+        /// </summary>
         public string StartFolder
         {
             get { return _startFolder; }
             set { _startFolder = value; }
         }
 
+
+        /// <summary> Returns or sets whether hidden folders should also be displayed or not.
+        /// </summary>
         public bool DisplayHiddenFolders
         {
             get { return _displayHiddenFolders; }
@@ -52,6 +62,8 @@ namespace EvoVIConfigurator
         }
         #endregion
 
+
+        #region Constuctor
         public OpenFolderDialog()
         {
             InitializeComponent();
@@ -63,18 +75,23 @@ namespace EvoVIConfigurator
                 string filepath = drives[i] + ":\\";
                 if (!Directory.Exists(filepath)) { continue; }
 
-                TreeViewItem newBranch = CreateNewNode(filepath);
+                TreeViewItem newBranch = createNewNode(filepath);
                 if (newBranch != null)
                 {
                     tree_FolderTreeView.Items.Add(newBranch);
-                    BuildFileSystem(filepath, newBranch);
+                    addChildrenFromPath(filepath, newBranch);
                 }
             }
         }
+        #endregion
 
 
-        #region Function Overrides
-        private void OnBranchExpanded(object sender, System.Windows.RoutedEventArgs e)
+        #region Events
+        /// <summary> Fires when a node in the treeview has been expanded.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void onBranchExpanded(object sender, System.Windows.RoutedEventArgs e)
         {
             // Update the sender's children
             TreeViewItem treeView = ((TreeViewItem)sender);
@@ -82,12 +99,16 @@ namespace EvoVIConfigurator
             for (int i = 0; i < treeView.Items.Count; i++)
             {
                 TreeViewItem currChild = ((TreeViewItem)treeView.Items[i]);
-                if (currChild.Items.Count == 0) { BuildFileSystem((string)currChild.Tag, currChild); }
+                if (currChild.Items.Count == 0) { addChildrenFromPath((string)currChild.Tag, currChild); }
             }
         }
-        
-        
-        private void OnBranchSelected(object sender, System.Windows.RoutedEventArgs e)
+
+
+        /// <summary> Fires when a node in the treeview has been selected.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void onBranchSelected(object sender, System.Windows.RoutedEventArgs e)
         {
             // Fill the textbos with the current node path and save the path into _selectedFolder
             TreeViewItem treeViewBranch = ((TreeViewItem)sender);
@@ -97,9 +118,76 @@ namespace EvoVIConfigurator
         }
 
 
-        /// <summary> Builds the treeview.
+        /// <summary> Fires when a node in the treeview has been selected.
         /// </summary>
-        public void BuildFileSystem(string filepath, TreeViewItem currTreeNode)
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void txt_PathTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            // Search and select the input path, if available
+            if (
+                (Directory.Exists(txt_PathTextBox.Text)) &&
+                (tree_FolderTreeView.SelectedItem == null) ||
+                (
+                    (tree_FolderTreeView.SelectedItem != null) &&
+                    ((string)((TreeViewItem)tree_FolderTreeView.SelectedItem).Tag != txt_PathTextBox.Text)
+                )
+            )
+            { selectNodeByPath(txt_PathTextBox.Text); }
+        }
+
+
+        /// <summary> Fires when the "Open Folder"-button has been clicked.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void btn_OpenFolder_Click(object sender, RoutedEventArgs e)
+        {
+            _selectedFolderConfirmed = true;
+            this.Close();
+        }
+
+
+        /// <summary> Fires when the "Cancel"-button has been clicked.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void btn_Cancel_Click(object sender, RoutedEventArgs e)
+        {
+            _selectedFolderConfirmed = false;
+            this.Close();
+        }
+
+
+        /// <summary> Fires when the dialog is closing.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The cancel event arguments.</param>
+        private void OpenFolderDialog_Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            TreeViewItem currItem = (TreeViewItem)tree_FolderTreeView.SelectedItem;
+            _selectedFolder = (_selectedFolderConfirmed && (currItem != null)) ? currItem.Tag.ToString() : "";
+        }
+
+
+        /// <summary> Fires when the dialog has been loaded.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void OpenFolderDialog_Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Select start folder
+            selectNodeByPath(_startFolder);
+        }
+        #endregion
+
+
+        #region Functions
+        /// <summary> Adds all children nodes for the given node and path.
+        /// </summary>
+        /// <param name="filepath">The filepath from which to create the child nodes.</param>
+        /// <param name="currTreeNode">The node to which to add the children to.</param>
+        private void addChildrenFromPath(string filepath, TreeViewItem currTreeNode)
         {
             DirectoryInfo[] folders;
             DirectoryInfo dirInfo = new DirectoryInfo(filepath);
@@ -109,12 +197,17 @@ namespace EvoVIConfigurator
 
             for (int i = 0; i < folders.Length; i++)
             {
-                TreeViewItem newBranch = CreateNewNode(folders[i].FullName);
+                TreeViewItem newBranch = createNewNode(folders[i].FullName);
                 if (newBranch != null) { currTreeNode.Items.Add(newBranch); }
             }
         }
 
-        private TreeViewItem CreateNewNode(string filepath)
+
+        /// <summary> Creates a node for the folder selection treeview, adding all necessary events etc..
+        /// </summary>
+        /// <param name="filepath">The new node's filepath.</param>
+        /// <returns></returns>
+        private TreeViewItem createNewNode(string filepath)
         {
             DirectoryInfo dir = new DirectoryInfo(filepath);
 
@@ -148,13 +241,17 @@ namespace EvoVIConfigurator
             newBranch.Header = stack;
             newBranch.Tag = dir.FullName;
 
-            newBranch.Selected += OnBranchSelected;
-            newBranch.Expanded += OnBranchExpanded;
+            newBranch.Selected += onBranchSelected;
+            newBranch.Expanded += onBranchExpanded;
 
             return newBranch;
         }
 
 
+        /// <summary> Selects the node corresponding to the given filepath.
+        /// </summary>
+        /// <param name="filepath">The filepath.</param>
+        /// <param name="currNode">The node from which to start searching the target node.</param>
         private void selectNodeByPath(string filepath, TreeViewItem currNode = null)
         {
             ItemCollection items = (currNode == null) ? tree_FolderTreeView.Items : currNode.Items;
@@ -186,43 +283,5 @@ namespace EvoVIConfigurator
             }
         }
         #endregion
-
-        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            // Search and select the input path, if available
-            if (
-                (Directory.Exists(txt_PathTextBox.Text)) &&
-                (tree_FolderTreeView.SelectedItem == null) ||
-                (
-                    (tree_FolderTreeView.SelectedItem != null) && 
-                    ((string)((TreeViewItem)tree_FolderTreeView.SelectedItem).Tag != txt_PathTextBox.Text)
-                )
-            )
-            { selectNodeByPath(txt_PathTextBox.Text); }
-        }
-
-        private void btn_OpenFolder_Click(object sender, RoutedEventArgs e)
-        {
-            _selectedFolderConfirmed = true;
-            this.Close();
-        }
-
-        private void btn_Cancel_Click(object sender, RoutedEventArgs e)
-        {
-            _selectedFolderConfirmed = false;
-            this.Close();
-        }
-
-        private void OpenFolderDialog_Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            TreeViewItem currItem = (TreeViewItem)tree_FolderTreeView.SelectedItem;
-            _selectedFolder = (_selectedFolderConfirmed && (currItem != null)) ? currItem.Tag.ToString() : "";
-        }
-
-        private void OpenFolderDialog_Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            // Select start folder
-            selectNodeByPath(_startFolder);
-        }
     }
 }

@@ -94,6 +94,10 @@ namespace EvoVI.Database
 
 
         #region Functions
+        /// <summary> Gets the description tag entry from the SupportedGame enum.
+        /// </summary>
+        /// <param name="game">The enum flagfor which to get the description for.</param>
+        /// <returns>The description (the game's name).</returns>
         public static string GetDescription(SupportedGame game)
         {
             Type valType = game.GetType();

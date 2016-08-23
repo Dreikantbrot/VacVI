@@ -14,6 +14,7 @@ namespace EvoVIConfigurator
     /// </summary>
     public partial class MainWindow : Window
     {
+        #region Structs
         private struct GameEntry
         {
             #region Variables
@@ -43,7 +44,10 @@ namespace EvoVIConfigurator
                 _displayValue = GameMeta.GetDescription(pValue);
             }
         }
+        #endregion
 
+
+        #region Constructor
         public MainWindow()
         {
             InitializeComponent();
@@ -67,35 +71,14 @@ namespace EvoVIConfigurator
 
             if (PluginLoader.Plugins.Count > 0) { comBox_PluginSelection.SelectedIndex = 0; }
         }
+        #endregion
 
-        private void verifyInstallDir()
-        {
-            if (String.IsNullOrWhiteSpace(txt_InstallDir.Text))
-            {
-                // No path entered
-                GameEntry newItemGame = (GameEntry)comBox_GameSelection.SelectedItem;
-                txtBox_StatusText.Visibility = System.Windows.Visibility.Visible;
-                txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Colors.White);
-                txtBox_StatusText.Text = "Please enter the installation path for " + newItemGame.DisplayValue + "!";
-            }
-            else if (!Directory.Exists(txt_InstallDir.Text))
-            {
-                // Path exists
-                GameEntry newItemGame = (GameEntry)comBox_GameSelection.SelectedItem;
-                txtBox_StatusText.Visibility = System.Windows.Visibility.Visible;
-                txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Color.FromRgb(220, 0, 0));
-                txtBox_StatusText.Text = "Error: The path given is not a valid " + newItemGame.DisplayValue + " installation directory!";
-            }
-            else
-            {
-                // Entered path does not exist
-                GameEntry newItemGame = (GameEntry)comBox_GameSelection.SelectedItem;
-                txtBox_StatusText.Visibility = System.Windows.Visibility.Visible;
-                txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Color.FromRgb(0, 240, 0));
-                txtBox_StatusText.Text = "Your installation path for " + newItemGame.DisplayValue + " is valid!";
-            }
-        }
 
+        #region Events
+        /// <summary> Fires when the "Browse"-button is clicked.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
         private void btn_InstallDir_Browse_Click(object sender, RoutedEventArgs e)
         {
             // Open file browse dialog
@@ -105,16 +88,31 @@ namespace EvoVIConfigurator
             if (!String.IsNullOrWhiteSpace(folderDialog.SelectedFolder)) { txt_InstallDir.Text = folderDialog.SelectedFolder; }
         }
 
+
+        /// <summary> Fires when the game within the game selection list changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The selection changed event arguments.</param>
         private void comBox_GameSelection_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             verifyInstallDir();
         }
 
+
+        /// <summary> Fires when the text inside the path-textbox changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
         private void txt_InstallDir_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             verifyInstallDir();
         }
 
+
+        /// <summary> Fires when the plugin within the plugin selection list changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
         private void comBox_PluginSelection_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             // Update plugin information
@@ -144,5 +142,39 @@ namespace EvoVIConfigurator
                 chck_PluginsCompatibility.Content = ((chck_PluginsCompatibility.IsChecked == true) ? "" : "Not ") + "Compatible";
             }
         }
+        #endregion
+
+
+        #region Functions
+        /// <summary> Verifies whether the path in the textbox is a valid installation directory.
+        /// </summary>
+        private void verifyInstallDir()
+        {
+            if (String.IsNullOrWhiteSpace(txt_InstallDir.Text))
+            {
+                // No path entered
+                GameEntry newItemGame = (GameEntry)comBox_GameSelection.SelectedItem;
+                txtBox_StatusText.Visibility = System.Windows.Visibility.Visible;
+                txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Colors.White);
+                txtBox_StatusText.Text = "Please enter the installation path for " + newItemGame.DisplayValue + "!";
+            }
+            else if (!Directory.Exists(txt_InstallDir.Text))
+            {
+                // Path exists
+                GameEntry newItemGame = (GameEntry)comBox_GameSelection.SelectedItem;
+                txtBox_StatusText.Visibility = System.Windows.Visibility.Visible;
+                txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Color.FromRgb(220, 0, 0));
+                txtBox_StatusText.Text = "Error: The path given is not a valid " + newItemGame.DisplayValue + " installation directory!";
+            }
+            else
+            {
+                // Entered path does not exist
+                GameEntry newItemGame = (GameEntry)comBox_GameSelection.SelectedItem;
+                txtBox_StatusText.Visibility = System.Windows.Visibility.Visible;
+                txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Color.FromRgb(0, 240, 0));
+                txtBox_StatusText.Text = "Your installation path for " + newItemGame.DisplayValue + " is valid!";
+            }
+        }
+        #endregion
     }
 }
