@@ -35,12 +35,12 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="53*"/>
+                    <RowDefinition Height="50*"/>
                     <RowDefinition Height="289*"/>
                 </Grid.RowDefinitions>
                 <Label x:Name="lbl_PluginSelection" Content="Select a Plugin:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.132,-0.231" Background="#00000000" Foreground="White" Height="26" Width="92"/>
                 <ComboBox x:Name="comBox_PluginSelection" Margin="107,10,0,0" VerticalAlignment="Top" Height="26" Grid.ColumnSpan="3" HorizontalAlignment="Left" Width="283" SelectionChanged="comBox_PluginSelection_SelectionChanged"/>
-                <CheckBox x:Name="chck_PluginsCompatibility" Content="Compatible?" Margin="140,14,0,21" FontSize="14" FontWeight="Bold" BorderThickness="2" BorderBrush="#FFACACAC" Foreground="White" Background="White" Focusable="False" IsHitTestVisible="False" RenderTransformOrigin="0.5,0.5" Grid.Column="2" HorizontalAlignment="Left" Width="127"/>
+                <CheckBox x:Name="chck_PluginsEnabled" Content="Enabled?" Margin="99,10,0,0" FontSize="14" FontWeight="Bold" BorderThickness="2" BorderBrush="#FFACACAC" Foreground="White" Background="White" IsHitTestVisible="True" RenderTransformOrigin="0.5,0.5" Grid.Column="2" HorizontalAlignment="Left" Width="110" Height="24" VerticalAlignment="Top" Checked="chck_PluginsEnabled_CheckedUnchecked" Unchecked="chck_PluginsEnabled_CheckedUnchecked" VerticalContentAlignment="Center"/>
                 <TextBox x:Name="lbl_PluginName" Margin="10,10,10,0" TextWrapping="Wrap" Text="Plugin Name" Grid.Row="1" Background="#33FFFFFF" Foreground="White" FontWeight="Normal" VerticalContentAlignment="Center" IsReadOnly="True" MaxLines="1" Focusable="False" Height="23" VerticalAlignment="Top"/>
                 <TextBox x:Name="lbl_PluginAuthor" Height="23" Margin="10,38,10,0" TextWrapping="Wrap" Text="Author" VerticalAlignment="Top" Grid.Row="1" Background="#33FFFFFF" Foreground="White" FontWeight="Normal" VerticalContentAlignment="Center" IsReadOnly="True" MaxLines="1" Focusable="False"/>
                 <TextBox x:Name="lbl_PluginHomepage" Margin="10,66,10,0" TextWrapping="Wrap" Text="Homepage" Grid.Row="1" Background="#33FFFFFF" Foreground="White" FontWeight="Normal" VerticalContentAlignment="Center" IsReadOnly="True" MaxLines="1" Focusable="False" Height="23" VerticalAlignment="Top"/>
@@ -49,6 +49,7 @@
                 <TextBox x:Name="lbl_PluginDescription" Margin="10,103,10,38" TextWrapping="Wrap" Text="Plugin Description" Grid.Row="1" Background="#33FFFFFF" Foreground="White" IsReadOnly="True" Grid.ColumnSpan="2" Focusable="False"/>
                 <TextBox x:Name="lbl_PluginVersion" Margin="10,0,10,10" TextWrapping="Wrap" Text="Version" Grid.Row="1" Background="#33FFFFFF" Foreground="White" FontWeight="Normal" VerticalContentAlignment="Center" IsReadOnly="True" MaxLines="1" Grid.ColumnSpan="2" Focusable="False" Height="23" VerticalAlignment="Bottom"/>
                 <GroupBox Grid.Column="2" Header="Plugin Configuration" Margin="10,5,10,10" Grid.Row="1" Foreground="White" BorderBrush="White" Background="#33FFFFFF" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                <TextBox x:Name="txt_PluginCompatibility" Grid.Column="2" HorizontalAlignment="Left" Height="26" Margin="209,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="150" Background="#7F00C800" CaretBrush="{Binding SelectionBrush, ElementName=txt_PluginCompatibility}" VerticalContentAlignment="Center" Foreground="White" HorizontalContentAlignment="Center" IsReadOnly="True" FontWeight="Bold" BorderThickness="0" FontSize="14" Text="Compatible"/>
             </Grid>
         </TabItem>
     </TabControl>

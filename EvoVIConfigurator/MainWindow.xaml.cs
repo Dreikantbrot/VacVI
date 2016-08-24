@@ -96,6 +96,7 @@ namespace EvoVIConfigurator
         private void comBox_GameSelection_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             verifyInstallDir();
+            validatePlugin();
         }
 
 
@@ -115,32 +116,49 @@ namespace EvoVIConfigurator
         /// <param name="e">The routed event arguments.</param>
         private void comBox_PluginSelection_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            // Update plugin information
+            validatePlugin();
+        }
+
+
+        /// <summary> Fires when the "Enabled"-checkbox under "Plugins" has changed status.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void chck_PluginsEnabled_CheckedUnchecked(object sender, RoutedEventArgs e)
+        {
             string newItemText = ((ComboBoxItem)comBox_PluginSelection.SelectedItem).Content.ToString();
             IPlugin plugin = PluginLoader.GetPlugin(newItemText);
 
             if (plugin != null)
             {
-                lbl_PluginName.Text = plugin.Name;
-                lbl_PluginVersion.Text = "Version: " + (!String.IsNullOrWhiteSpace(plugin.Version) ? plugin.Version : "N/A");
-                lbl_PluginDescription.Text = !String.IsNullOrWhiteSpace(plugin.Description) ? plugin.Description : "N/A";
-                lbl_PluginAuthor.Text = !String.IsNullOrWhiteSpace(plugin.Author) ? plugin.Author : "N/A";
-                lbl_PluginHomepage.Text = !String.IsNullOrWhiteSpace(plugin.Homepage) ? plugin.Homepage : "N/A";
-
-                // (Un-)Check the compatibility checkbox
-                GameEntry currGame = (GameEntry)comBox_GameSelection.SelectedItem;
-                chck_PluginsCompatibility.IsChecked = ((currGame.Value & plugin.CompatibilityFlags) == currGame.Value);
-                chck_PluginsCompatibility.Foreground = (
-                    new System.Windows.Media.SolidColorBrush((chck_PluginsCompatibility.IsChecked == true) ? Color.FromArgb(200, 0, 200, 0) : Color.FromArgb(200, 250, 0, 0))
-                );
-                chck_PluginsCompatibility.BorderBrush = (
-                    new System.Windows.Media.SolidColorBrush((chck_PluginsCompatibility.IsChecked == true) ? Color.FromArgb(200, 0, 200, 0) : Color.FromArgb(200, 250, 0, 0))
-                );
-                chck_PluginsCompatibility.Background = (
-                    new System.Windows.Media.SolidColorBrush((chck_PluginsCompatibility.IsChecked == true) ? Color.FromArgb(128, 0, 200, 0) : Color.FromArgb(128, 250, 0, 0))
-                );
-                chck_PluginsCompatibility.Content = ((chck_PluginsCompatibility.IsChecked == true) ? "" : "Not ") + "Compatible";
+                PluginLoader.PluginConfig.SetValue(plugin.Name, "Enabled", (chck_PluginsEnabled.IsChecked == true) ? "true" : "false");
+                PluginLoader.PluginConfig.Write(PluginLoader.GetPluginPath() + "\\" + "plugins.ini");
             }
+
+            GameEntry currGame = (GameEntry)comBox_GameSelection.SelectedItem;
+            bool isCompatible = ((currGame.Value & plugin.CompatibilityFlags) == currGame.Value);
+            chck_PluginsEnabled.Foreground = (
+                new System.Windows.Media.SolidColorBrush(
+                    (isCompatible && (chck_PluginsEnabled.IsChecked == true)) ? Color.FromArgb(200, 0, 200, 0) :
+                    (!isCompatible && (chck_PluginsEnabled.IsChecked == true)) ? Color.FromArgb(200, 200, 180, 0) : 
+                    Color.FromArgb(200, 250, 0, 0)
+                )
+            );
+            chck_PluginsEnabled.BorderBrush = (
+                new System.Windows.Media.SolidColorBrush(
+                    (isCompatible && (chck_PluginsEnabled.IsChecked == true)) ? Color.FromArgb(200, 0, 200, 0) :
+                    (!isCompatible && (chck_PluginsEnabled.IsChecked == true)) ? Color.FromArgb(200, 200, 180, 0) :
+                    Color.FromArgb(200, 250, 0, 0)
+                )
+            );
+            chck_PluginsEnabled.Background = (
+                new System.Windows.Media.SolidColorBrush(
+                    (isCompatible && (chck_PluginsEnabled.IsChecked == true)) ? Color.FromArgb(128, 0, 200, 0) :
+                    (!isCompatible && (chck_PluginsEnabled.IsChecked == true)) ? Color.FromArgb(128, 200, 180, 0) :
+                    Color.FromArgb(128, 250, 0, 0)
+                )
+            );
+            chck_PluginsEnabled.Content = ((chck_PluginsEnabled.IsChecked == true) ? "En" : "Dis") + "abled";
         }
         #endregion
 
@@ -181,6 +199,46 @@ namespace EvoVIConfigurator
                 // Path exists
                 txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Color.FromRgb(220, 0, 0));
                 txtBox_StatusText.Text = "Error: The path given is not a valid " + newItemGame.DisplayValue + " installation directory!";
+            }
+        }
+
+
+        /// <summary> Checks and updates the status of the currently loaded plugin.
+        /// </summary>
+        private void validatePlugin()
+        {
+            if (comBox_PluginSelection.SelectedItem == null) { return; }
+
+            // Update plugin information
+            string newItemText = ((ComboBoxItem)comBox_PluginSelection.SelectedItem).Content.ToString();
+            IPlugin plugin = PluginLoader.GetPlugin(newItemText);
+
+            if (plugin != null)
+            {
+                lbl_PluginName.Text = plugin.Name;
+                lbl_PluginVersion.Text = "Version: " + (!String.IsNullOrWhiteSpace(plugin.Version) ? plugin.Version : "N/A");
+                lbl_PluginDescription.Text = !String.IsNullOrWhiteSpace(plugin.Description) ? plugin.Description : "";
+                lbl_PluginAuthor.Text = !String.IsNullOrWhiteSpace(plugin.Author) ? plugin.Author : "<Unknown Author>";
+                lbl_PluginHomepage.Text = !String.IsNullOrWhiteSpace(plugin.Homepage) ? plugin.Homepage : "<Homepage N/A>";
+
+                // (Un-)Check the "compatibility" checkbox
+                GameEntry currGame = (GameEntry)comBox_GameSelection.SelectedItem;
+                bool isCompatible = ((currGame.Value & plugin.CompatibilityFlags) == currGame.Value);
+                txt_PluginCompatibility.Foreground = (
+                    new System.Windows.Media.SolidColorBrush(isCompatible ? Color.FromArgb(200, 0, 200, 0) : Color.FromArgb(200, 250, 0, 0))
+                );
+                txt_PluginCompatibility.Background = (
+                    new System.Windows.Media.SolidColorBrush(isCompatible ? Color.FromArgb(128, 0, 180, 0) : Color.FromArgb(128, 200, 0, 0))
+                );
+                txt_PluginCompatibility.Text = (isCompatible ? "" : "Not ") + "Compatible";
+                txt_PluginCompatibility.Visibility = System.Windows.Visibility.Visible; // !isCompatible ? System.Windows.Visibility.Visible : System.Windows.Visibility.Hidden;
+
+                // (Un-)Check the "enabled" checkbox
+                chck_PluginsEnabled.IsChecked = (
+                    (!PluginLoader.PluginConfig.HasKey(plugin.Name, "Enabled")) ||
+                    (PluginLoader.PluginConfig.ValueIsBoolAndTrue(plugin.Name, "Enabled"))
+                );
+                chck_PluginsEnabled_CheckedUnchecked(null, null);
             }
         }
         #endregion

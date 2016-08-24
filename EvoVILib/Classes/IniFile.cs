@@ -111,6 +111,33 @@ namespace EvoVI
         }
 
 
+        /// <summary> Writes the file to the specified loaction.
+        /// </summary>
+        /// <param name="filepath">The destination filepath.</param>
+        public void Write(string filepath)
+        {
+            StringBuilder builder = new StringBuilder();
+            foreach (KeyValuePair<string, Dictionary<string, KeyValuePair<string, string>>> section in _sections)
+            {
+                builder.Append("[");
+                builder.Append(section.Key);
+                builder.Append("]\n");
+
+                foreach (KeyValuePair<string, KeyValuePair<string, string>> keyVals in section.Value)
+                {
+                    builder.Append(keyVals.Value.Key);
+                    builder.Append("=");
+                    builder.Append(keyVals.Value.Value);
+                    builder.Append("\n");
+                }
+
+                builder.Append("\n");
+            }
+
+            File.WriteAllText(filepath, builder.ToString());
+        }
+
+
         /// <summary> Checks whether the specified parameter is defined within the given section.
         /// </summary>
         /// <param name="section">The section in which the value is located.</param>
@@ -142,6 +169,28 @@ namespace EvoVI
                 ) ?
                 _sections[section][key].Value : String.Empty
             );
+        }
+
+
+        /// <summary> Gets the specified entry from the database.
+        /// </summary>
+        /// <param name="section">The section in which the value is located.</param>
+        /// <param name="key">The key to the value.</param>
+        /// <param name="value">The new value.</param>
+        public void SetValue(string section, string key, string value)
+        {
+            section = section.ToLower();
+            key = key.ToLower();
+
+            if (!_sections.ContainsKey(section)) { _sections.Add(section, new Dictionary<string,KeyValuePair<string,string>>()); }
+            if (!_sections[section].ContainsKey(key))
+            {
+                _sections[section].Add(key, new KeyValuePair<string, string>(key, value));
+            }
+            else
+            {
+                _sections[section][key] = new KeyValuePair<string, string>(key, value);
+            }
         }
 
 

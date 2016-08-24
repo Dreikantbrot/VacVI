@@ -10,6 +10,17 @@ namespace EvoVI
     {
         #region Variables
         public static List<IPlugin> Plugins = new List<IPlugin>();
+        private static IniFile _pluginConfig;
+        #endregion
+
+
+        #region Properties
+        /// <summary> Returns the last laded plugin configuration.
+        /// </summary>
+        public static IniFile PluginConfig
+        {
+            get { return PluginLoader._pluginConfig; }
+        }
         #endregion
 
 
@@ -21,11 +32,10 @@ namespace EvoVI
             Plugins.Clear();
 
             string[] dllFileNames = null;
-            string appPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase).Replace("file:\\", "");
-            string pluginPath = appPath + "\\" + "Plugins";
+            string pluginPath = GetPluginPath();
 
-            IniFile pluginConfig = new IniFile(pluginPath + "\\" + "plugins.ini");
-            pluginConfig.Read();
+            _pluginConfig = new IniFile(pluginPath + "\\" + "plugins.ini");
+            _pluginConfig.Read();
 
             if (Directory.Exists(pluginPath))
             {
@@ -66,8 +76,8 @@ namespace EvoVI
                         // Plugins that have *explicitly* been disabled
                         (
                             (!loadDisabledPlugins) &&
-                            (pluginConfig.HasKey(plugin.Name, "Enabled")) &&
-                            (!pluginConfig.ValueIsBoolAndTrue(plugin.Name, "Enabled"))
+                            (_pluginConfig.HasKey(plugin.Name, "Enabled")) &&
+                            (!_pluginConfig.ValueIsBoolAndTrue(plugin.Name, "Enabled"))
                         )
                     )
                     { continue; }
@@ -85,6 +95,13 @@ namespace EvoVI
             for (int i = 0; i < Plugins.Count; i++) { if (Plugins[i].Name == pluginName) return Plugins[i]; }
 
             return null;
+        }
+
+
+        public static string GetPluginPath()
+        {
+            string appPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase).Replace("file:\\", "");
+            return appPath + "\\" + "Plugins";
         }
 
 
