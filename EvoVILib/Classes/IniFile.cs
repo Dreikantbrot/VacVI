@@ -20,7 +20,7 @@ namespace EvoVI
 
         #region Variables
         private string _filepath;
-        private Dictionary<string, Dictionary<string, KeyValuePair<string, string>>> _sections;
+        private Dictionary<string, Dictionary<string, string>> _sections;
         #endregion
 
 
@@ -36,7 +36,7 @@ namespace EvoVI
 
         /// <summary> Returns the section dictionary, containing the key-value pairs, indexed by the key.
         /// </summary>
-        public Dictionary<string, Dictionary<string, KeyValuePair<string, string>>> Sections
+        public Dictionary<string, Dictionary<string, string>> Sections
         {
             get { return _sections; }
         }
@@ -50,7 +50,7 @@ namespace EvoVI
         public IniFile(string pFilepath)
         {
             this._filepath = pFilepath;
-            this._sections = new Dictionary<string, Dictionary<string, KeyValuePair<string, string>>>();
+            this._sections = new Dictionary<string, Dictionary<string, string>>();
         }
         #endregion
 
@@ -83,7 +83,7 @@ namespace EvoVI
                     else
                     {
                         // Add new section
-                        _sections.Add(currSection, new Dictionary<string, KeyValuePair<string, string>>());
+                        _sections.Add(currSection, new Dictionary<string, string>());
                     }
                 }
                 else if (
@@ -99,12 +99,12 @@ namespace EvoVI
                     if (_sections[currSection].ContainsKey(key))
                     {
                         // Ovewrite keyval
-                        _sections[currSection][key] = new KeyValuePair<string, string>(key, value);
+                        _sections[currSection][key] = value;
                     }
                     else
                     {
                         // Add new keyval
-                        _sections[currSection].Add(key, new KeyValuePair<string, string>(key, value));
+                        _sections[currSection].Add(key, value);
                     }
                 }
             }
@@ -117,17 +117,17 @@ namespace EvoVI
         public void Write(string filepath)
         {
             StringBuilder builder = new StringBuilder();
-            foreach (KeyValuePair<string, Dictionary<string, KeyValuePair<string, string>>> section in _sections)
+            foreach (KeyValuePair<string, Dictionary<string, string>> section in _sections)
             {
                 builder.Append("[");
                 builder.Append(section.Key);
                 builder.Append("]\n");
 
-                foreach (KeyValuePair<string, KeyValuePair<string, string>> keyVals in section.Value)
+                foreach (KeyValuePair<string, string> keyVals in section.Value)
                 {
-                    builder.Append(keyVals.Value.Key);
+                    builder.Append(keyVals.Key);
                     builder.Append("=");
-                    builder.Append(keyVals.Value.Value);
+                    builder.Append(keyVals.Value);
                     builder.Append("\n");
                 }
 
@@ -167,7 +167,7 @@ namespace EvoVI
                     _sections.ContainsKey(section) &&
                     _sections[section].ContainsKey(key)
                 ) ?
-                _sections[section][key].Value : String.Empty
+                _sections[section][key] : String.Empty
             );
         }
 
@@ -182,15 +182,8 @@ namespace EvoVI
             section = section.ToLower();
             key = key.ToLower();
 
-            if (!_sections.ContainsKey(section)) { _sections.Add(section, new Dictionary<string,KeyValuePair<string,string>>()); }
-            if (!_sections[section].ContainsKey(key))
-            {
-                _sections[section].Add(key, new KeyValuePair<string, string>(key, value));
-            }
-            else
-            {
-                _sections[section][key] = new KeyValuePair<string, string>(key, value);
-            }
+            if (!_sections.ContainsKey(section)) { _sections.Add(section, new Dictionary<string, string>()); }
+            if (!_sections[section].ContainsKey(key)) { _sections[section].Add(key, value); } else { _sections[section][key] = value; }
         }
 
 
