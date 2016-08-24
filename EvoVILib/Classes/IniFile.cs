@@ -142,7 +142,7 @@ namespace EvoVI
         /// </summary>
         /// <param name="section">The section in which the value is located.</param>
         /// <param name="key">The key to the value.</param>
-        /// <returns>The value or an empty string on failure.</returns>
+        /// <returns>Whether the attribute is available.</returns>
         public bool HasKey(string section, string key)
         {
             section = section.ToLower();
@@ -169,6 +169,30 @@ namespace EvoVI
                 ) ?
                 _sections[section][key] : String.Empty
             );
+        }
+
+
+        /// <summary> Checks whether the specified section is defined within the file.
+        /// </summary>
+        /// <param name="section">The section to check for..</param>
+        /// <returns>Whether the section is available.</returns>
+        public bool HasSection(string section)
+        {
+            section = section.ToLower();
+
+            return (_sections.ContainsKey(section));
+        }
+
+
+        /// <summary> Gets the specified section entries from the database.
+        /// </summary>
+        /// <param name="section">The section in which the value is located.</param>
+        /// <returns>The attribute dictionary or null on failure.</returns>
+        public Dictionary<string, string> GetSectionAttributes(string section)
+        {
+            section = section.ToLower();
+
+            return (_sections.ContainsKey(section) ? _sections[section] : null);
         }
 
 

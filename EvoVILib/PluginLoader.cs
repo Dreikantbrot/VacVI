@@ -8,6 +8,11 @@ namespace EvoVI
 {
     public static class PluginLoader
     {
+        #region Constants
+        public static readonly string[] GLOBAL_PLUGIN_PARAMETERS = new string[] { "enabled" };
+        #endregion
+
+
         #region Variables
         public static List<IPlugin> Plugins = new List<IPlugin>();
         private static IniFile _pluginConfig;
@@ -85,6 +90,17 @@ namespace EvoVI
                     Plugins.Add(plugin);
                 }
             }
+            else
+            {
+                Directory.CreateDirectory(pluginPath);
+            }
+
+            // Fill plugins.ini file with global standard values, if not set
+            for (int i = 0; i < Plugins.Count; i++)
+            {
+                if (!_pluginConfig.HasKey(Plugins[i].Name, "Enabled")) { _pluginConfig.SetValue(Plugins[i].Name, "Enabled", "False"); }
+            }
+            _pluginConfig.Write(pluginPath + "\\" + "plugins.ini");
         }
 
 
@@ -109,7 +125,20 @@ namespace EvoVI
         /// </summary>
         public static void InitializeAll()
         {
-            for (int i = 0; i < Plugins.Count; i++) { Plugins[i].Initialize(); }
+            for (int i = 0; i < Plugins.Count; i++)
+            {
+                Dictionary<string, string> pluginParams = Plugins[i].GetDefaultPluginParameters();
+
+                foreach(KeyValuePair<string, string> keyVal in pluginParams)
+                {
+                    if (!_pluginConfig.HasKey(Plugins[i].Name, keyVal.Key))
+                    {
+                        _pluginConfig.SetValue(Plugins[i].Name, keyVal.Key, keyVal.Value);
+                    }
+                }
+
+                Plugins[i].Initialize();
+            }
         }
         #endregion
     }

@@ -2,6 +2,7 @@
 using EvoVI.Database;
 using EvoVI.PluginContracts;
 using System;
+using System.Collections.Generic;
 
 namespace ShipSystemControl
 {
@@ -67,6 +68,11 @@ namespace ShipSystemControl
         public void OnGameDataUpdate()
         {
 
+        }
+
+        public Dictionary<string, string> GetDefaultPluginParameters()
+        {
+            return new Dictionary<string, string>();
         }
         #endregion
     }

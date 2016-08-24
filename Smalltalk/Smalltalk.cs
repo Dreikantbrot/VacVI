@@ -3,6 +3,7 @@ using System;
 using EvoVI.Classes.Dialog;
 using EvoVI.Engine;
 using EvoVI.Database;
+using System.Collections.Generic;
 
 namespace Smalltalk
 {
@@ -53,6 +54,11 @@ namespace Smalltalk
         {
             get { return ""; }
         }
+        #endregion
+
+
+        #region Variables
+        private Dictionary<string, string> _parameter = new Dictionary<string,string>();
         #endregion
 
 
@@ -115,6 +121,12 @@ namespace Smalltalk
         public void OnGameDataUpdate()
         {
 
+        }
+
+
+        public Dictionary<string, string> GetDefaultPluginParameters()
+        {
+            return new Dictionary<string, string>();
         }
         #endregion
     }

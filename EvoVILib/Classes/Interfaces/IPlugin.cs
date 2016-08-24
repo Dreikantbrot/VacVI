@@ -1,6 +1,7 @@
 ﻿using EvoVI.Classes.Dialog;
 using EvoVI.Database;
 using System;
+using System.Collections.Generic;
 using System.Speech.Recognition;
 
 namespace EvoVI.PluginContracts 
@@ -63,6 +64,12 @@ namespace EvoVI.PluginContracts
         /// The interval is dependant on the user's savedatasettings.txt file content.
         /// </summary>
         void OnGameDataUpdate();
+
+
+        /// <summary> Gets the default parameters for the plugin.
+        /// This function is being called by the PluginLoader before plugin initialization.
+        /// </summary>
+        Dictionary<string, string> GetDefaultPluginParameters();
         #endregion
     }
 }

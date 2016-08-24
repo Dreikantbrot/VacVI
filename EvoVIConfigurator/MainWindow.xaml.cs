@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Windows;
 using System.IO;
+using System.Linq;
 using EvoVI;
 using EvoVI.PluginContracts;
 using System.Windows.Controls;
 using System.Windows.Media;
 using EvoVI.Database;
+using System.Collections.Generic;
 
 namespace EvoVIConfigurator
 {
@@ -47,12 +49,27 @@ namespace EvoVIConfigurator
         #endregion
 
 
+        #region Variables
+        private Label lbl_noParamsToConfigure;
+        #endregion
+
+
         #region Constructor
         public MainWindow()
         {
             InitializeComponent();
 
-            comBox_GameSelection.SelectedIndex = 0;
+            /* Build "No parameters to configure!"-textbox in configuration window */
+            lbl_noParamsToConfigure = new Label();
+            lbl_noParamsToConfigure.Content = "No parameters to configure!";
+            lbl_noParamsToConfigure.FontWeight = FontWeights.Bold;
+            lbl_noParamsToConfigure.Margin = new Thickness(10);
+            lbl_noParamsToConfigure.Foreground = (new System.Windows.Media.SolidColorBrush(Colors.WhiteSmoke));
+            lbl_noParamsToConfigure.Background = (new System.Windows.Media.SolidColorBrush(Color.FromArgb(128, 200, 200, 200)));
+            lbl_noParamsToConfigure.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
+            lbl_noParamsToConfigure.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+            lbl_noParamsToConfigure.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
+            lbl_noParamsToConfigure.HorizontalContentAlignment = System.Windows.HorizontalAlignment.Center;
 
             /* Fill games list */
             comBox_GameSelection.Items.Clear();
@@ -116,6 +133,75 @@ namespace EvoVIConfigurator
         /// <param name="e">The routed event arguments.</param>
         private void comBox_PluginSelection_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
+            // Build configuration menu
+            // Update plugin information
+            string newItemText = ((ComboBoxItem)comBox_PluginSelection.SelectedItem).Content.ToString();
+            IPlugin plugin = PluginLoader.GetPlugin(newItemText);
+            Dictionary<string, string> pluginParams = PluginLoader.PluginConfig.GetSectionAttributes(plugin.Name);
+
+            stck_PluginsParameters.Children.Clear();
+
+            if (pluginParams != null)
+            {
+                // Filter out the "enabled" attribute from the parameter count
+                int customParamsCount = 0;
+                foreach (KeyValuePair<string, string> attributes in pluginParams)
+                {
+                    string attribute = attributes.Key.ToLower();
+
+                    if (attribute != "enabled") { customParamsCount++; }
+                }
+
+                if (customParamsCount > 0)
+                {
+                    // Change config content to the stack panel
+                    grpBox_PluginsConfigWndow.Content = stck_PluginsParameters;
+
+                    foreach (KeyValuePair<string, string> attributes in pluginParams)
+                    {
+                        // Create keyval stack panel
+                        StackPanel stckPanel = new StackPanel();
+                        stckPanel.Orientation = Orientation.Horizontal;
+                        stckPanel.Margin = new Thickness(0, 5, 0, 5);
+                        stckPanel.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
+                        stckPanel.VerticalAlignment = System.Windows.VerticalAlignment.Top;
+
+                        // Add the parameter label
+                        Label paramKey = new Label();
+                        paramKey.Content = attributes.Key.Substring(0, 1).ToUpper() + attributes.Key.Substring(1) + ":";
+                        paramKey.FontWeight = FontWeights.Bold;
+                        paramKey.Foreground = new System.Windows.Media.SolidColorBrush(Colors.White);
+                        paramKey.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+                        paramKey.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                        paramKey.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
+                        paramKey.MaxWidth = 120;
+                        stckPanel.Children.Add(paramKey);
+
+                        // Add the value textbox
+                        TextBox paramValue = new TextBox();
+                        paramValue.Text = attributes.Value;
+                        paramValue.FontWeight = FontWeights.Bold;
+                        paramValue.BorderBrush = new System.Windows.Media.SolidColorBrush(Color.FromArgb((int)(255 * 0.2), 171, 173, 179));
+                        paramValue.Background = new System.Windows.Media.SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
+                        paramValue.Foreground = new System.Windows.Media.SolidColorBrush(Colors.White);
+                        paramValue.MinWidth = 120;
+                        paramValue.Margin = new Thickness(paramKey.MaxWidth + 10, 0, 0, 0);
+                        paramValue.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
+                        paramValue.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                        paramValue.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
+                        stckPanel.Children.Add(paramValue);
+
+                        // Add the stack panel to plugin configurations
+                        stck_PluginsParameters.Children.Add(stckPanel);
+                    }
+                }
+                else
+                {
+                    // Add the message to the configuration window
+                    grpBox_PluginsConfigWndow.Content = lbl_noParamsToConfigure;
+                }
+            }
+
             validatePlugin();
         }
 
@@ -131,7 +217,7 @@ namespace EvoVIConfigurator
 
             if (plugin != null)
             {
-                PluginLoader.PluginConfig.SetValue(plugin.Name, "Enabled", (chck_PluginsEnabled.IsChecked == true) ? "true" : "false");
+                PluginLoader.PluginConfig.SetValue(plugin.Name, "Enabled", (chck_PluginsEnabled.IsChecked == true) ? "True" : "False");
                 PluginLoader.PluginConfig.Write(PluginLoader.GetPluginPath() + "\\" + "plugins.ini");
             }
 
@@ -231,7 +317,7 @@ namespace EvoVIConfigurator
                     new System.Windows.Media.SolidColorBrush(isCompatible ? Color.FromArgb(128, 0, 180, 0) : Color.FromArgb(128, 200, 0, 0))
                 );
                 txt_PluginCompatibility.Text = (isCompatible ? "" : "Not ") + "Compatible";
-                txt_PluginCompatibility.Visibility = System.Windows.Visibility.Visible; // !isCompatible ? System.Windows.Visibility.Visible : System.Windows.Visibility.Hidden;
+                txt_PluginCompatibility.Visibility = System.Windows.Visibility.Visible;
 
                 // (Un-)Check the "enabled" checkbox
                 chck_PluginsEnabled.IsChecked = (
