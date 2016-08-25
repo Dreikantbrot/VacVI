@@ -42,10 +42,10 @@ namespace EvoVI.Plugins
         /// </summary>
         /// <param name="pParamName">The name of the parameter (key).</param>
         /// <param name="pDefaultValue">The parameter's default value.
-        /// Set to null, if there is no default value.
+        /// <para>Set to null, if there is no default value.</para>
         /// </param>
         /// <param name="pAllowedValues">A list of valid values for the parameter.
-        /// Set to null, to allow any value.
+        /// <para>Set to null, to allow any value.</para>
         /// </param>
         public PluginParameterDefault(string pParamName, string pDefaultValue = null, string[] pAllowedValues = null)
         {

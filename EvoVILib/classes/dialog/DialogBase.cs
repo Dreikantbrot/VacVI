@@ -132,7 +132,8 @@ namespace EvoVI.Classes.Dialog
         /// <summary> Creates a new instance for a node within a dialog tree.
         /// </summary>
         /// <param name="pText">The text to be spoken by the VI.</param>
-        /// <param name="pImportance">The importance this line has over others.</param>
+        /// <param name="pImportance">The importance this node has over others.</param>
+        /// <param name="pPluginToStart">The name of the plugin to start, when triggered.</param>
         public DialogBase(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, string pPluginToStart = null)
         {
             this._text = pText;

@@ -60,6 +60,11 @@ namespace EvoVI.Classes.Math
         #endregion
 
         #region Constructors
+        /// <summary> Creates a 3-dimensional vector.
+        /// </summary>
+        /// <param name="pX">The x-coordinate.</param>
+        /// <param name="pY">The y-coordinate.</param>
+        /// <param name="pZ">The z-coordinate.</param>
         public Vector3D(double pX, double pY, double pZ=0)
         {
             this._x = pX;
@@ -67,6 +72,7 @@ namespace EvoVI.Classes.Math
             this._z = pZ;
         }
 
+        /// <see cref="Vector3D"/>
         public Vector3D() : this(0, 0, 0) { }
         #endregion
 

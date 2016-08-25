@@ -26,6 +26,12 @@ namespace EvoVI.Classes.Dialog
 
 
         #region Constructor
+        /// <summary> Creates a dalog node where the VI says a randomly generated arrangement of the specified text.
+        /// <para>This node is triggered automatically, as soon as it is active.</para>
+        /// </summary>
+        /// <param name="pText">The text for the VI to say (see dialog text syntax).</param>
+        /// <param name="pImportance">The importance this node has over others.</param>
+        /// <param name="pPluginToStart">The name of the plugin to start, when triggered.</param>
         public DialogVI(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, string pPluginToStart = null) : 
         base(pText, pImportance, pPluginToStart)
         {

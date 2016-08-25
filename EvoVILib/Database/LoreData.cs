@@ -76,6 +76,11 @@ namespace EvoVI.Database
 
 
                 #region Constructor
+                /// <summary> Creates a new item entry for the database.
+                /// </summary>
+                /// <param name="pItemNr">The number (ID) of the item.</param>
+                /// <param name="pDescrLineNr">The number of lines used for the description.</param>
+                /// <param name="pDescription">The item description text.</param>
                 public ItemEntry(int pItemNr, int pDescrLineNr, string pDescription)
                 {
                     this._itemNr = pItemNr;
@@ -198,6 +203,13 @@ namespace EvoVI.Database
 
 
                 #region Constructors
+                /// <summary> Creates an entry for a star system in the database.
+                /// </summary>
+                /// <param name="pName">The name of the system.</param>
+                /// <param name="pDescription">The system description text.</param>
+                /// <param name="pSectorCoordinates">The sector coordinates.</param>
+                /// <param name="pEconomyClasses">The list of economy tags for this system.</param>
+                /// <param name="pFactions">A dictionary containing present factions as key and their satus within the system as value.</param>
                 public SystemEntry(string pName, string pDescription, Vector3D pSectorCoordinates, string[] pEconomyClasses, Dictionary<string, string> pFactions)
                 {
                     this._name = pName;
@@ -350,6 +362,12 @@ namespace EvoVI.Database
 
 
                 #region Constructor
+                /// <summary> Creates an entry for an in-game technology for the database.
+                /// </summary>
+                /// <param name="pItemNr">The number (ID) of the item.</param>
+                /// <param name="pItemType">The type/classification of the tech.</param>
+                /// <param name="pDescrLineNr">The number of lines used for the description.</param>
+                /// <param name="pDescription">The description text.</param>
                 public TechEntry(int pItemNr, string pItemType, int pDescrLineNr, string pDescription)
                 {
                     this._techNr = pItemNr;

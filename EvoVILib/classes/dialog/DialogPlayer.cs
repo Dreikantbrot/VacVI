@@ -32,7 +32,7 @@ namespace EvoVI.Classes.Dialog
             #region Constructor
             /// <summary> Creates a grammar status object containing the grammar's original enabled state.
             /// </summary>
-            /// <param name="pGrammar"></param>
+            /// <param name="pGrammar">The instance of the grammar object.</param>
             public GrammarStatus(Grammar pGrammar)
             {
                 this._grammar = pGrammar;
@@ -247,6 +247,12 @@ namespace EvoVI.Classes.Dialog
 
 
         #region Constructor
+        /// <summary> Creates a dialog node used for the player to say the specified text.
+        /// <para>This node is only triggered, if a valid phrase has been recognized.</para>
+        /// </summary>
+        /// <param name="pText">The text to say (see dialog text syntax).</param>
+        /// <param name="pImportance">The importance this node has over others.</param>
+        /// <param name="pPluginToStart">The name of the plugin to start, when triggered.</param>
         public DialogPlayer(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, string pPluginToStart = null) : 
         base(pText, pImportance, pPluginToStart)
         {

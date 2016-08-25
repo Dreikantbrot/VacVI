@@ -104,9 +104,13 @@ namespace EvoVI.Database
 
             #region Constructor
             /// <summary> Creates a data entry instance holding a single entry from the savedata.txt file.
+            /// <para>See: <see cref="Properties.Resources.Savedata_Layout"/></para>
             /// </summary>
             /// <param name="pName">The parameter name.</param>
-            /// <param name="pType">The parameter's data type</param>
+            /// <param name="pType">The parameter's data type.</param>
+            /// <param name="pFileIndex">The parameter's index wthin the template file.</param>
+            /// <param name="pGameFlags">The flags indicating which games support this parameter.</param>
+            /// <param name="pCategory">The parameter category.</param>
             public DataEntry(string pName, string pType, int pFileIndex, GameMeta.SupportedGame pGameFlags, string pCategory)
             {
                 _name = pName;
