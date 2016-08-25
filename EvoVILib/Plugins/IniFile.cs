@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace EvoVI
 {
@@ -50,7 +48,7 @@ namespace EvoVI
         public IniFile(string pFilepath)
         {
             this._filepath = pFilepath;
-            this._sections = new Dictionary<string, Dictionary<string, string>>();
+            this._sections = new Dictionary<string, Dictionary<string, string>>(StringComparer.InvariantCultureIgnoreCase);
         }
         #endregion
 
@@ -73,7 +71,7 @@ namespace EvoVI
 
                 if (SECTION_VALIDATIOR.IsMatch(currLine))
                 {
-                    currSection = SECTION_VALIDATIOR.Match(currLine).Groups["Section"].Value.ToLower();
+                    currSection = SECTION_VALIDATIOR.Match(currLine).Groups["Section"].Value;
 
                     if (_sections.ContainsKey(currSection))
                     {
@@ -83,7 +81,7 @@ namespace EvoVI
                     else
                     {
                         // Add new section
-                        _sections.Add(currSection, new Dictionary<string, string>());
+                        _sections.Add(currSection, new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase));
                     }
                 }
                 else if (
@@ -93,8 +91,8 @@ namespace EvoVI
                 )
                 {
                     Match match = KEY_VALUE_VALIDATIOR.Match(currLine);
-                    string key = match.Groups["Key"].Value.ToLower();
-                    string value = match.Groups["Value"].Value.ToLower();
+                    string key = match.Groups["Key"].Value;
+                    string value = match.Groups["Value"].Value;
 
                     if (_sections[currSection].ContainsKey(key))
                     {
@@ -145,9 +143,6 @@ namespace EvoVI
         /// <returns>Whether the attribute is available.</returns>
         public bool HasKey(string section, string key)
         {
-            section = section.ToLower();
-            key = key.ToLower();
-
             return (_sections.ContainsKey(section) && _sections[section].ContainsKey(key));
         }
 
@@ -159,9 +154,6 @@ namespace EvoVI
         /// <returns>The value or an empty string on failure.</returns>
         public string GetValue(string section, string key)
         {
-            section = section.ToLower();
-            key = key.ToLower();
-
             return (
                 (
                     _sections.ContainsKey(section) &&
@@ -178,8 +170,6 @@ namespace EvoVI
         /// <returns>Whether the section is available.</returns>
         public bool HasSection(string section)
         {
-            section = section.ToLower();
-
             return (_sections.ContainsKey(section));
         }
 
@@ -190,8 +180,6 @@ namespace EvoVI
         /// <returns>The attribute dictionary or null on failure.</returns>
         public Dictionary<string, string> GetSectionAttributes(string section)
         {
-            section = section.ToLower();
-
             return (_sections.ContainsKey(section) ? _sections[section] : null);
         }
 
@@ -203,10 +191,7 @@ namespace EvoVI
         /// <param name="value">The new value.</param>
         public void SetValue(string section, string key, string value)
         {
-            section = section.ToLower();
-            key = key.ToLower();
-
-            if (!_sections.ContainsKey(section)) { _sections.Add(section, new Dictionary<string, string>()); }
+            if (!_sections.ContainsKey(section)) { _sections.Add(section, new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)); }
             if (!_sections[section].ContainsKey(key)) { _sections[section].Add(key, value); } else { _sections[section][key] = value; }
         }
 
@@ -219,7 +204,7 @@ namespace EvoVI
         {
             return (
                 (VALUE_IS_BOOLEAN_VALIDATOR.IsMatch(value)) &&
-                (VALUE_IS_BOOLEAN_VALIDATOR.Match(value).Groups[0].Value.ToLower() == "true")
+                (String.Equals(VALUE_IS_BOOLEAN_VALIDATOR.Match(value).Groups[0].Value, "true", StringComparison.InvariantCultureIgnoreCase))
             );
         }
 

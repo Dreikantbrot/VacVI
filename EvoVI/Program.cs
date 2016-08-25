@@ -23,7 +23,7 @@ namespace EvoVI
             LoreData.Tech.BuildTechDatabase();
 
             /* Load Plugins */
-            PluginLoader.LoadPlugins();
+            PluginManager.LoadPlugins();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

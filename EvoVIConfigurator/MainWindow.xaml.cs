@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows;
 using System.IO;
-using System.Linq;
 using EvoVI;
 using EvoVI.PluginContracts;
 using System.Windows.Controls;
@@ -78,15 +77,15 @@ namespace EvoVIConfigurator
             comBox_GameSelection.SelectedIndex = 0;
 
             /* Fill plugin list */
-            PluginLoader.LoadPlugins(true);
-            for (int i = 0; i < PluginLoader.Plugins.Count; i++)
+            PluginManager.LoadPlugins(true);
+            for (int i = 0; i < PluginManager.Plugins.Count; i++)
             {
                 ComboBoxItem cmbx = new ComboBoxItem();
-                cmbx.Content = PluginLoader.Plugins[i].Name;
+                cmbx.Content = PluginManager.Plugins[i].Name;
                 comBox_PluginSelection.Items.Add(cmbx);
             }
 
-            if (PluginLoader.Plugins.Count > 0) { comBox_PluginSelection.SelectedIndex = 0; }
+            if (PluginManager.Plugins.Count > 0) { comBox_PluginSelection.SelectedIndex = 0; }
         }
         #endregion
 
@@ -120,7 +119,7 @@ namespace EvoVIConfigurator
         /// <summary> Fires when the text inside the path-textbox changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
-        /// <param name="e">The routed event arguments.</param>
+        /// <param name="e">The text changed event arguments.</param>
         private void txt_InstallDir_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             verifyInstallDir();
@@ -130,27 +129,24 @@ namespace EvoVIConfigurator
         /// <summary> Fires when the plugin within the plugin selection list changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
-        /// <param name="e">The routed event arguments.</param>
+        /// <param name="e">The selection changed event arguments.</param>
         private void comBox_PluginSelection_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            // Build configuration menu
             // Update plugin information
+            validatePlugin();
+
+            // Build configuration menu
             string newItemText = ((ComboBoxItem)comBox_PluginSelection.SelectedItem).Content.ToString();
-            IPlugin plugin = PluginLoader.GetPlugin(newItemText);
-            Dictionary<string, string> pluginParams = PluginLoader.PluginConfig.GetSectionAttributes(plugin.Name);
+            IPlugin plugin = PluginManager.GetPlugin(newItemText);
+            Dictionary<string, string> pluginParams = PluginManager.PluginFile.GetSectionAttributes(plugin.Name);
 
             stck_PluginsParameters.Children.Clear();
 
             if (pluginParams != null)
             {
                 // Filter out the "enabled" attribute from the parameter count
-                int customParamsCount = 0;
-                foreach (KeyValuePair<string, string> attributes in pluginParams)
-                {
-                    string attribute = attributes.Key.ToLower();
-
-                    if (attribute != "enabled") { customParamsCount++; }
-                }
+                int customParamsCount = pluginParams.Count;
+                if (PluginManager.PluginFile.HasKey(plugin.Name, "Enabled")) { customParamsCount--; }
 
                 if (customParamsCount > 0)
                 {
@@ -159,6 +155,9 @@ namespace EvoVIConfigurator
 
                     foreach (KeyValuePair<string, string> attributes in pluginParams)
                     {
+                        if (String.Equals(attributes.Key, "Enabled", StringComparison.InvariantCultureIgnoreCase)) { continue; }
+
+                        #region Create the configuration stack panel
                         // Create keyval stack panel
                         StackPanel stckPanel = new StackPanel();
                         stckPanel.Orientation = Orientation.Horizontal;
@@ -168,31 +167,66 @@ namespace EvoVIConfigurator
 
                         // Add the parameter label
                         Label paramKey = new Label();
-                        paramKey.Content = attributes.Key.Substring(0, 1).ToUpper() + attributes.Key.Substring(1) + ":";
+                        paramKey.Content = attributes.Key + ":";
                         paramKey.FontWeight = FontWeights.Bold;
                         paramKey.Foreground = new System.Windows.Media.SolidColorBrush(Colors.White);
                         paramKey.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
                         paramKey.VerticalAlignment = System.Windows.VerticalAlignment.Center;
                         paramKey.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
-                        paramKey.MaxWidth = 120;
+                        paramKey.MaxWidth = 250;
                         stckPanel.Children.Add(paramKey);
 
-                        // Add the value textbox
-                        TextBox paramValue = new TextBox();
-                        paramValue.Text = attributes.Value;
-                        paramValue.FontWeight = FontWeights.Bold;
-                        paramValue.BorderBrush = new System.Windows.Media.SolidColorBrush(Color.FromArgb((int)(255 * 0.2), 171, 173, 179));
-                        paramValue.Background = new System.Windows.Media.SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
-                        paramValue.Foreground = new System.Windows.Media.SolidColorBrush(Colors.White);
-                        paramValue.MinWidth = 120;
-                        paramValue.Margin = new Thickness(paramKey.MaxWidth + 10, 0, 0, 0);
-                        paramValue.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
-                        paramValue.VerticalAlignment = System.Windows.VerticalAlignment.Center;
-                        paramValue.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
-                        stckPanel.Children.Add(paramValue);
+                        // Add the value selection - check for list of allowed values for this parameter
+                        if (
+                            (PluginManager.PluginDefaults.ContainsKey(plugin.Name)) &&
+                            (PluginManager.PluginDefaults[plugin.Name].ContainsKey(attributes.Key)) &&
+                            (PluginManager.PluginDefaults[plugin.Name][attributes.Key].AllowedValues != null)
+                        )
+                        {
+                            // Plugin has a list of allowed values - create combobox
+                            ComboBox paramValue = new ComboBox();
+                            paramValue.FontWeight = FontWeights.Bold;
+                            paramValue.Foreground = new System.Windows.Media.SolidColorBrush(Colors.Black);
+                            paramValue.MinWidth = 120;
+                            paramValue.Margin = new Thickness(5, 0, 0, 0);
+                            paramValue.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+                            paramValue.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                            paramValue.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
+
+                            paramValue.Tag = attributes.Key;
+                            paramValue.SelectionChanged += onParamValueChanged;
+
+                            string[] allowedVals = PluginManager.PluginDefaults[plugin.Name][attributes.Key].AllowedValues;
+                            for (int i = 0; i < allowedVals.Length; i++) { paramValue.Items.Add(allowedVals[i]); }
+                            paramValue.SelectedValue = attributes.Value;
+
+                            stckPanel.Children.Add(paramValue);
+                        }
+                        else
+                        {
+                            // Plugin has no list of allowed values - create textbox (anything goes)
+                            TextBox paramValue = new TextBox();
+                            paramValue.Text = attributes.Value;
+                            paramValue.FontWeight = FontWeights.Bold;
+                            paramValue.BorderBrush = new System.Windows.Media.SolidColorBrush(Color.FromArgb((int)(255 * 0.2), 171, 173, 179));
+                            paramValue.Background = new System.Windows.Media.SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
+                            paramValue.Foreground = new System.Windows.Media.SolidColorBrush(Colors.White);
+                            paramValue.MinWidth = 120;
+                            paramValue.Margin = new Thickness(5, 0, 0, 0);
+                            paramValue.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+                            paramValue.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                            paramValue.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
+
+                            paramValue.Tag = attributes.Key;
+                            paramValue.TextChanged += onParamValueChanged;
+
+                            stckPanel.Children.Add(paramValue);
+                        }
+                        #endregion
 
                         // Add the stack panel to plugin configurations
                         stck_PluginsParameters.Children.Add(stckPanel);
+                        stckPanel.InvalidateArrange();
                     }
                 }
                 else
@@ -201,8 +235,41 @@ namespace EvoVIConfigurator
                     grpBox_PluginsConfigWndow.Content = lbl_noParamsToConfigure;
                 }
             }
+        }
 
-            validatePlugin();
+
+        /// <summary> Fires when a parameter has been changed under plugin configuration via combobox.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The selection changed event arguments.</param>
+        void onParamValueChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (((ComboBox)sender).SelectedValue == null) { return; }
+
+            string newItemText = ((ComboBoxItem)comBox_PluginSelection.SelectedItem).Content.ToString();
+            IPlugin plugin = PluginManager.GetPlugin(newItemText);
+
+            string currParamValue = ((ComboBox)sender).SelectedValue.ToString();
+            string currParamKey = ((ComboBox)sender).Tag.ToString();
+
+            PluginManager.PluginFile.SetValue(plugin.Name, currParamKey, currParamValue);
+            PluginManager.PluginFile.Write(PluginManager.PluginConfigPath);
+        }
+
+
+        /// <summary> Fires when a parameter has been changed under plugin configuration via textbox.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The text changed event arguments.</param>
+        void onParamValueChanged(object sender, TextChangedEventArgs e)
+        {
+            string newItemText = ((ComboBoxItem)comBox_PluginSelection.SelectedItem).Content.ToString();
+            IPlugin plugin = PluginManager.GetPlugin(newItemText);
+
+            string currParamKey = ((TextBox)sender).Tag.ToString();
+
+            PluginManager.PluginFile.SetValue(plugin.Name, currParamKey, ((TextBox)sender).Text);
+            PluginManager.PluginFile.Write(PluginManager.PluginConfigPath);
         }
 
 
@@ -213,14 +280,16 @@ namespace EvoVIConfigurator
         private void chck_PluginsEnabled_CheckedUnchecked(object sender, RoutedEventArgs e)
         {
             string newItemText = ((ComboBoxItem)comBox_PluginSelection.SelectedItem).Content.ToString();
-            IPlugin plugin = PluginLoader.GetPlugin(newItemText);
+            IPlugin plugin = PluginManager.GetPlugin(newItemText);
 
             if (plugin != null)
             {
-                PluginLoader.PluginConfig.SetValue(plugin.Name, "Enabled", (chck_PluginsEnabled.IsChecked == true) ? "True" : "False");
-                PluginLoader.PluginConfig.Write(PluginLoader.GetPluginPath() + "\\" + "plugins.ini");
+                // Update the enabled state for this plugin inside the plugins.ini
+                PluginManager.PluginFile.SetValue(plugin.Name, "Enabled", (chck_PluginsEnabled.IsChecked == true) ? "True" : "False");
+                PluginManager.PluginFile.Write(PluginManager.PluginConfigPath);
             }
 
+            // Update the "Enabled" checkbox status and style 
             GameEntry currGame = (GameEntry)comBox_GameSelection.SelectedItem;
             bool isCompatible = ((currGame.Value & plugin.CompatibilityFlags) == currGame.Value);
             chck_PluginsEnabled.Foreground = (
@@ -297,7 +366,7 @@ namespace EvoVIConfigurator
 
             // Update plugin information
             string newItemText = ((ComboBoxItem)comBox_PluginSelection.SelectedItem).Content.ToString();
-            IPlugin plugin = PluginLoader.GetPlugin(newItemText);
+            IPlugin plugin = PluginManager.GetPlugin(newItemText);
 
             if (plugin != null)
             {
@@ -307,7 +376,7 @@ namespace EvoVIConfigurator
                 lbl_PluginAuthor.Text = !String.IsNullOrWhiteSpace(plugin.Author) ? plugin.Author : "<Unknown Author>";
                 lbl_PluginHomepage.Text = !String.IsNullOrWhiteSpace(plugin.Homepage) ? plugin.Homepage : "<Homepage N/A>";
 
-                // (Un-)Check the "compatibility" checkbox
+                // (Un-)Check the "compatibility" checkbox and update the style
                 GameEntry currGame = (GameEntry)comBox_GameSelection.SelectedItem;
                 bool isCompatible = ((currGame.Value & plugin.CompatibilityFlags) == currGame.Value);
                 txt_PluginCompatibility.Foreground = (
@@ -319,10 +388,10 @@ namespace EvoVIConfigurator
                 txt_PluginCompatibility.Text = (isCompatible ? "" : "Not ") + "Compatible";
                 txt_PluginCompatibility.Visibility = System.Windows.Visibility.Visible;
 
-                // (Un-)Check the "enabled" checkbox
+                // (Un-)Check the "enabled" checkbox and trigger checked/unchecked event to do the rest
                 chck_PluginsEnabled.IsChecked = (
-                    (!PluginLoader.PluginConfig.HasKey(plugin.Name, "Enabled")) ||
-                    (PluginLoader.PluginConfig.ValueIsBoolAndTrue(plugin.Name, "Enabled"))
+                    (!PluginManager.PluginFile.HasKey(plugin.Name, "Enabled")) ||
+                    (PluginManager.PluginFile.ValueIsBoolAndTrue(plugin.Name, "Enabled"))
                 );
                 chck_PluginsEnabled_CheckedUnchecked(null, null);
             }

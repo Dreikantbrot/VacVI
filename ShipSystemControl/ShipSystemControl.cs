@@ -1,6 +1,7 @@
 ﻿using EvoVI.Classes.Dialog;
 using EvoVI.Database;
 using EvoVI.PluginContracts;
+using EvoVI.Plugins;
 using System;
 using System.Collections.Generic;
 
@@ -70,9 +71,9 @@ namespace ShipSystemControl
 
         }
 
-        public Dictionary<string, string> GetDefaultPluginParameters()
+        public List<PluginParameterDefault> GetDefaultPluginParameters()
         {
-            return new Dictionary<string, string>();
+            return new List<PluginParameterDefault>();
         }
         #endregion
     }

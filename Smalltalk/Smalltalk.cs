@@ -4,6 +4,7 @@ using EvoVI.Classes.Dialog;
 using EvoVI.Engine;
 using EvoVI.Database;
 using System.Collections.Generic;
+using EvoVI.Plugins;
 
 namespace Smalltalk
 {
@@ -124,9 +125,9 @@ namespace Smalltalk
         }
 
 
-        public Dictionary<string, string> GetDefaultPluginParameters()
+        public List<PluginParameterDefault> GetDefaultPluginParameters()
         {
-            return new Dictionary<string, string>();
+            return new List<PluginParameterDefault>();
         }
         #endregion
     }

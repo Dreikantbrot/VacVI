@@ -201,7 +201,7 @@ namespace EvoVI.Classes.Dialog
         /// </summary>
         public virtual void Trigger()
         {
-            IPlugin plugin = PluginLoader.GetPlugin(_pluginToStart);
+            IPlugin plugin = PluginManager.GetPlugin(_pluginToStart);
             if (plugin != null) { plugin.OnDialogAction(this); }
         }
 

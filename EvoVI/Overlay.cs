@@ -62,7 +62,7 @@ namespace EvoVI
             if (File.Exists(GameMeta.DefaultSavedataPath)) { System.IO.File.SetLastWriteTimeUtc(GameMeta.DefaultSavedataPath, DateTime.UtcNow); }
 
             /* Initialize Plugins */
-            PluginLoader.InitializeAll();
+            PluginManager.InitializePlugins();
             
             /* Draw System Tray Smybol */
             ContextMenu trayMenu = new ContextMenu();
@@ -118,7 +118,7 @@ namespace EvoVI
             TextRenderer.DrawText(e.Graphics, dialogInfo, debugFont, new Point(10, 80), this.ForeColor);
 
             e.Graphics.DrawLine(new Pen(this.ForeColor), 5, this.Height - 40 - 5, this.Width - 5, this.Height - 40 - 5);
-            TextRenderer.DrawText(e.Graphics, PluginLoader.Plugins.Count + " plugins loaded", debugFont, new Point(10, this.Height - 40), this.ForeColor);
+            TextRenderer.DrawText(e.Graphics, PluginManager.Plugins.Count + " plugins loaded", debugFont, new Point(10, this.Height - 40), this.ForeColor);
         }
 
 

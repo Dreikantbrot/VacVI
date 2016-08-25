@@ -1,8 +1,8 @@
 ﻿using EvoVI.Classes.Dialog;
 using EvoVI.Database;
+using EvoVI.Plugins;
 using System;
 using System.Collections.Generic;
-using System.Speech.Recognition;
 
 namespace EvoVI.PluginContracts 
 {
@@ -69,7 +69,7 @@ namespace EvoVI.PluginContracts
         /// <summary> Gets the default parameters for the plugin.
         /// This function is being called by the PluginLoader before plugin initialization.
         /// </summary>
-        Dictionary<string, string> GetDefaultPluginParameters();
+        List<PluginParameterDefault> GetDefaultPluginParameters();
         #endregion
     }
 }
