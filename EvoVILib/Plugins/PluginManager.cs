@@ -52,7 +52,10 @@ namespace EvoVI
         /// </summary>
         public static IPlugin GetPlugin(string pluginName)
         {
-            for (int i = 0; i < Plugins.Count; i++) { if (Plugins[i].Name == pluginName) return Plugins[i]; }
+            for (int i = 0; i < Plugins.Count; i++)
+            {
+                if (String.Equals(Plugins[i].Name, pluginName, StringComparison.InvariantCultureIgnoreCase)) return Plugins[i];
+            }
 
             return null;
         }

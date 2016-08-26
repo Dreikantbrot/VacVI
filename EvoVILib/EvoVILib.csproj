@@ -43,6 +43,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Speech" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -70,6 +71,7 @@
     <Compile Include="Plugins\PluginParameterDefault.cs" />
     <Compile Include="VI\Interactor.cs" />
     <Compile Include="Plugins\IPlugin.cs" />
+    <Compile Include="VI\VKeyCodes.cs" />
     <Compile Include="VI\SpeechEngine.cs" />
     <Compile Include="VI\VI.cs" />
     <Compile Include="Plugins\PluginManager.cs" />

@@ -7,6 +7,8 @@ using EvoVI.Classes.Dialog;
 using System.Threading;
 using EvoVI.Database;
 
+// TODO: Overlay get hidden behind the game window, if run in fullscreen mode
+
 namespace EvoVI
 {
     public partial class Overlay : Form
@@ -84,6 +86,7 @@ namespace EvoVI
         protected override void OnPaint(PaintEventArgs e)
         {
             // Invalidate to force redraw
+            // TODO: Optimize! Very expensive!
             this.Invalidate();
             
             Expand();
@@ -111,14 +114,33 @@ namespace EvoVI
             }
 
             string info = "\n\n" + DateTime.UtcNow.ToLongDateString() + "\n" + DateTime.Now.ToLongTimeString();
-            TextRenderer.DrawText(e.Graphics, _text + info, this.Font, new Point(10, 10), this.ForeColor);
+            TextRenderer.DrawText(
+                e.Graphics, 
+                _text + info, 
+                this.Font, 
+                new Point(10, 10), 
+                this.ForeColor
+            );
 
             Font debugFont = new System.Drawing.Font(this.Font.FontFamily, 8, this.Font.Style);
             string dialogInfo = "Current Node: " + VI.CurrentDialogNode.GUIDisplayText + "\nActive Nodes:\n" + buildDialogInfo(DialogTreeReader.RootDialogNode);
-            TextRenderer.DrawText(e.Graphics, dialogInfo, debugFont, new Point(10, 80), this.ForeColor);
+            TextRenderer.DrawText(
+                e.Graphics,
+                dialogInfo,
+                debugFont,
+                new Point(10, 80),
+                this.ForeColor
+            );
 
             e.Graphics.DrawLine(new Pen(this.ForeColor), 5, this.Height - 40 - 5, this.Width - 5, this.Height - 40 - 5);
-            TextRenderer.DrawText(e.Graphics, PluginManager.Plugins.Count + " plugins loaded", debugFont, new Point(10, this.Height - 40), this.ForeColor);
+            TextRenderer.DrawText(
+                e.Graphics, 
+                "Target Process: " + Interactor.TargetProcessName + "\n" +
+                PluginManager.Plugins.Count + " plugins loaded", 
+                debugFont,
+                new Point(10, this.Height - 40), 
+                this.ForeColor
+            );
         }
 
 

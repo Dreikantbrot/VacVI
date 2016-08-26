@@ -11,8 +11,19 @@ namespace EvoVI.Classes.Dialog
         /// <param name="pPluginToStart">The name of the plugin to start, when triggered.</param>
         /// <param name="pImportance">The importance this node has over others.</param>
         /// <param name="pCommandDescr">An optional description of what this command does.</param>
-        public DialogCommand(string pPluginToStart = null, DialogImportance pImportance = DialogImportance.NORMAL, string pCommandDescr = "") : 
-        base("<COMMAND" + ((pCommandDescr.Trim().Length > 0) ? ": \"" + pCommandDescr.Trim() + "\"" : "") + ">", pImportance, pPluginToStart)
+        /// <param name="pData">An object containing custom, user-defined data.</param>
+        public DialogCommand(
+            string pCommandDescr = "",
+            DialogImportance pImportance = DialogImportance.NORMAL,
+            string pPluginToStart = null, 
+            object pData = null
+        ) :
+        base(
+            "<COMMAND" + ((pCommandDescr.Trim().Length > 0) ? ": \"" + pCommandDescr.Trim() + "\"" : "") + ">", 
+            pImportance,
+            pPluginToStart, 
+            pData
+        )
         {
             this._speaker = DialogSpeaker.COMMAND;
         }

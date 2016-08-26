@@ -35,6 +35,7 @@ namespace EvoVI.Classes.Dialog
         protected DialogSpeaker _speaker;
         protected DialogImportance _importance;
         protected string _pluginToStart;
+        protected object _data;
         #endregion
 
 
@@ -54,6 +55,14 @@ namespace EvoVI.Classes.Dialog
         {
             get { return _disabled; }
             set { _disabled = value; }
+        }
+
+
+        /// <summary> Returns the unparsed, raw dialog text.
+        /// </summary>
+        public string RawText
+        {
+            get { return _text; }
         }
 
 
@@ -125,6 +134,15 @@ namespace EvoVI.Classes.Dialog
         {
             get { return this._text; }
         }
+
+
+        /// <summary> Returns or sets the custom data contained within the dialog node.
+        /// </summary>
+        public object Data
+        {
+            get { return _data; }
+            set { _data = value; }
+        }
         #endregion
 
 
@@ -134,11 +152,13 @@ namespace EvoVI.Classes.Dialog
         /// <param name="pText">The text to be spoken by the VI.</param>
         /// <param name="pImportance">The importance this node has over others.</param>
         /// <param name="pPluginToStart">The name of the plugin to start, when triggered.</param>
-        public DialogBase(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, string pPluginToStart = null)
+        /// <param name="pData">An object containing custom, user-defined data.</param>
+        public DialogBase(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, string pPluginToStart = null, object pData = null)
         {
             this._text = pText;
             this._importance = pImportance;
             this._pluginToStart = pPluginToStart;
+            this._data = pData;
 
             this._disabled = false;
             this._speaker = DialogSpeaker.NULL;

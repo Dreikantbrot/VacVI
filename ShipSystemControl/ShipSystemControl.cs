@@ -1,5 +1,6 @@
 ﻿using EvoVI.Classes.Dialog;
 using EvoVI.Database;
+using EvoVI.Engine;
 using EvoVI.PluginContracts;
 using EvoVI.Plugins;
 using System;
@@ -59,11 +60,48 @@ namespace ShipSystemControl
         public void Initialize()
         {
             // TODO: Build dialog tree
+            DialogTreeBranch[] dialogOptions = new DialogTreeBranch[] {
+                new DialogTreeBranch(
+                    new DialogPlayer("[Open ]fire;Shoot them up!", DialogBase.DialogImportance.CRITICAL),
+                    new DialogTreeBranch(
+                        new DialogCommand("Let's light'em up", DialogBase.DialogImportance.NORMAL, this.Name, "open_fire")
+                    )
+                ),
+                new DialogTreeBranch(
+                    new DialogPlayer("Initiate [fulcrum ]jump", DialogBase.DialogImportance.CRITICAL),
+                    new DialogTreeBranch(
+                        new DialogVI("Initiating [fulcrum ]jump;Jumping;Aye aye!", DialogBase.DialogImportance.NORMAL, this.Name, "init_jump")
+                    )
+                ),
+                new DialogTreeBranch(
+                    new DialogPlayer("[Initiate ]emergency jump;Get {me|us} out of here", DialogBase.DialogImportance.CRITICAL),
+                    new DialogTreeBranch(
+                        new DialogVI("Aye aye!;At once!;On it!", DialogBase.DialogImportance.NORMAL, this.Name, "init_emergency_jump")
+                    )
+                )
+            };
+
+            DialogTreeReader.BuildDialogTree(null, dialogOptions);
         }
 
         public void OnDialogAction(DialogBase originNode)
         {
+            switch(originNode.Data.ToString())
+            {
+                case "open_fire":
+                    Interactor.PressKey(VKeyCodes.VK_KEY_T, Interactor.KeyPressMode.KEY_PRESS, 1500);
+                    break;
 
+                case "init_jump":
+                    Interactor.PressKey(VKeyCodes.VK_F2, Interactor.KeyPressMode.KEY_PRESS, 300);
+                    break;
+
+                case "init_emergency_jump":
+                    Interactor.PressKey(VKeyCodes.VK_LMENU, Interactor.KeyPressMode.KEY_DOWN);
+                    Interactor.PressKey(VKeyCodes.VK_F2, Interactor.KeyPressMode.KEY_PRESS, 300);
+                    Interactor.PressKey(VKeyCodes.VK_LMENU, Interactor.KeyPressMode.KEY_UP);
+                    break;
+            }
         }
 
         public void OnGameDataUpdate()

@@ -32,8 +32,9 @@ namespace EvoVI.Classes.Dialog
         /// <param name="pText">The text for the VI to say (see dialog text syntax).</param>
         /// <param name="pImportance">The importance this node has over others.</param>
         /// <param name="pPluginToStart">The name of the plugin to start, when triggered.</param>
-        public DialogVI(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, string pPluginToStart = null) : 
-        base(pText, pImportance, pPluginToStart)
+        /// <param name="pData">An object containing custom, user-defined data.</param>
+        public DialogVI(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, string pPluginToStart = null, object pData = null) :
+            base(pText, pImportance, pPluginToStart, pData)
         {
             this._speaker = DialogSpeaker.VI;
         }

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 
+// TODO: Input will not be recognized, if the game is run as administrator
+
 namespace EvoVI.Engine
 {
     public static class Interactor
@@ -90,23 +92,34 @@ namespace EvoVI.Engine
         #endregion
 
 
+        #region Enums
+        public enum KeyPressMode
+        {
+            KEY_DOWN = 1,
+            KEY_UP = 2,
+            KEY_PRESS = (KEY_DOWN & KEY_UP),
+            KEY_PRESS_NO_SLEEP = 4
+        }
+        #endregion
+
+
         #region Variables
         private static Process _targetProcess = null;
         private static IntPtr _targetWindowHandle;
         #endregion
 
 
-        #region Functions
-        /// <summary> Gets a process by it's name and updates target process and window handle.
+        #region Properties
+        /// <summary> Returns the name of the currently targeted process.
         /// </summary>
-        /// <param name="process">The process name (without file extension).</param>
-        private static void getAllProcessesByName(string process)
+        public static string TargetProcessName
         {
-            _targetProcess = Process.GetProcessesByName(process).FirstOrDefault();
-            if (_targetProcess != null) { _targetWindowHandle = _targetProcess.MainWindowHandle; }
+            get { return (Interactor._targetProcess == null) ? "<null>" : Interactor._targetProcess.ProcessName; }
         }
-        
+        #endregion
 
+
+        #region Functions
         /// <summary> Initializes the Interactor.
         /// </summary>
         public static void Initialize()
@@ -116,26 +129,84 @@ namespace EvoVI.Engine
         }
 
 
+        /// <summary> Gets a process by it's name and updates target process and window handle.
+        /// </summary>
+        /// <param name="process">The process name (without file extension).</param>
+        private static void getAllProcessesByName(string process)
+        {
+            _targetProcess = Process.GetProcessesByName(process).FirstOrDefault();
+            if (_targetProcess != null) { _targetWindowHandle = _targetProcess.MainWindowHandle; }
+        }
+
+
+        /// <summary> Sends the input information to the currently active window via SendInput.
+        /// </summary>
+        /// <param name="inputs">The input information.</param>
+        /// <param name="pressMode">The mode of the keypress. Determines how the key is pressed.</param>
+        /// <param name="pressTime">The time to wait in ms after pressing the key and before releasing it.</param>
+        /// <param name="isScancode">Whether the key code within the input info array is a scancode or not.
+        /// <para>If set to false, the key will be interpreted as a unicode character.</para>
+        /// </param>
+        private static void pressKey(Input[] inputs, KeyPressMode pressMode, int pressTime, bool isScancode)
+        {
+            uint result = 0;
+            if ((pressMode & KeyPressMode.KEY_DOWN) == pressMode)
+            {
+                inputs[0].u.ki.dwFlags = (uint)(KeyEventF.KeyDown | (isScancode ? KeyEventF.Scancode : KeyEventF.Unicode));
+                result = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(Input)));
+
+                if (result == 0) { SpeechEngine.Say("System error: Send input failed @ key down!"); }
+            }
+
+            if (pressTime > 0) { Thread.Sleep(pressTime); }
+
+            if ((pressMode & KeyPressMode.KEY_UP) == pressMode)
+            {
+                inputs[0].u.ki.dwFlags = (uint)(KeyEventF.KeyUp | (isScancode ? KeyEventF.Scancode : KeyEventF.Unicode));
+                result = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(Input)));
+
+                if (result == 0) { SpeechEngine.Say("System error: Send input failed @ key up!"); }
+            }
+        }
+
+
+        /// <summary> Types the given text into the target application, if active.
+        /// <para>Warning: This command might only work in certain menus and not while in-game.</para>
+        /// </summary>
+        /// <param name="message">The text to type.</param>
+        public static void TypeText(string message)
+        {
+            for (int i = 0; i < message.Length; i++) { PressKey(message[i], KeyPressMode.KEY_PRESS, 0, false); }
+        }
+
+
+        /// <summary> Sends the specified key to the target application, if active.
+        /// </summary>
+        /// <param name="keyCode">The keycode.</param>
+        /// <param name="pressMode">The mode of the keypress. Determines how the key is pressed.</param>
+        /// <param name="pressTime">The time to wait in ms after pressing the key and before releasing it.</param>
+        /// <param name="isScancode">If true, the keycode will be interpreted as a scan code, else as unicode.</param>
+        public static void PressKey(uint keyCode, KeyPressMode pressMode = KeyPressMode.KEY_PRESS, int pressTime = 0, bool isScancode = true)
+        {
+            PressKey(MapVirtualKey(keyCode, 0), pressMode, pressTime, isScancode);
+        }
+        
+
         /// <summary> Sends the specified key to the target application, if active.
         /// </summary>
         /// <param name="key">The keycode.</param>
+        /// <param name="pressMode">The mode of the keypress. Determines how the key is pressed.</param>
+        /// <param name="pressTime">The time to wait in ms after pressing the key and before releasing it.</param>
         /// <param name="isScancode">If true, the keycode will be interpreted as a scan code, else as unicode.</param>
-        public static void SendKey(uint key, bool isScancode = false)
+        public static void PressKey(int key, KeyPressMode pressMode = KeyPressMode.KEY_PRESS, int pressTime = 0, bool isScancode = true)
         {
             Input[] inputs;
 
             inputs = new Input[1];
             inputs[0].type = (int)InputType.Keyboard;
             inputs[0].u.ki.wScan = (ushort)key;
-            inputs[0].u.ki.dwFlags = (uint)(KeyEventF.KeyDown | (isScancode ? KeyEventF.Scancode : KeyEventF.Unicode));
 
-            SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(Input)));
-
-            Thread.Sleep(30);
-
-            inputs[0].u.ki.dwFlags = (uint)(KeyEventF.KeyUp | (isScancode ? KeyEventF.Scancode : KeyEventF.Unicode));
-
-            SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(Input)));
+            pressKey(inputs, pressMode, pressTime, isScancode);
         }
         #endregion
     }
