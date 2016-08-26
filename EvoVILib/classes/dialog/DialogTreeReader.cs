@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Speech.Recognition;
 using System.Speech.Synthesis;
 
 namespace EvoVI.Classes.Dialog
@@ -31,6 +32,7 @@ namespace EvoVI.Classes.Dialog
     {
         #region Variables
         public static DialogBase RootDialogNode = new DialogBase();
+        private static Dictionary<string, DialogPlayer> _grammarLookupTable = new Dictionary<string, DialogPlayer>();
         #endregion
 
 
@@ -50,8 +52,34 @@ namespace EvoVI.Classes.Dialog
                 currStruct._node.RegisterTo((parentNode != null) ? parentNode : RootDialogNode);
                 currStruct._node.UpdateState();
 
+                // Sort into lookup table
+                switch(currStruct._node.Speaker)
+                {
+                    case DialogBase.DialogSpeaker.PLAYER:
+                        _grammarLookupTable.Add(currStruct._node.GetHashCode().ToString(), (DialogPlayer)currStruct._node);
+                        break;
+                }
+
                 BuildDialogTree(currStruct._node, currStruct._children);
             }
+        }
+
+
+        /// <summary> Gets the player dialog to which the given grammar rule belongs to.
+        /// </summary>
+        /// <param name="grammar">The grammar object of which to search for the player dialog node.</param>
+        /// <returns>The player dialog node or null on failure.</returns>
+        public static DialogPlayer GetPlayerDialog(Grammar grammar)
+        {
+            string grammarNameHash = grammar.Name;
+
+            if (
+                (_grammarLookupTable.ContainsKey(grammarNameHash)) &&
+                (_grammarLookupTable[grammarNameHash].GrammarList.Contains(grammar))
+            )
+            { return _grammarLookupTable[grammarNameHash]; }
+
+            return null;
         }
         #endregion
     }

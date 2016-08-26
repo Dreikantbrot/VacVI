@@ -77,6 +77,11 @@ namespace EvoVI
         {
             Plugins.Clear();
 
+            /* Load internal plugins */
+            Plugins.Add(new InternalPlugins.CommandRepeater());
+
+
+            /* Load plugin files */
             string[] dllFileNames = null;
             string pluginPath = GetPluginPath();
 

@@ -237,6 +237,7 @@ namespace EvoVI.Classes.Dialog
 
                 Grammar resultGrammar = new Grammar(builder);
                 resultGrammar.SpeechRecognized += onDialogDone;
+                resultGrammar.Name = this.GetHashCode().ToString();
                 _grammarList.Add(resultGrammar);
                 _grammarStatusList.Add(new GrammarStatus(resultGrammar));
             }

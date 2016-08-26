@@ -139,6 +139,10 @@ namespace EvoVI.Engine
         {
             if (e.Result.Confidence >= _confidenceThreshold)
             {
+                VI.LastRecognizedPhrase = e.Result.Text;
+                VI.LastMisunderstoodDialogNode = null;
+                VI.LastRecognizedGrammar = null;
+
                 //Say("I recognized you say: " + e.Result.Text + " - I am to " + Math.Floor(e.Result.Confidence * 100) + "% certain of that.");
             }
         }
@@ -155,8 +159,9 @@ namespace EvoVI.Engine
                 RecognizedPhrase currAlternative = e.Result.Alternates[i];
                 if (currAlternative.Confidence >= _confidenceThreshold)
                 {
+                    VI.LastRecognizedGrammar = e.Result.Grammar;
+                    VI.LastMisunderstoodDialogNode = DialogTreeReader.GetPlayerDialog(e.Result.Grammar);
                     Say(String.Format(EvoVI.Properties.StringTable.DID_NOT_UNDERSTAND_DID_YOU_MEAN, e.Result.Alternates[i].Text));
-                    // TODO: Add Yes/No choice
                     break;
                 }
             }
@@ -171,7 +176,7 @@ namespace EvoVI.Engine
         {
             /* Standard sentences */
             DialogTreeBranch standardDialogs = new DialogTreeBranch(
-                new DialogPlayer("${Yes|No}", DialogBase.DialogImportance.CRITICAL)
+                new DialogPlayer("What did you eat for breakfast?")
             );
 
             DialogTreeReader.BuildDialogTree(null, standardDialogs);

@@ -1,6 +1,7 @@
 ﻿using EvoVI.Classes.Dialog;
 using EvoVI.PluginContracts;
 using System.Reflection;
+using System.Speech.Recognition;
 
 namespace EvoVI.Engine
 {
@@ -15,6 +16,9 @@ namespace EvoVI.Engine
         private static IPlugin _lastCommand;
         private static DialogBase _currentDialogNode;
         private static DialogBase _previousDialogNode;
+        private static string _lastRecognizedPhrase;
+        private static Grammar _lastRecognizedGrammar;
+        private static DialogPlayer _lastMisunderstoodDialogNode;
         private static uint _affiliationToPlayer = 50;
         private static VIState _state = VIState.READY;
         #endregion
@@ -38,6 +42,24 @@ namespace EvoVI.Engine
         {
             get { return VI._previousDialogNode; }
             set { VI._previousDialogNode = value; }
+        }
+
+        public static string LastRecognizedPhrase
+        {
+            get { return VI._lastRecognizedPhrase; }
+            set { VI._lastRecognizedPhrase = value; }
+        }
+
+        public static Grammar LastRecognizedGrammar
+        {
+            get { return VI._lastRecognizedGrammar; }
+            set { VI._lastRecognizedGrammar = value; }
+        }
+
+        public static DialogPlayer LastMisunderstoodDialogNode
+        {
+            get { return VI._lastMisunderstoodDialogNode; }
+            set { VI._lastMisunderstoodDialogNode = value; }
         }
 
         public static uint AffiliationToPlayer
