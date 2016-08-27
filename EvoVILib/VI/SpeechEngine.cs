@@ -206,7 +206,7 @@ namespace EvoVI.Engine
         /// <param name="text">The text to speak.</param>
         /// <param name="modulation">The voice modulation mode.</param>
         /// <param name="async">If true, speech will be run asynchronously.</param>
-        public static void Say(string text = "", bool async = false, VoiceModulationModes modulation = VoiceModulationModes.ROBOTIC)
+        public static void Say(string text = "", bool async = true, VoiceModulationModes modulation = VoiceModulationModes.ROBOTIC)
         {
             Say(new DialogVI(text), async, modulation);
         }
@@ -216,8 +216,8 @@ namespace EvoVI.Engine
         /// </summary>
         /// <param name="text">The dialog line instance to speak.</param>
         /// <param name="modulation">The voice modulation mode.</param>
-        /// <param name="async">If true, speech will be run asynchronously.</param>
-        public static void Say(DialogVI dialogNode, bool async = false, VoiceModulationModes modulation = VoiceModulationModes.DEFAULT)
+        /// <param name="async">If true, speech will be run asynchronously, else the function will halt the script until the speech has finished.</param>
+        public static void Say(DialogVI dialogNode, bool async = true, VoiceModulationModes modulation = VoiceModulationModes.DEFAULT)
         {
             if (
                 (dialogNode.Speaker != DialogBase.DialogSpeaker.VI) ||

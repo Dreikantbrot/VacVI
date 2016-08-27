@@ -154,8 +154,6 @@ namespace EvoVI.Engine
             {
                 inputs[0].u.ki.dwFlags = (uint)(KeyEventF.KeyDown | (isScancode ? KeyEventF.Scancode : KeyEventF.Unicode));
                 result = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(Input)));
-
-                if (result == 0) { SpeechEngine.Say("System error: Send input failed @ key down!"); }
             }
 
             if (pressTime > 0) { Thread.Sleep(pressTime); }
@@ -164,8 +162,6 @@ namespace EvoVI.Engine
             {
                 inputs[0].u.ki.dwFlags = (uint)(KeyEventF.KeyUp | (isScancode ? KeyEventF.Scancode : KeyEventF.Unicode));
                 result = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(Input)));
-
-                if (result == 0) { SpeechEngine.Say("System error: Send input failed @ key up!"); }
             }
         }
 

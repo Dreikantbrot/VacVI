@@ -7,6 +7,11 @@ namespace EvoVI.Classes.Dialog
 {
     public class DialogVI : DialogBase
     {
+        #region Variables
+        private bool _waitUntilFinished;
+        #endregion
+
+
         #region Properties
         /// <summary> Returns the parsed dialog text.
         /// </summary>
@@ -22,6 +27,15 @@ namespace EvoVI.Classes.Dialog
         {
             get { return "<...>"; }
         }
+
+
+        /// <summary> Returns or sets whether the text should be spoken asynchronously or not.
+        /// </summary>
+        public bool WaitUntilFinished
+        {
+            get { return _waitUntilFinished; }
+            set { _waitUntilFinished = value; }
+        }
         #endregion
 
 
@@ -33,10 +47,12 @@ namespace EvoVI.Classes.Dialog
         /// <param name="pImportance">The importance this node has over others.</param>
         /// <param name="pPluginToStart">The name of the plugin to start, when triggered.</param>
         /// <param name="pData">An object containing custom, user-defined data.</param>
-        public DialogVI(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, string pPluginToStart = null, object pData = null) :
+        /// <param name="pWaituntilFinished">If set to true, the plugin will start after the text has been spoken, else it will be run asynchonously.</param>
+        public DialogVI(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, string pPluginToStart = null, object pData = null, bool pWaituntilFinished = false) :
             base(pText, pImportance, pPluginToStart, pData)
         {
             this._speaker = DialogSpeaker.VI;
+            this._waitUntilFinished = pWaituntilFinished;
         }
         #endregion
 
@@ -108,7 +124,7 @@ namespace EvoVI.Classes.Dialog
         /// </summary>
         public override void Trigger()
         {
-            SpeechEngine.Say(this);
+            SpeechEngine.Say(this, !_waitUntilFinished);
             base.Trigger();
         }
         #endregion
