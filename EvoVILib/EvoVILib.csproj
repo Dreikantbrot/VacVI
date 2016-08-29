@@ -56,7 +56,7 @@
     <Compile Include="Classes\Dialog\DialogCommand.cs" />
     <Compile Include="Classes\Dialog\DialogPlayer.cs" />
     <Compile Include="Classes\Dialog\DialogVI.cs" />
-    <Compile Include="Classes\Dialog\DialogTreeReader.cs" />
+    <Compile Include="Classes\Dialog\DialogTreeBuilder.cs" />
     <Compile Include="Classes\Math\Vector3D.cs" />
     <Compile Include="Classes\Sound\OnSoundStopHandler.cs" />
     <Compile Include="Plugins\IniFile.cs" />

@@ -19,6 +19,11 @@ namespace EvoVIOverlay
     /// </summary>
     public partial class MainWindow : Window
     {
+        #region Static App Settings
+        public static bool NoLoadingAnimation = true;
+        #endregion
+
+
         #region Window Behaviour Override
         public const int WS_EX_TRANSPARENT = 0x00000020;
         public const int GWL_EXSTYLE = (-20);
@@ -66,7 +71,10 @@ namespace EvoVIOverlay
         {
             InitializeComponent();
 
-            loadAnimation();
+
+            /* Play loading animation */
+            if (!MainWindow.NoLoadingAnimation) { loadAnimation(); }
+
 
             /* Initialize all components */
             VI.Initialize();
@@ -121,7 +129,7 @@ namespace EvoVIOverlay
 
             txtBlck_MainInfo.Text = "Current Node: " + ((VI.CurrentDialogNode == null) ? "N/A" : VI.CurrentDialogNode.GUIDisplayText) + "\n" +
                 "Active Nodes:\n" +
-                buildDialogInfo(DialogTreeReader.RootDialogNode);
+                buildDialogInfo(DialogTreeBuilder.RootDialogNode);
 
             txtBlck_StatusInfo.Text = "Target Process: " + Interactor.TargetProcessName + "\n" +
                 PluginManager.Plugins.Count + " plugins loaded";
@@ -361,7 +369,9 @@ namespace EvoVIOverlay
                 DialogBase currChild = parentNode.ChildNodes[i];
 
                 // Is listening mark
-                string listeningMark = currChild.IsReady ? "[!]" : "[ ]";
+                string listeningMark = currChild.IsReady ? 
+                    "[" + ((currChild.Speaker == DialogBase.DialogSpeaker.PLAYER) ? "!" : "-") + "]" : 
+                    "[ ]";
 
                 // Prepare spacing
                 string arrow = (

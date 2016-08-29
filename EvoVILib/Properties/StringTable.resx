@@ -117,10 +117,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CANNOT_UNDERSTAND_SELECTED_LANGAUGE" xml:space="preserve">
+    <value>I cannot understand the language you are speaking. Please install the appropriate speech recognition engine for your selected language - {0}.</value>
+    <comment>The user-selected speech recognition engine is not installed on the system.</comment>
+  </data>
   <data name="COULD_NOT_ACQUIRE_DATA" xml:space="preserve">
     <value>Error - Could not acquire ship sensor data!</value>
+    <comment>savedata.txt file could not be read.</comment>
   </data>
   <data name="DID_NOT_UNDERSTAND_DID_YOU_MEAN" xml:space="preserve">
     <value>I did not understand that. Did you mean {0}?</value>
+    <comment>Speech has been detected as such, but the system is unsure what the user meant exactly.
+This phrase is being used by the internal plugin "Command Repeater".</comment>
   </data>
 </root>

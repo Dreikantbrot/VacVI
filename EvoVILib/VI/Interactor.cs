@@ -149,6 +149,8 @@ namespace EvoVI.Engine
         /// </param>
         private static void pressKey(Input[] inputs, KeyPressMode pressMode, int pressTime, bool isScancode)
         {
+            if (VI.State <= VI.VIState.SLEEPING) { return; }
+
             uint result = 0;
             if ((pressMode & KeyPressMode.KEY_DOWN) == pressMode)
             {

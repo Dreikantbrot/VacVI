@@ -28,7 +28,7 @@ namespace EvoVI.Classes.Dialog
         #endregion
     }
 
-    public static class DialogTreeReader
+    public static class DialogTreeBuilder
     {
         #region Variables
         public static DialogBase RootDialogNode = new DialogBase();

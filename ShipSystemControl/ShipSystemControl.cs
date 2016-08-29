@@ -38,7 +38,7 @@ namespace ShipSystemControl
 
         private DialogVI _dialg_Jump = new DialogVI("Initiating $[fulcrum ]jump;Jumping...");
         private DialogVI _dialg_EmergencyJump = new DialogVI("I'm getting us out of here!;Let's get out of here!");
-        private DialogVI _dialg_CouldNotJump = new DialogVI("$[Sorry - but] ${we're unable|we don't have enough energy} to jump");
+        private DialogVI _dialg_CouldNotJump = new DialogVI("$[Sorry - but] $(we're unable|we don't have enough energy) to jump");
         #endregion
 
 
@@ -89,21 +89,21 @@ namespace ShipSystemControl
             DialogTreeBranch[] dialogOptions = new DialogTreeBranch[] {
 
                 new DialogTreeBranch(
-                    new DialogPlayer("$[Auto ]fire;${fire|shoot} when you have a lock on", DialogBase.DialogImportance.CRITICAL),
+                    new DialogPlayer("$[Auto ]fire;$(fire|shoot) when you have a lock on", DialogBase.DialogImportance.CRITICAL),
                     new DialogTreeBranch(
-                        new DialogVI("I'll light'em up, ${when|as soon as} I can", DialogBase.DialogImportance.NORMAL, this.Name, "init_auto_fire")
+                        new DialogVI("I'll light'em up, $(when|as soon as) I can", DialogBase.DialogImportance.NORMAL, this.Name, "init_auto_fire")
                     )
                 ),
 
                 new DialogTreeBranch(
-                    new DialogPlayer("Stop $[Auto-|automatically ]${firing|shooting};Manual fire", DialogBase.DialogImportance.CRITICAL),
+                    new DialogPlayer("Stop $[Auto-|automatically ]$(firing|shooting);Manual fire", DialogBase.DialogImportance.CRITICAL),
                     new DialogTreeBranch(
-                        new DialogVI("${Aye aye|Got it} - manual fire", DialogBase.DialogImportance.NORMAL, this.Name, "init_auto_fire_cancel")
+                        new DialogVI("$(Aye aye|Got it) - manual fire", DialogBase.DialogImportance.NORMAL, this.Name, "init_auto_fire_cancel")
                     )
                 ),
 
                 new DialogTreeBranch(
-                    new DialogPlayer("${fire|launch|shoot} a missile $[as soon as possible|asap]", DialogBase.DialogImportance.CRITICAL),
+                    new DialogPlayer("$(fire|launch|shoot) a missile $[as soon as possible|asap]", DialogBase.DialogImportance.CRITICAL),
                     new DialogTreeBranch(
                         new DialogVI("Give me a lock-on and I'll shoot", DialogBase.DialogImportance.NORMAL, this.Name, "init_auto_fire_missile")
                     )
@@ -124,7 +124,7 @@ namespace ShipSystemControl
                 ),
 
                 new DialogTreeBranch(
-                    new DialogPlayer("$[Initiate ]emergency jump;Get ${me|us} out of here", DialogBase.DialogImportance.CRITICAL),
+                    new DialogPlayer("$[Initiate ]emergency jump;Get $(me|us) out of here", DialogBase.DialogImportance.CRITICAL),
                     new DialogTreeBranch(
                         new DialogVI(VI_COMMAND_ACK + " - let's get out of here!", DialogBase.DialogImportance.NORMAL, this.Name, "init_emergency_jump")
                     )
@@ -138,7 +138,7 @@ namespace ShipSystemControl
                 )
             };
 
-            DialogTreeReader.BuildDialogTree(null, dialogOptions);
+            DialogTreeBuilder.BuildDialogTree(null, dialogOptions);
         }
 
         public void OnDialogAction(DialogBase originNode)
@@ -208,7 +208,7 @@ namespace ShipSystemControl
         {
             if (PlayerShipData.Mtds == PlayerShipData.MTDSState.LOCKED)
             {
-                SpeechEngine.Say("${Pew pew pew!|Take this!}");
+                SpeechEngine.Say("$(Pew pew pew!|Take this!)");
                 //Interactor.PressKey(VKeyCodes.VK_KEY_B, Interactor.KeyPressMode.KEY_PRESS, 1000);
             }
         }

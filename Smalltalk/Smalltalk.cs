@@ -66,13 +66,13 @@ namespace Smalltalk
         #region Interface Functions
         public void Initialize()
         {
-            DialogTreeReader.BuildDialogTree(
+            DialogTreeBuilder.BuildDialogTree(
                 null,
                 new DialogTreeBranch(
-                    new DialogPlayer("${Hey|Hi} $[what's up?];Hello$[ there]."),
+                    new DialogPlayer("$(Hey|Hi) $[what's up?];Hello$[ there]."),
                     new DialogTreeBranch(
 
-                        new DialogVI("$[Oh,] ${hi|hey}", DialogBase.DialogImportance.NORMAL),                            
+                        new DialogVI("$[Oh,] $(hi|hey)", DialogBase.DialogImportance.NORMAL),                            
                         new DialogTreeBranch(
                                     
                             new DialogPlayer("Are you okay?"),                             

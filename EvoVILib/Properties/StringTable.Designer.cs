@@ -61,6 +61,15 @@ namespace EvoVI.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die I cannot understand the language you are speaking. Please install the appropriate speech recognition engine for your selected language - {0}. ähnelt.
+        /// </summary>
+        internal static string CANNOT_UNDERSTAND_SELECTED_LANGAUGE {
+            get {
+                return ResourceManager.GetString("CANNOT_UNDERSTAND_SELECTED_LANGAUGE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Error - Could not acquire ship sensor data! ähnelt.
         /// </summary>
         internal static string COULD_NOT_ACQUIRE_DATA {

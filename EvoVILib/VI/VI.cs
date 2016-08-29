@@ -8,28 +8,55 @@ namespace EvoVI.Engine
     public static class VI
     {
         #region Enums
-        private enum VIState { READY, SLEEPING, BUSY, OFFLINE };
+        public enum VIState
+        {
+            OFFLINE = 1,
+            SLEEPING = 2,
+            READY = 3,
+            BUSY = 4
+        };
         #endregion
 
 
         #region Variables
-        private static IPlugin _lastCommand;
+        private static string _name = "Vāk";
+        private static string _phoneticName = "Vahk";
+        private static VIState _state = VIState.READY;
+        private static uint _affiliationToPlayer = 50;
+
         private static DialogBase _currentDialogNode;
         private static DialogBase _previousDialogNode;
+
+        private static IPlugin _lastCommand;
         private static string _lastRecognizedPhrase;
         private static Grammar _lastRecognizedGrammar;
         private static DialogPlayer _lastMisunderstoodDialogNode;
-        private static uint _affiliationToPlayer = 50;
-        private static VIState _state = VIState.READY;
         #endregion
 
 
         #region Properties
 
-        public static IPlugin LastCommand
+        public static string Name
         {
-            get { return VI._lastCommand; }
-            set { VI._lastCommand = value; }
+            get { return VI._name; }
+            set { VI._name = value; }
+        }
+
+        public static string PhoneticName
+        {
+            get { return VI._phoneticName; }
+            set { VI._phoneticName = value; }
+        }
+
+        public static VIState State
+        {
+            get { return VI._state; }
+            set { VI._state = value; }
+        }
+
+        public static uint AffiliationToPlayer
+        {
+            get { return VI._affiliationToPlayer; }
         }
 
         public static DialogBase CurrentDialogNode
@@ -42,6 +69,12 @@ namespace EvoVI.Engine
         {
             get { return VI._previousDialogNode; }
             set { VI._previousDialogNode = value; }
+        }
+
+        public static IPlugin LastCommand
+        {
+            get { return VI._lastCommand; }
+            set { VI._lastCommand = value; }
         }
 
         public static string LastRecognizedPhrase
@@ -61,16 +94,6 @@ namespace EvoVI.Engine
             get { return VI._lastMisunderstoodDialogNode; }
             set { VI._lastMisunderstoodDialogNode = value; }
         }
-
-        public static uint AffiliationToPlayer
-        {
-            get { return VI._affiliationToPlayer; }
-        }
-
-        private static VIState State
-        {
-            get { return VI._state; }
-        }
         #endregion
 
 
@@ -79,7 +102,7 @@ namespace EvoVI.Engine
         /// </summary>
         public static void Initialize()
         {
-            _currentDialogNode = DialogTreeReader.RootDialogNode;
+            _currentDialogNode = DialogTreeBuilder.RootDialogNode;
         }
         #endregion
     }

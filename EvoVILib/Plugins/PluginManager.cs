@@ -79,6 +79,7 @@ namespace EvoVI
 
             /* Load internal plugins */
             Plugins.Add(new InternalPlugins.CommandRepeater());
+            Plugins.Add(new InternalPlugins.VIStates());
 
 
             /* Load plugin files */

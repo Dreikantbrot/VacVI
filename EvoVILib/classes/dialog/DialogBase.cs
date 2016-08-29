@@ -12,7 +12,7 @@ namespace EvoVI.Classes.Dialog
     {
         #region Regexes (readonly)
         protected readonly Regex VALIDATION_REGEX = new Regex(@"^(?:\s|\.|,|;|:)*$");
-        protected readonly Regex CHOICES_REGEX = new Regex(@"(?:\$\{(?<Choice>.*?)\})|(?:\$\[(?<OptChoice>.*?)\])");
+        protected readonly Regex CHOICES_REGEX = new Regex(@"(?:\$\((?<Choice>.*?)\))|(?:\$\[(?<OptChoice>.*?)\])");
         #endregion
 
 
@@ -206,10 +206,23 @@ namespace EvoVI.Classes.Dialog
         /// </summary>
         public virtual void SetActive()
         {
+            if (
+                (VI.State <= VI.VIState.SLEEPING) &&
+                (_importance < DialogImportance.CRITICAL)
+            )
+            { return; }
+
             VI.PreviousDialogNode = VI.CurrentDialogNode;
             VI.CurrentDialogNode = this;
 
-            // Update status of the dalog node + siblings
+            // Update status of the previous dialog node + siblings (in case it programatically jumped somewhere completely different)
+            for (int i = 0; i < VI.PreviousDialogNode.ChildNodes.Count; i++) { VI.PreviousDialogNode.ChildNodes[i].UpdateState(); }
+            if (VI.PreviousDialogNode.ParentNode != null)
+            {
+                for (int i = 0; i < VI.PreviousDialogNode.ParentNode.ChildNodes.Count; i++) { VI.PreviousDialogNode.ParentNode.ChildNodes[i].UpdateState(); }
+            }
+
+            // Update status of the current dialog node + siblings
             for (int i = 0; i < _childNodes.Count; i++) { _childNodes[i].UpdateState(); }
             if (_parentNode != null)
             {
@@ -222,6 +235,12 @@ namespace EvoVI.Classes.Dialog
         /// </summary>
         public virtual void Trigger()
         {
+            if (
+                (VI.State <= VI.VIState.SLEEPING) &&
+                (_importance < DialogImportance.CRITICAL)
+            )
+            { return; }
+
             IPlugin plugin = PluginManager.GetPlugin(_pluginToStart);
             if (plugin != null) { plugin.OnDialogAction(this); }
         }
@@ -229,9 +248,16 @@ namespace EvoVI.Classes.Dialog
 
         /// <summary> Finds and activates the next node within the dialog tree.
         /// </summary>
-        public virtual void NextNode()
+        public void NextNode()
         {
-            if (!this.IsActive) { return; }
+            if (
+                (!this.IsActive) ||
+                (
+                    (VI.State <= VI.VIState.SLEEPING) &&
+                    (_importance < DialogImportance.CRITICAL)
+                )
+            )
+            { return; }
 
             List<DialogBase> candidatePhrases = new List<DialogBase>();
 
@@ -296,7 +322,7 @@ namespace EvoVI.Classes.Dialog
                 else
                 {
                     // No "winner" phrase - back to root
-                    DialogTreeReader.RootDialogNode.SetActive();
+                    DialogTreeBuilder.RootDialogNode.SetActive();
                 }
             }
         }

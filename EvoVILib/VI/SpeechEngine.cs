@@ -114,12 +114,15 @@ namespace EvoVI.Engine
 
 
         #region Variables
+        public static string Language = "de-DE";
+        public static System.Globalization.CultureInfo Culture;
+
         private static ISoundEngine _soundEngine = new ISoundEngine();
         private static ISound _speechSound;
         private static OnSpeechStopHandler _onSpeechStop = new OnSpeechStopHandler();
 
         private static SpeechSynthesizer _synthesizer = new SpeechSynthesizer();
-        private static SpeechRecognitionEngine _recognizer = new SpeechRecognitionEngine(new System.Globalization.CultureInfo("de-DE"));
+        private static SpeechRecognitionEngine _recognizer;
 
         private static VoiceInfo _defaultVoice = _synthesizer.Voice;
         private static List<DialogVI> _queue = new List<DialogVI>();
@@ -143,6 +146,10 @@ namespace EvoVI.Engine
                 VI.LastMisunderstoodDialogNode = null;
                 VI.LastRecognizedGrammar = null;
 
+                // Disable command repeater plugin dialog, in case it was active but ignored by the user
+                EvoVI.PluginContracts.IPlugin crPlugin = PluginManager.GetPlugin("Command Repeater");
+                if (crPlugin != null) { ((EvoVI.Plugins.InternalPlugins.CommandRepeater)crPlugin).ToggleOnOff(false); }
+
                 //Say("I recognized you say: " + e.Result.Text + " - I am to " + Math.Floor(e.Result.Confidence * 100) + "% certain of that.");
             }
         }
@@ -160,8 +167,12 @@ namespace EvoVI.Engine
                 if (currAlternative.Confidence >= _confidenceThreshold)
                 {
                     VI.LastRecognizedGrammar = e.Result.Grammar;
-                    VI.LastMisunderstoodDialogNode = DialogTreeReader.GetPlayerDialog(e.Result.Grammar);
+                    VI.LastMisunderstoodDialogNode = DialogTreeBuilder.GetPlayerDialog(e.Result.Grammar);
                     Say(String.Format(EvoVI.Properties.StringTable.DID_NOT_UNDERSTAND_DID_YOU_MEAN, e.Result.Alternates[i].Text));
+                    
+                    // Enable command repeater plugin dialog
+                    EvoVI.PluginContracts.IPlugin crPlugin = PluginManager.GetPlugin("Command Repeater");
+                    if (crPlugin != null) { ((EvoVI.Plugins.InternalPlugins.CommandRepeater)crPlugin).ToggleOnOff(true); }
                     break;
                 }
             }
@@ -174,12 +185,24 @@ namespace EvoVI.Engine
         /// </summary>
         public static void Initialize()
         {
+            Culture = new System.Globalization.CultureInfo(Language, false);
+            try 
+            {
+                _recognizer = new SpeechRecognitionEngine(Culture);
+            }
+            catch (ArgumentException e)
+            {
+                _recognizer = null;
+                Say(String.Format(Properties.StringTable.CANNOT_UNDERSTAND_SELECTED_LANGAUGE, Culture.EnglishName));
+                return;
+            }
+
             /* Standard sentences */
             DialogTreeBranch standardDialogs = new DialogTreeBranch(
                 new DialogPlayer("What did you eat for breakfast?")
             );
 
-            DialogTreeReader.BuildDialogTree(null, standardDialogs);
+            DialogTreeBuilder.BuildDialogTree(null, standardDialogs);
 
             _recognizer.SpeechRecognized += onSpeechRecognized;
             _recognizer.SpeechRecognitionRejected += onSpeechRejected;
@@ -193,6 +216,8 @@ namespace EvoVI.Engine
         /// <param name="node">The dialog node, which answers to add.</param>
         public static void RegisterPlayerDialogNode(DialogPlayer node)
         {
+            if (_recognizer == null) { return; }
+
             // Load the node's answers
             for (int i = 0; i < node.GrammarList.Count; i++)
             {
@@ -221,7 +246,11 @@ namespace EvoVI.Engine
         {
             if (
                 (dialogNode.Speaker != DialogBase.DialogSpeaker.VI) ||
-                (String.IsNullOrWhiteSpace(dialogNode.Text))
+                (String.IsNullOrWhiteSpace(dialogNode.Text)) ||
+                (
+                    (VI.State <= VI.VIState.SLEEPING) &&
+                    (dialogNode.Importance < DialogBase.DialogImportance.CRITICAL)
+                )
             )
             { return; }
 

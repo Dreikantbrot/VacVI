@@ -196,6 +196,7 @@ namespace EvoVI.Classes.Dialog
             for (int i = 0; i < sentences.Length; i++)
             {
                 GrammarBuilder builder = new GrammarBuilder();
+                builder.Culture = SpeechEngine.Culture;
                 MatchCollection matches = CHOICES_REGEX.Matches(sentences[i]);
 
                 int currIndex = 0;
@@ -275,7 +276,7 @@ namespace EvoVI.Classes.Dialog
         {
             if (
                 (_importance < DialogImportance.CRITICAL) && 
-                (_disabled || !this.IsNextInTurn)
+                (_disabled || !this.IsNextInTurn || (VI.State <= VI.VIState.SLEEPING))
             )
             {
                 this.sleep();
