@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>XamlAnimatedGif</id>
+    <version>1.1.4</version>
+    <title>XAML Animated GIF</title>
+    <authors>Thomas Levesque</authors>
+    <owners>Thomas Levesque</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.txt</licenseUrl>
+    <projectUrl>https://github.com/XamlAnimatedGif/XamlAnimatedGif</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/XamlAnimatedGif/XamlAnimatedGif/master/NuGet/XamlAnimatedGif-128.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A simple library to display animated GIF images in XAML applications. Supported platforms: WPF (4.0 and later) UWP (Windows 10), Windows 8.1, Windows Phone 8.1, Silverlight 5.</description>
+    <summary>A simple library to display animated GIF images in XAML applications</summary>
+    <releaseNotes>See version history on GitHub: https://github.com/XamlAnimatedGif/XamlAnimatedGif/wiki/Version-history</releaseNotes>
+    <tags>xaml animated gif winrt wpf windows-phone</tags>
+    <dependencies>
+      <group targetFramework=".NETFramework4.5" />
+      <group targetFramework=".NETPortable0.0-win81+wpa81" />
+      <group targetFramework=".NETFramework4.0">
+        <dependency id="Microsoft.Bcl.Async" version="1.0.168" />
+        <dependency id="Microsoft.Net.Http" version="2.2.29" />
+      </group>
+      <group targetFramework="Silverlight5.0">
+        <dependency id="Microsoft.Bcl.Async" version="1.0.168" />
+        <dependency id="Microsoft.Net.Http" version="2.2.29" />
+      </group>
+    </dependencies>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="WindowsBase" targetFramework=".NETFramework400.0" />
+      <frameworkAssembly assemblyName="PresentationCore" targetFramework=".NETFramework400.0" />
+      <frameworkAssembly assemblyName="PresentationFramework" targetFramework=".NETFramework400.0" />
+      <frameworkAssembly assemblyName="System.Xaml" targetFramework=".NETFramework400.0" />
+    </frameworkAssemblies>
+  </metadata>
+</package>
