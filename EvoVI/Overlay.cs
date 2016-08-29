@@ -28,238 +28,6 @@ namespace EvoVI
         #endregion
 
 
-        #region Variables
-        private string _text = "";
-        private string _debugMsg = "";
-
-        private DateTime _lastDebugMsg = DateTime.Now;
-        private NotifyIcon trayIcon;
-        private bool _savedataUpdated = false;
-        private Thread _resetSaveDataNotifier;
-        private int _defaultWidth;
-        private int _defaultHeight;
-        private double _defaultOpacity;
-        private Point _startPosition;
-        #endregion
-
-
-        #region Constructor
-        public Overlay()
-        {
-            InitializeComponent();
-
-            _defaultWidth = this.Width;
-            _defaultHeight = this.Height;
-            _defaultOpacity = this.Opacity;
-
-            _startPosition = new Point(this.Location.X, this.Location.Y);
-            
-            this.Width = 0;
-            this.Height = 0;
-            this.Opacity = 0;
-
-            /* Initialize UI */
-            _text = this.Text;
-            System.IO.File.SetLastWriteTimeUtc(GameMeta.DefaultGameSettingsPath, DateTime.UtcNow);
-            if (File.Exists(GameMeta.DefaultSavedataPath)) { System.IO.File.SetLastWriteTimeUtc(GameMeta.DefaultSavedataPath, DateTime.UtcNow); }
-
-            /* Initialize Plugins */
-            PluginManager.InitializePlugins();
-            
-            /* Draw System Tray Smybol */
-            ContextMenu trayMenu = new ContextMenu();
-            trayMenu.MenuItems.Add("Exit", OnExit);
-
-            trayIcon = new NotifyIcon();
-            trayIcon.Text = this.Text;
-            trayIcon.Icon = new Icon(this.Icon, 40, 40);
-            trayIcon.ContextMenu = trayMenu;
-            trayIcon.Visible = true;
-        }
-        #endregion
-
-
-        #region Events
-        /// <summary> Fires each time the form needs to be drawn.
-        /// </summary>
-        /// <param name="e">The paint event arguments.</param>
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            // Invalidate to force redraw
-            // TODO: Optimize! Very expensive!
-            this.Invalidate();
-            
-            Expand();
-
-            string updateMark = "[" + (_savedataUpdated ? "!" : " ") + "]";
-            TextRenderer.DrawText(
-                e.Graphics, 
-                updateMark, 
-                this.Font, 
-                new Point(this.Width - TextRenderer.MeasureText(updateMark, this.Font).Width - 20, 10), 
-                this.ForeColor
-            );
-            
-            if (
-                (_savedataUpdated) &&
-                (
-                    (_resetSaveDataNotifier == null) ||
-                    (_resetSaveDataNotifier.ThreadState == ThreadState.Unstarted) ||
-                    (_resetSaveDataNotifier.ThreadState == ThreadState.Stopped)
-                )
-            )
-            {
-                _resetSaveDataNotifier = new Thread(n => { Thread.Sleep(100); _savedataUpdated = false; });
-                _resetSaveDataNotifier.Start();
-            }
-
-            string info = "\n\n" + DateTime.UtcNow.ToLongDateString() + "\n" + DateTime.Now.ToLongTimeString();
-            TextRenderer.DrawText(
-                e.Graphics, 
-                _text + info, 
-                this.Font, 
-                new Point(10, 10), 
-                this.ForeColor
-            );
-
-            Font debugFont = new System.Drawing.Font(this.Font.FontFamily, 8, this.Font.Style);
-            string dialogInfo = "Current Node: " + VI.CurrentDialogNode.GUIDisplayText + "\nActive Nodes:\n" + buildDialogInfo(DialogTreeReader.RootDialogNode);
-            TextRenderer.DrawText(
-                e.Graphics,
-                dialogInfo,
-                debugFont,
-                new Point(10, 80),
-                this.ForeColor
-            );
-
-            e.Graphics.DrawLine(new Pen(this.ForeColor), 5, this.Height - 40 - 5, this.Width - 5, this.Height - 40 - 5);
-            TextRenderer.DrawText(
-                e.Graphics, 
-                "Target Process: " + Interactor.TargetProcessName + "\n" +
-                PluginManager.Plugins.Count + " plugins loaded", 
-                debugFont,
-                new Point(10, this.Height - 40), 
-                this.ForeColor
-            );
-        }
-
-
-        public void Expand()
-        {
-
-            if (this.Width < _defaultWidth)
-            {
-                // if (expandBottomToTop) { this.Left = (_startPosition.Y + _defaultWidth) - this.Width - 40; }
-                this.Width = Math.Min(this.Width + 5, _defaultWidth);
-            }
-            
-            if (this.Height < _defaultHeight)
-            {
-                // if (expandRightToLeft) { this.Top = (_startPosition.Y + _defaultHeight) - this.Height - 40; }
-                this.Height = Math.Min(this.Height + 5, _defaultHeight);
-            }
-
-            if (this.Opacity < _defaultOpacity) { this.Opacity = Math.Min(this.Opacity + 0.01, _defaultOpacity); }
-        }
-
-
-        /// <summary> Fires each time, the "savedata.txt"-file gets changed.
-        /// </summary>
-        /// <param name="sender">The sender object.</param>
-        /// <param name="e">The file system event arguments.</param>
-        private void GameDataWatcher_Changed(object sender, System.IO.FileSystemEventArgs e)
-        {
-            SaveDataReader.ReadGameData();
-            _savedataUpdated = true;
-        }
-
-
-        /// <summary> Fires each time, the "sw.cfg"-file gets changed.
-        /// </summary>
-        /// <param name="sender">The sender object.</param>
-        /// <param name="e">The file system event arguments.</param>
-        private void ConfigWatcher_Changed(object sender, System.IO.FileSystemEventArgs e)
-        {
-            if (!File.Exists(e.FullPath)) { return; }
-
-            int hueMode = 2;
-            int newR = HUD_BASE_COLOR[hueMode].R;
-            int newG = HUD_BASE_COLOR[hueMode].G;
-            int newB = HUD_BASE_COLOR[hueMode].B;
-            string[] configContent = File.ReadAllLines(e.FullPath);
-
-            int.TryParse(configContent[24], out newR);
-            int.TryParse(configContent[25], out newG);
-            int.TryParse(configContent[26], out newB);
-            int.TryParse(configContent[23], out hueMode);
-
-            hueMode = 2 - hueMode;
-
-            setOverlayColor(newR, newG, newB, hueMode);
-        }
-
-
-        /// <summary> Fires each time the form has been closed.
-        /// </summary>
-        /// <param name="sender">The sender object.</param>
-        /// <param name="e">The form closed event arguments.</param>
-        private void Overlay_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            trayIcon.Visible = false;
-            this.ShowInTaskbar = false;
-
-            if (
-                (_resetSaveDataNotifier != null) &&
-                (_resetSaveDataNotifier.ThreadState != ThreadState.Unstarted) &&
-                (_resetSaveDataNotifier.ThreadState != ThreadState.Stopped) &&
-                (_resetSaveDataNotifier.ThreadState != ThreadState.Aborted) &&
-                (_resetSaveDataNotifier.ThreadState != ThreadState.AbortRequested)
-           )
-            { _resetSaveDataNotifier.Abort(); }
-        }
-
-        /// <summary> Fires each time the user s closing the application via the tray icon.
-        /// </summary>
-        /// <param name="sender">The sender object.</param>
-        /// <param name="e">The event arguments.</param>
-        private void OnExit(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-        #endregion
-
-
-        #region Functions
-        /// <summary> Adjusts the overlay's background and text color to match the HUD.
-        /// </summary>
-        /// <param name="newR">The new red channel intensity.</param>
-        /// <param name="newG">The new green channel intensity.</param>
-        /// <param name="newB">The new blue channel intensity.</param>
-        /// <param name="hueMode">The currently set hue mode.</param>
-        private void setOverlayColor(int newR, int newG, int newB, int hueMode)
-        {
-            this.BackColor = Color.FromArgb(
-                (int)Math.Min(255, (HUD_BASE_COLOR[hueMode].R) * (float)(newR / 100)),
-                (int)Math.Min(255, (HUD_BASE_COLOR[hueMode].G) * (float)(newG / 100)),
-                (int)Math.Min(255, (HUD_BASE_COLOR[hueMode].B) * (float)(newB / 100))
-            );
-
-            float colorFactor = 1 - ((float)Math.Max(this.BackColor.R, Math.Max(this.BackColor.G, this.BackColor.B)) / 255);
-            this.ForeColor = Color.FromArgb((int)(255 * colorFactor), (int)(255 * colorFactor), (int)(255 * colorFactor));
-        }
-
-
-        /// <summary> Updates the filepath filters for all file watchers.
-        /// </summary>
-        public void UpdatePaths()
-        {
-            GameDataWatcher.Filter = GameMeta.DefaultSavedataPath;
-            GameConfigWatcher.Filter = GameMeta.DefaultGameSettingsPath;
-        }
-        #endregion
-
-
-        #region Overrides
         #region Form Style Constants
         // Source: 
         /// <Summary> The window accepts drag-drop files.
@@ -379,10 +147,327 @@ namespace EvoVI
         #endregion
 
 
+        #region Variables
+        private string _text = "";
+        private string _debugMsg = "";
+        private DateTime _lastDebugMsg = DateTime.Now;
+
+        private NotifyIcon trayIcon;
+        private Image _loadingImage;
+        private Point _loadingImageLocation;
+        private bool _loadingImageAnimating = false;
+        private bool _stopAnimation = false;
+        
+        private bool _savedataUpdated = false;
+        private Thread _resetSaveDataNotifier;
+        
+        private int _defaultWidth;
+        private int _defaultHeight;
+        private double _defaultOpacity;
+        private byte _fontOpacity;
+        private double _defaultFontOpacity;
+        private Point _startPosition;
+        private SolidBrush _textBrush = new SolidBrush(Color.Black);
+        #endregion
+
+
+        #region Properties
+        private bool isExpanded
+        {
+            get
+            {
+                return (
+                    (this.Width == _defaultWidth) &&
+                    (this.Height == _defaultHeight) &&
+                    (this.Opacity == _defaultOpacity)
+                );
+            }
+        }
+        private bool isFadedIn
+        {
+            get
+            {
+                return (
+                    (this.Opacity == _defaultOpacity) &&
+                    (_fontOpacity == _defaultFontOpacity)
+                );
+            }
+        }
+        #endregion
+
+
+        #region Constructor
+        public Overlay()
+        {
+            InitializeComponent();
+
+            /* Save and intialize the window size and opacity */
+            _defaultWidth = this.Width;
+            _defaultHeight = this.Height;
+            _defaultOpacity = this.Opacity;
+            _defaultFontOpacity = this.ForeColor.A;
+            _startPosition = new Point(this.Location.X, this.Location.Y);
+
+            this.Width = 0;
+            this.Height = 0;
+            this.Opacity = 0;
+            _fontOpacity = 0;
+
+
+            /* Loading image */
+            System.Reflection.Assembly currAssembly = System.Reflection.Assembly.GetExecutingAssembly();
+            System.IO.Stream stream = currAssembly.GetManifestResourceStream(currAssembly.GetName().Name + ".Resources.LogoVI.gif");
+            _loadingImage = Image.FromStream(stream);
+
+            _loadingImageLocation = new Point((_defaultWidth - _loadingImage.Width) / 2, (_defaultHeight - _loadingImage.Height) / 2);
+
+
+            /* Initialize UI */
+            _text = this.Text;
+            System.IO.File.SetLastWriteTimeUtc(GameMeta.DefaultGameSettingsPath, DateTime.UtcNow);
+            if (File.Exists(GameMeta.DefaultSavedataPath)) { System.IO.File.SetLastWriteTimeUtc(GameMeta.DefaultSavedataPath, DateTime.UtcNow); }
+
+
+            /* Initialize Plugins */
+            PluginManager.InitializePlugins();
+            
+
+            /* Draw System Tray Symbol */
+            ContextMenu trayMenu = new ContextMenu();
+            trayMenu.MenuItems.Add("Exit", onExit);
+
+            trayIcon = new NotifyIcon();
+            trayIcon.Text = this.Text;
+            trayIcon.Icon = new Icon(this.Icon, 40, 40);
+            trayIcon.ContextMenu = trayMenu;
+            trayIcon.Visible = true;
+        }
+        #endregion
+
+
+        #region Events
+        /// <summary> Fires each time the form needs to be drawn.
+        /// </summary>
+        /// <param name="e">The paint event arguments.</param>
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            // Begin the animation.
+            animateLoadingImage();
+
+            // Get the next frame ready for rendering.
+            ImageAnimator.UpdateFrames();
+
+            // Draw the next frame in the animation.
+            e.Graphics.DrawImage(this._loadingImage, _loadingImageLocation);
+            Invalidate(false);
+
+            if (!isExpanded) { expandAndFadeWindow(true, true, false); return; }
+            else if (!isFadedIn) { expandAndFadeWindow(false, true, true); }
+            else if (!_stopAnimation) { _stopAnimation = true; }
+
+            _textBrush.Color = Color.FromArgb(_fontOpacity, this.ForeColor.R, this.ForeColor.G, this.ForeColor.B);
+
+            #region Display Debugging Information
+            string updateMark = "[" + (_savedataUpdated ? "!" : " ") + "]";
+            e.Graphics.DrawString(
+                updateMark,
+                this.Font,
+                _textBrush,
+                new Point(this.Width - TextRenderer.MeasureText(updateMark, this.Font).Width - 20, 10)
+            );
+
+            if (
+                (_savedataUpdated) &&
+                (
+                    (_resetSaveDataNotifier == null) ||
+                    (_resetSaveDataNotifier.ThreadState == ThreadState.Unstarted) ||
+                    (_resetSaveDataNotifier.ThreadState == ThreadState.Stopped)
+                )
+            )
+            {
+                _resetSaveDataNotifier = new Thread(n => { Thread.Sleep(100); _savedataUpdated = false; });
+                _resetSaveDataNotifier.Start();
+            }
+
+            string info = "\n\n" + DateTime.UtcNow.ToLongDateString() + "\n" + DateTime.Now.ToLongTimeString();
+            e.Graphics.DrawString(
+                _text + info,
+                this.Font,
+                _textBrush,
+                new Point(10, 10)
+            );
+
+            Font debugFont = new System.Drawing.Font(this.Font.FontFamily, 8, this.Font.Style);
+            string dialogInfo = "Current Node: " + VI.CurrentDialogNode.GUIDisplayText + "\nActive Nodes:\n" + buildDialogInfo(DialogTreeReader.RootDialogNode);
+            e.Graphics.DrawString(
+                dialogInfo,
+                this.Font,
+                _textBrush,
+                new Point(10, 80)
+            );
+
+            e.Graphics.DrawLine(new Pen(this.ForeColor), 5, this.Height - 40 - 5, this.Width - 5, this.Height - 40 - 5);
+            e.Graphics.DrawString(
+                "Target Process: " + Interactor.TargetProcessName + "\n" +
+                PluginManager.Plugins.Count + " plugins loaded",
+                this.Font,
+                _textBrush,
+                new Point(10, this.Height - 40)
+            );
+            #endregion
+        }
+
+
+        /// <summary> Fires each time, the "savedata.txt"-file gets changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The file system event arguments.</param>
+        private void GameDataWatcher_Changed(object sender, System.IO.FileSystemEventArgs e)
+        {
+            SaveDataReader.ReadGameData();
+            _savedataUpdated = true;
+        }
+
+
+        /// <summary> Fires each time, the "sw.cfg"-file gets changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The file system event arguments.</param>
+        private void ConfigWatcher_Changed(object sender, System.IO.FileSystemEventArgs e)
+        {
+            if (!File.Exists(e.FullPath)) { return; }
+
+            int hueMode = 2;
+            int newR = HUD_BASE_COLOR[hueMode].R;
+            int newG = HUD_BASE_COLOR[hueMode].G;
+            int newB = HUD_BASE_COLOR[hueMode].B;
+            string[] configContent = File.ReadAllLines(e.FullPath);
+
+            int.TryParse(configContent[24], out newR);
+            int.TryParse(configContent[25], out newG);
+            int.TryParse(configContent[26], out newB);
+            int.TryParse(configContent[23], out hueMode);
+
+            hueMode = 2 - hueMode;
+
+            setOverlayColor(newR, newG, newB, hueMode);
+        }
+
+
+        /// <summary> Fires each time the form has been closed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The form closed event arguments.</param>
+        private void Overlay_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            trayIcon.Visible = false;
+            this.ShowInTaskbar = false;
+
+            if (
+                (_resetSaveDataNotifier != null) &&
+                (_resetSaveDataNotifier.ThreadState != ThreadState.Unstarted) &&
+                (_resetSaveDataNotifier.ThreadState != ThreadState.Stopped) &&
+                (_resetSaveDataNotifier.ThreadState != ThreadState.Aborted) &&
+                (_resetSaveDataNotifier.ThreadState != ThreadState.AbortRequested)
+           )
+            { _resetSaveDataNotifier.Abort(); }
+        }
+
+
+        /// <summary> Fires each time the user s closing the application via the tray icon.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The event arguments.</param>
+        private void onExit(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+
+        /// <summary> Fires when the frame within the loading animation has changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The event arguments.</param>
+        private void onLoadingImageFrameChanged(object sender, EventArgs e)
+        {
+            if (_stopAnimation) { ImageAnimator.StopAnimate(_loadingImage, onLoadingImageFrameChanged); }
+        }
+        #endregion
+
+
+        #region Functions
+        /// <summary> Plays an animation where the window expands to it's target size.
+        /// </summary>
+        private void expandAndFadeWindow(bool expandSize = true, bool fadeWindowOpacity = true, bool fadeText = true)
+        {
+            if (expandSize)
+            {
+                if (this.Width < _defaultWidth)
+                {
+                    // if (expandBottomToTop) { this.Left = (_startPosition.Y + _defaultWidth) - this.Width - 40; }
+                    this.Width = Math.Min(this.Width + 5, _defaultWidth);
+                }
+
+                if (this.Height < _defaultHeight)
+                {
+                    // if (expandRightToLeft) { this.Top = (_startPosition.Y + _defaultHeight) - this.Height - 40; }
+                    this.Height = Math.Min(this.Height + 5, _defaultHeight);
+                }
+            }
+
+            if (fadeWindowOpacity && (this.Opacity < _defaultOpacity)) { this.Opacity = Math.Min(this.Opacity + 0.01, _defaultOpacity); }
+
+            if (fadeText && (_fontOpacity < _defaultFontOpacity)) { _fontOpacity = (byte)Math.Min(_fontOpacity + 5, _defaultFontOpacity); }
+        }
+
+
+        /// <summary> Starts the animation for the loading image.
+        /// </summary>
+        private void animateLoadingImage()
+        {
+            if (!_loadingImageAnimating)
+            {
+                ImageAnimator.Animate(_loadingImage, new EventHandler(onLoadingImageFrameChanged));
+                _loadingImageAnimating = true;
+            }
+        }
+
+
+        /// <summary> Adjusts the overlay's background and text color to match the HUD.
+        /// </summary>
+        /// <param name="newR">The new red channel intensity.</param>
+        /// <param name="newG">The new green channel intensity.</param>
+        /// <param name="newB">The new blue channel intensity.</param>
+        /// <param name="hueMode">The currently set hue mode.</param>
+        private void setOverlayColor(int newR, int newG, int newB, int hueMode)
+        {
+            this.BackColor = Color.FromArgb(
+                (int)Math.Min(255, (HUD_BASE_COLOR[hueMode].R) * (float)(newR / 100)),
+                (int)Math.Min(255, (HUD_BASE_COLOR[hueMode].G) * (float)(newG / 100)),
+                (int)Math.Min(255, (HUD_BASE_COLOR[hueMode].B) * (float)(newB / 100))
+            );
+
+            float colorFactor = 1 - ((float)Math.Max(this.BackColor.R, Math.Max(this.BackColor.G, this.BackColor.B)) / 255);
+            this.ForeColor = Color.FromArgb((int)(255 * colorFactor), (int)(255 * colorFactor), (int)(255 * colorFactor));
+        }
+
+
+        /// <summary> Updates the filepath filters for all file watchers.
+        /// </summary>
+        public void UpdatePaths()
+        {
+            GameDataWatcher.Filter = GameMeta.DefaultSavedataPath;
+            GameConfigWatcher.Filter = GameMeta.DefaultGameSettingsPath;
+        }
+        #endregion
+
+
+        #region Window Behaviour Overrides
         protected override bool ShowWithoutActivation
         {
             get { return true; }
         }
+
 
         protected override CreateParams CreateParams
         {

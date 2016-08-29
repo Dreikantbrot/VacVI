@@ -26,10 +26,10 @@ namespace EvoVI.Database
 
 
         #region Constants
-        private const string DEFAULT_GAME_PATH = @"C:\sw3dg";
-        private const string DEFAULT_SAVEDATA_PATH = @"C:\sw3dg";
-        private const string DEFAULT_SAVEDATA_FILENAME = "savedata.txt";
-        private const string DEFAULT_GAMECONFIG_FILENAME = "sw.cfg";
+        public const string DEFAULT_GAME_PATH = @"C:\sw3dg";
+        public const string DEFAULT_SAVEDATA_PATH = @"C:\sw3dg";
+        public const string DEFAULT_SAVEDATA_FILENAME = "savedata.txt";
+        public const string DEFAULT_GAMECONFIG_FILENAME = "sw.cfg";
         #endregion
 
 
@@ -67,11 +67,27 @@ namespace EvoVI.Database
         }
 
 
+        /// <summary> Returns or sets the current game's default savedata directory path.
+        /// </summary>
+        public static string DefaultSavedataDirectoryPath
+        {
+            get { return DEFAULT_SAVEDATA_PATH + "\\" + CurrentGameDefaultFolderName; }
+        }
+
+
+        /// <summary> Returns or sets the current game's default configuration directory path.
+        /// </summary>
+        public static string DefaultGameSettingsDirectoryPath
+        {
+            get { return DEFAULT_SAVEDATA_PATH + "\\" + CurrentGameDefaultFolderName; }
+        }
+
+
         /// <summary> Returns or sets the current game's default savedata file path.
         /// </summary>
         public static string DefaultSavedataPath
         {
-            get { return DEFAULT_SAVEDATA_PATH + "\\" + CurrentGameDefaultFolderName + "\\" + DEFAULT_SAVEDATA_FILENAME; }
+            get { return GameMeta.DefaultSavedataDirectoryPath + "\\" + DEFAULT_SAVEDATA_FILENAME; }
         }
 
 
@@ -79,7 +95,7 @@ namespace EvoVI.Database
         /// </summary>
         public static string DefaultGameSettingsPath
         {
-            get { return DEFAULT_SAVEDATA_PATH + "\\" + CurrentGameDefaultFolderName + "\\" + DEFAULT_GAMECONFIG_FILENAME; }
+            get { return GameMeta.DefaultGameSettingsDirectoryPath + "\\" + DEFAULT_GAMECONFIG_FILENAME; }
         }
         #endregion
 

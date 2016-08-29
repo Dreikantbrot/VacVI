@@ -241,7 +241,8 @@ namespace EvoVI.Database
                 return false;
             }
 
-            fileContent = File.ReadAllLines(filepath);
+            try { fileContent = File.ReadAllLines(filepath); }
+            catch (System.IO.IOException e) { return false; }
 
             // Get all in-game values and store them inside the database
             for (int i = 0; i < Math.Min(fileContent.Length, _saveData.Count); i++)

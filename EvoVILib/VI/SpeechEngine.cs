@@ -119,7 +119,7 @@ namespace EvoVI.Engine
         private static OnSpeechStopHandler _onSpeechStop = new OnSpeechStopHandler();
 
         private static SpeechSynthesizer _synthesizer = new SpeechSynthesizer();
-        private static SpeechRecognitionEngine _recognizer = new SpeechRecognitionEngine();
+        private static SpeechRecognitionEngine _recognizer = new SpeechRecognitionEngine(new System.Globalization.CultureInfo("de-DE"));
 
         private static VoiceInfo _defaultVoice = _synthesizer.Voice;
         private static List<DialogVI> _queue = new List<DialogVI>();
