@@ -20,7 +20,7 @@ namespace EvoVIOverlay
     public partial class MainWindow : Window
     {
         #region Static App Settings
-        public static bool NoLoadingAnimation = true;
+        public static bool NoLoadingAnimation = false;
         #endregion
 
 
@@ -73,7 +73,11 @@ namespace EvoVIOverlay
 
 
             /* Play loading animation */
-            if (!MainWindow.NoLoadingAnimation) { loadAnimation(); }
+            if (!MainWindow.NoLoadingAnimation)
+            {
+                VI.State = VI.VIState.OFFLINE;
+                loadAnimation();
+            }
 
 
             /* Initialize all components */
@@ -101,21 +105,27 @@ namespace EvoVIOverlay
             /* Initialize file watchers */
             FileSystemEventHandler eventHandler;
 
-            eventHandler = new FileSystemEventHandler(OnSaveDataChanged);
-            _savedataWatcher = new FileSystemWatcher(GameMeta.DefaultSavedataDirectoryPath, GameMeta.DEFAULT_SAVEDATA_FILENAME);
-            _savedataWatcher.Changed += new FileSystemEventHandler(eventHandler);
-            _savedataWatcher.NotifyFilter = (NotifyFilters.LastWrite | NotifyFilters.CreationTime);
-            _savedataWatcher.IncludeSubdirectories = false;
-            _savedataWatcher.EnableRaisingEvents = true;
-            File.SetLastWriteTimeUtc(GameMeta.DefaultSavedataPath, DateTime.UtcNow);
+            if (Directory.Exists(GameMeta.DefaultSavedataDirectoryPath))
+            {
+                eventHandler = new FileSystemEventHandler(OnSaveDataChanged);
+                _savedataWatcher = new FileSystemWatcher(GameMeta.DefaultSavedataDirectoryPath, GameMeta.DEFAULT_SAVEDATA_FILENAME);
+                _savedataWatcher.Changed += new FileSystemEventHandler(eventHandler);
+                _savedataWatcher.NotifyFilter = (NotifyFilters.LastWrite | NotifyFilters.CreationTime);
+                _savedataWatcher.IncludeSubdirectories = false;
+                _savedataWatcher.EnableRaisingEvents = true;
+                File.SetLastWriteTimeUtc(GameMeta.DefaultSavedataPath, DateTime.UtcNow);
+            }
 
-            eventHandler = new FileSystemEventHandler(OnGameConfigChanged);
-            _gameConfigWatcher = new FileSystemWatcher(GameMeta.DefaultGameSettingsDirectoryPath, GameMeta.DEFAULT_GAMECONFIG_FILENAME);
-            _gameConfigWatcher.Changed += new FileSystemEventHandler(eventHandler);
-            _savedataWatcher.NotifyFilter = (NotifyFilters.LastWrite | NotifyFilters.CreationTime);
-            _gameConfigWatcher.IncludeSubdirectories = false;
-            _gameConfigWatcher.EnableRaisingEvents = true;
-            File.SetLastWriteTimeUtc(GameMeta.DefaultGameSettingsPath, DateTime.UtcNow);
+            if (Directory.Exists(GameMeta.DefaultGameSettingsDirectoryPath))
+            {
+                eventHandler = new FileSystemEventHandler(OnGameConfigChanged);
+                _gameConfigWatcher = new FileSystemWatcher(GameMeta.DefaultGameSettingsDirectoryPath, GameMeta.DEFAULT_GAMECONFIG_FILENAME);
+                _gameConfigWatcher.Changed += new FileSystemEventHandler(eventHandler);
+                _savedataWatcher.NotifyFilter = (NotifyFilters.LastWrite | NotifyFilters.CreationTime);
+                _gameConfigWatcher.IncludeSubdirectories = false;
+                _gameConfigWatcher.EnableRaisingEvents = true;
+                File.SetLastWriteTimeUtc(GameMeta.DefaultGameSettingsPath, DateTime.UtcNow);
+            }
         }
         #endregion
 
@@ -227,6 +237,7 @@ namespace EvoVIOverlay
 
             double timeOffset = 0;
             story = new Storyboard();
+            story.Completed += onLoadAnimationCompleted;
 
 
             #region Fade the window in
@@ -355,6 +366,11 @@ namespace EvoVIOverlay
             txtBox_TitleInfo.Opacity = 0;
 
             story.Begin();
+        }
+
+        void onLoadAnimationCompleted(object sender, EventArgs e)
+        {
+            VI.State = VI.VIState.READY;
         }
         #endregion
 
