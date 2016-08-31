@@ -114,8 +114,8 @@ namespace EvoVI.Engine
 
 
         #region Variables
-        public static string Language = "de-DE";
-        public static System.Globalization.CultureInfo Culture;
+        private static string _language = "de-DE";
+        private static System.Globalization.CultureInfo _culture;
 
         private static ISoundEngine _soundEngine = new ISoundEngine();
         private static ISound _speechSound;
@@ -130,6 +130,28 @@ namespace EvoVI.Engine
         private static bool _speechDone = false;
         private static float _confidenceThreshold = 0.15f;
         private static VoiceModulationModes _voiceModulation = VoiceModulationModes.ROBOTIC;
+        #endregion
+
+
+        #region Propeties
+
+        public static string Language
+        {
+            get { return SpeechEngine._language; }
+            set { SpeechEngine._language = value; }
+        }
+
+        public static System.Globalization.CultureInfo Culture
+        {
+            get { return SpeechEngine._culture; }
+            set { SpeechEngine._culture = value; }
+        }
+
+        public static VoiceModulationModes VoiceModulation
+        {
+            get { return SpeechEngine._voiceModulation; }
+            set { SpeechEngine._voiceModulation = value; }
+        }
         #endregion
 
 
@@ -185,15 +207,15 @@ namespace EvoVI.Engine
         /// </summary>
         public static void Initialize()
         {
-            Culture = new System.Globalization.CultureInfo(Language, false);
+            _culture = new System.Globalization.CultureInfo(_language, false);
             try 
             {
-                _recognizer = new SpeechRecognitionEngine(Culture);
+                _recognizer = new SpeechRecognitionEngine(_culture);
             }
             catch (ArgumentException e)
             {
                 _recognizer = null;
-                Say(String.Format(Properties.StringTable.CANNOT_UNDERSTAND_SELECTED_LANGAUGE, Culture.EnglishName));
+                Say(String.Format(Properties.StringTable.CANNOT_UNDERSTAND_SELECTED_LANGAUGE, _culture.EnglishName));
                 return;
             }
 
@@ -231,7 +253,7 @@ namespace EvoVI.Engine
         /// <param name="text">The text to speak.</param>
         /// <param name="modulation">The voice modulation mode.</param>
         /// <param name="async">If true, speech will be run asynchronously.</param>
-        public static void Say(string text = "", bool async = true, VoiceModulationModes modulation = VoiceModulationModes.ROBOTIC)
+        public static void Say(string text = "", bool async = true, VoiceModulationModes modulation = VoiceModulationModes.DEFAULT)
         {
             Say(new DialogVI(text), async, modulation);
         }
