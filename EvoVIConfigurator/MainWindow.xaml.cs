@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using EvoVI.Database;
 using System.Collections.Generic;
+using EvoVI.Engine;
 
 namespace EvoVIConfigurator
 {
@@ -45,6 +46,51 @@ namespace EvoVIConfigurator
                 _displayValue = GameMeta.GetDescription(pValue);
             }
         }
+
+        private struct VIVoice
+        {
+            #region Variables
+            SpeechEngine.VoiceModulationModes _value;
+            string _displayValue;
+            #endregion
+
+
+            #region Properties
+            public SpeechEngine.VoiceModulationModes Value
+            {
+                get { return _value; }
+                set { _value = value; }
+            }
+
+            public string DisplayValue
+            {
+                get { return _displayValue; }
+                set { _displayValue = value; }
+            }
+            #endregion
+
+
+            public VIVoice(SpeechEngine.VoiceModulationModes pValue)
+            {
+                _value = pValue;
+                
+                switch(pValue)
+                {
+                    case SpeechEngine.VoiceModulationModes.NORMAL:
+                        _displayValue = "Normal";
+                        break;
+
+                    case SpeechEngine.VoiceModulationModes.ROBOTIC:
+                        _displayValue = "Robotic";
+                        break;
+
+                    case SpeechEngine.VoiceModulationModes.DEFAULT:
+                    default:
+                        _displayValue = "Default";
+                        break;
+                }
+            }
+        }
         #endregion
 
 
@@ -58,6 +104,21 @@ namespace EvoVIConfigurator
         {
             InitializeComponent();
 
+            /* Load assets */
+            PluginManager.LoadPlugins(true);
+            ConfigurationManager.ConfigurationFile.Read();
+
+            /* Fill VI voice list */
+            comBox_Config_VIVoice.Items.Clear();
+            comBox_Config_VIVoice.Items.Add(new VIVoice(SpeechEngine.VoiceModulationModes.DEFAULT));
+            comBox_Config_VIVoice.Items.Add(new VIVoice(SpeechEngine.VoiceModulationModes.NORMAL));
+            comBox_Config_VIVoice.Items.Add(new VIVoice(SpeechEngine.VoiceModulationModes.ROBOTIC));
+
+            /* Fill games list */
+            comBox_GameSelection.Items.Clear();
+            comBox_GameSelection.Items.Add(new GameEntry(GameMeta.SupportedGame.EVOCHRON_MERCENARY));
+            comBox_GameSelection.Items.Add(new GameEntry(GameMeta.SupportedGame.EVOCHRON_LEGACY));
+
             /* Build "No parameters to configure!"-textbox in configuration window */
             lbl_noParamsToConfigure = new Label();
             lbl_noParamsToConfigure.Content = "No parameters to configure!";
@@ -70,14 +131,50 @@ namespace EvoVIConfigurator
             lbl_noParamsToConfigure.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
             lbl_noParamsToConfigure.HorizontalContentAlignment = System.Windows.HorizontalAlignment.Center;
 
-            /* Fill games list */
-            comBox_GameSelection.Items.Clear();
-            comBox_GameSelection.Items.Add(new GameEntry(GameMeta.SupportedGame.EVOCHRON_MERCENARY));
-            comBox_GameSelection.Items.Add(new GameEntry(GameMeta.SupportedGame.EVOCHRON_LEGACY));
-            comBox_GameSelection.SelectedIndex = 0;
+            /* Load main configuration */
+            for (int i = 0; i < comBox_GameSelection.Items.Count; i++)
+            {
+                if (
+                    String.Equals(
+                        ((GameEntry)comBox_GameSelection.Items[i]).Value.ToString(),
+                        ConfigurationManager.ConfigurationFile.GetValue("Game", "Current_Game"),
+                        StringComparison.InvariantCultureIgnoreCase
+                    )
+                )
+                {
+                    comBox_GameSelection.SelectedIndex = i;
+                    break;
+                }
+            }
+            if (comBox_GameSelection.SelectedItem == null) { comBox_GameSelection.SelectedIndex = 0; }
+
+            txt_InstallDir.Text = ConfigurationManager.ConfigurationFile.GetValue("Filepaths", ((GameEntry)comBox_GameSelection.SelectedItem).Value.ToString());
+
+            chckBox_Config_LoadingAnimation.IsChecked = ConfigurationManager.ConfigurationFile.ValueIsBoolAndTrue("Overlay", "Play_Intro");
+
+            txt_Config_VIName.Text = ConfigurationManager.ConfigurationFile.GetValue("VI", "Name");
+            txt_Config_VIPhoneticName.Text = ConfigurationManager.ConfigurationFile.GetValue("VI", "Phonetic_Name");
+
+            for (int i = 0; i < comBox_Config_VIVoice.Items.Count; i++)
+            {
+                if (
+                    String.Equals(
+                        ((VIVoice)comBox_Config_VIVoice.Items[i]).Value.ToString(),
+                        ConfigurationManager.ConfigurationFile.GetValue("VI", "Voice"),
+                        StringComparison.InvariantCultureIgnoreCase
+                    )
+                )
+                {
+                    comBox_Config_VIVoice.SelectedIndex = i;
+                    break;
+                }
+            }
+            if (comBox_Config_VIVoice.SelectedItem == null) { comBox_Config_VIVoice.SelectedIndex = 0; }
+
+            txt_Config_PlayerName.Text = ConfigurationManager.ConfigurationFile.GetValue("Player", "Name");
+            txt_Config_PlayerPhoneticName.Text = ConfigurationManager.ConfigurationFile.GetValue("Player", "Phonetic_Name");
 
             /* Fill plugin list */
-            PluginManager.LoadPlugins(true);
             for (int i = 0; i < PluginManager.Plugins.Count; i++)
             {
                 ComboBoxItem cmbx = new ComboBoxItem();
@@ -90,7 +187,7 @@ namespace EvoVIConfigurator
         #endregion
 
 
-        #region Events
+        #region General Events
         /// <summary> Fires when the "Browse"-button is clicked.
         /// </summary>
         /// <param name="sender">The sender object.</param>
@@ -113,6 +210,9 @@ namespace EvoVIConfigurator
         {
             verifyInstallDir();
             validatePlugin();
+            
+            GameEntry newItemGame = (GameEntry)comBox_GameSelection.SelectedItem;
+            ConfigurationManager.ConfigurationFile.SetValue("Game", "Current_Game", newItemGame.Value.ToString());
         }
 
 
@@ -124,8 +224,10 @@ namespace EvoVIConfigurator
         {
             verifyInstallDir();
         }
+        #endregion
 
 
+        #region Plugin Configuration Events
         /// <summary> Fires when the plugin within the plugin selection list changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
@@ -318,6 +420,115 @@ namespace EvoVIConfigurator
         #endregion
 
 
+        #region Main Configuration Events
+        /// <summary> Fires when the VI's name has been changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The text changed event arguments.</param>
+        private void txt_Config_VIName_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ConfigurationManager.ConfigurationFile.SetValue("VI", "Name", txt_Config_VIName.Text);
+        }
+
+
+        /// <summary> Fires when the VI's phonetic name has been changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The text changed event arguments.</param>
+        private void txt_Config_VIPhoneticName_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ConfigurationManager.ConfigurationFile.SetValue("VI", "Phonetic_Name", txt_Config_VIPhoneticName.Text);
+        }
+
+
+        /// <summary> Fires when the "Test Pronouncation"-button has been clicked.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void btn_Config_VINameTest_Click(object sender, RoutedEventArgs e)
+        {
+            testName(txt_Config_VIPhoneticName.Text);
+        }
+
+
+        /// <summary> Fires when VI voice has been changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void comBox_Config_VIVoice_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SpeechEngine.VoiceModulationModes voice = ((VIVoice)(((ComboBox)sender).SelectedItem)).Value;
+            SpeechEngine.VoiceModulation = voice;
+            ConfigurationManager.ConfigurationFile.SetValue("VI", "Voice", voice.ToString());
+        }
+
+
+        /// <summary> Fires when the player's name has been changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The text changed event arguments.</param>
+        private void txt_Config_PlayerName_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ConfigurationManager.ConfigurationFile.SetValue("Player", "Name", txt_Config_PlayerName.Text);
+        }
+
+
+        /// <summary> Fires when the player's phonetic name has been changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The text changed event arguments.</param>
+        private void txt_Config_PlayerPhoneticName_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ConfigurationManager.ConfigurationFile.SetValue("Player", "Phonetic_Name", txt_Config_PlayerPhoneticName.Text);
+        }
+
+
+        /// <summary> Fires when the "Test Pronouncation"-button has been clicked.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void btn_Config_PlayerNameTest_Click(object sender, RoutedEventArgs e)
+        {
+            testName(txt_Config_PlayerPhoneticName.Text);
+        }
+
+
+        /// <summary> Fires when the player's phonetic name has been changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The text changed event arguments.</param>
+        private void chckBox_Config_LoadingAnimation_Checked(object sender, RoutedEventArgs e)
+        {
+            ConfigurationManager.ConfigurationFile.SetValue("Overlay", "Play_Intro", (chckBox_Config_LoadingAnimation.IsChecked == true) ? "true" : "false");
+        }
+
+
+        /// <summary> Tests the pronounciation of the entered name in text-to-speech.
+        /// </summary>
+        /// <param name="testText">The name to test.</param>
+        private void testName(string testText)
+        {
+            btn_Config_VINameTest.IsEnabled = false;
+            btn_Config_PlayerNameTest.IsEnabled = false;
+
+            SpeechEngine.Say(testText, false);
+
+            btn_Config_VINameTest.IsEnabled = true;
+            btn_Config_PlayerNameTest.IsEnabled = true;
+        }
+
+
+        /// <summary> Fires when the "Save Settings"-button has been clicked.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void btn_SaveConfig_Click(object sender, RoutedEventArgs e)
+        {
+            ConfigurationManager.ConfigurationFile.Write(ConfigurationManager.ConfigurationFilepath);
+        }
+        #endregion
+
+
         #region Functions
         /// <summary> Verifies whether the path in the textbox is a valid installation directory.
         /// </summary>
@@ -345,13 +556,16 @@ namespace EvoVIConfigurator
 
             if (pathIsValid)
             {
-                // Entered path does not exist
+                // Path exists
                 txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Color.FromRgb(0, 240, 0));
                 txtBox_StatusText.Text = "Your installation path for " + newItemGame.DisplayValue + " is valid!";
+
+                // Save the game path within the configuration file
+                ConfigurationManager.ConfigurationFile.SetValue("Filepaths", newItemGame.Value.ToString(), txt_InstallDir.Text);
             }
             else
             {
-                // Path exists
+                // Entered path does not exist
                 txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Color.FromRgb(220, 0, 0));
                 txtBox_StatusText.Text = "Error: The path given is not a valid " + newItemGame.DisplayValue + " installation directory!";
             }

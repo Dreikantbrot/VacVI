@@ -19,11 +19,6 @@ namespace EvoVIOverlay
     /// </summary>
     public partial class MainWindow : Window
     {
-        #region Static App Settings
-        public static bool NoLoadingAnimation = false;
-        #endregion
-
-
         #region Window Behaviour Override
         public const int WS_EX_TRANSPARENT = 0x00000020;
         public const int GWL_EXSTYLE = (-20);
@@ -63,6 +58,7 @@ namespace EvoVIOverlay
         private DispatcherTimer _updateTimer;
         private FileSystemWatcher _savedataWatcher;
         private FileSystemWatcher _gameConfigWatcher;
+        private bool _playLoadingAnimation;
         #endregion
 
 
@@ -71,9 +67,13 @@ namespace EvoVIOverlay
         {
             InitializeComponent();
 
+            /* Load the main configuration */
+            ConfigurationManager.LoadConfiguration();
+
 
             /* Play loading animation */
-            if (!MainWindow.NoLoadingAnimation)
+            _playLoadingAnimation = ConfigurationManager.ConfigurationFile.ValueIsBoolAndTrue("Overlay", "Play_Intro");
+            if (_playLoadingAnimation)
             {
                 VI.State = VI.VIState.OFFLINE;
                 loadAnimation();

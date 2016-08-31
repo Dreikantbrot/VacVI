@@ -70,6 +70,7 @@
     <Compile Include="Database\TargetShipData.cs" />
     <Compile Include="Plugins\InternalPlugins.cs" />
     <Compile Include="Plugins\PluginParameterDefault.cs" />
+    <Compile Include="VI\ConfigurationManager.cs" />
     <Compile Include="VI\Interactor.cs" />
     <Compile Include="Plugins\IPlugin.cs" />
     <Compile Include="VI\VKeyCodes.cs" />

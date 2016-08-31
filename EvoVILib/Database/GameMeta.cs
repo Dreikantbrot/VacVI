@@ -114,6 +114,10 @@ namespace EvoVI.Database
         {
             _folderNames.Add(SupportedGame.EVOCHRON_MERCENARY, "EvochronMercenary");
             _folderNames.Add(SupportedGame.EVOCHRON_LEGACY, "EvochronLegacy");
+
+            _installDirectories.Add(SupportedGame.NONE, String.Empty);
+            _installDirectories.Add(SupportedGame.EVOCHRON_MERCENARY, String.Empty);
+            _installDirectories.Add(SupportedGame.EVOCHRON_LEGACY, String.Empty);
         }
         #endregion
 
