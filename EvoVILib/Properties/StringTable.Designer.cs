@@ -22,7 +22,7 @@ namespace EvoVI.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class StringTable {
+    public class StringTable {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace EvoVI.Properties {
         ///   Gibt die zwischengespeicherte ResourceManager-Instanz zurück, die von dieser Klasse verwendet wird.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("EvoVI.Properties.StringTable", typeof(StringTable).Assembly);
@@ -51,7 +51,7 @@ namespace EvoVI.Properties {
         ///   Ressourcenzuordnungen, die diese stark typisierte Ressourcenklasse verwenden.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace EvoVI.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die I cannot understand the language you are speaking. Please install the appropriate speech recognition engine for your selected language - {0}. ähnelt.
         /// </summary>
-        internal static string CANNOT_UNDERSTAND_SELECTED_LANGAUGE {
+        public static string CANNOT_UNDERSTAND_SELECTED_LANGAUGE {
             get {
                 return ResourceManager.GetString("CANNOT_UNDERSTAND_SELECTED_LANGAUGE", resourceCulture);
             }
@@ -72,7 +72,7 @@ namespace EvoVI.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Error - Could not acquire ship sensor data! ähnelt.
         /// </summary>
-        internal static string COULD_NOT_ACQUIRE_DATA {
+        public static string COULD_NOT_ACQUIRE_DATA {
             get {
                 return ResourceManager.GetString("COULD_NOT_ACQUIRE_DATA", resourceCulture);
             }
@@ -81,9 +81,18 @@ namespace EvoVI.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die I did not understand that. Did you mean {0}? ähnelt.
         /// </summary>
-        internal static string DID_NOT_UNDERSTAND_DID_YOU_MEAN {
+        public static string DID_NOT_UNDERSTAND_DID_YOU_MEAN {
             get {
                 return ResourceManager.GetString("DID_NOT_UNDERSTAND_DID_YOU_MEAN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Error - Ship sensor data interface not available! ähnelt.
+        /// </summary>
+        public static string SAVEDATASETTINGS_FILE_NOT_FOUND {
+            get {
+                return ResourceManager.GetString("SAVEDATASETTINGS_FILE_NOT_FOUND", resourceCulture);
             }
         }
     }

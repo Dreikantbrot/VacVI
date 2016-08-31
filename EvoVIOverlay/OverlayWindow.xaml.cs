@@ -97,7 +97,7 @@ namespace EvoVIOverlay
             
             /* Load Plugins */
             PluginManager.LoadPlugins();
-            EvoVI.PluginManager.InitializePlugins();
+            PluginManager.InitializePlugins();
 
             
             /* Initialize update timer */
@@ -131,11 +131,18 @@ namespace EvoVIOverlay
                 _gameConfigWatcher.EnableRaisingEvents = true;
                 File.SetLastWriteTimeUtc(GameMeta.DefaultGameSettingsPath, DateTime.UtcNow);
             }
+
+            /* Initialize systems manually, if no animation is played */
+            if (!_playLoadingAnimation) { initalizeSystems(); }
         }
         #endregion
 
 
         #region Events
+        /// <summary> Fires each time, the update timer is being triggered (~500ms).
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The event arguments.</param>
         private void OnUpdateTimerTick(object sender, EventArgs e)
         {
             // Title + date and time
@@ -227,6 +234,18 @@ namespace EvoVIOverlay
                 float colorFactor = 1 - ((float)Math.Max(backgrnd.R, Math.Max(backgrnd.G, backgrnd.B)) / 255);
                 this.Foreground = new SolidColorBrush(Color.FromArgb(255, (byte)(255 * colorFactor), (byte)(255 * colorFactor), (byte)(255 * colorFactor)));
             }
+        }
+
+
+        /// <summary> Initializes / starts the system.
+        /// </summary>
+        private void initalizeSystems()
+        {
+            // System ready
+            VI.State = VI.VIState.READY;
+
+            // Check for existence of savedatasettings.txt
+            if (!File.Exists(GameMeta.CurrentSaveDataSettingsTextFilePath)) { SpeechEngine.Say(EvoVI.Properties.StringTable.SAVEDATASETTINGS_FILE_NOT_FOUND); }
         }
         #endregion
 
@@ -383,10 +402,10 @@ namespace EvoVIOverlay
         /// <param name="e">The ecent arguments.</param>
         void onLoadAnimationCompleted(object sender, EventArgs e)
         {
-            // System ready
-            VI.State = VI.VIState.READY;
             XamlAnimatedGif.AnimationBehavior.SetRepeatBehavior(img_LogoBackground, new RepeatBehavior(2));
             img_LogoBackground.Visibility = System.Windows.Visibility.Hidden;
+
+            initalizeSystems();
         }
         #endregion
 

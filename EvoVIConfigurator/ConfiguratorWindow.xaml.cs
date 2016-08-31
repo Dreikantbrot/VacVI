@@ -213,6 +213,7 @@ namespace EvoVIConfigurator
             
             GameEntry newItemGame = (GameEntry)comBox_GameSelection.SelectedItem;
             ConfigurationManager.ConfigurationFile.SetValue("Game", "Current_Game", newItemGame.Value.ToString());
+            txt_InstallDir.Text = ConfigurationManager.ConfigurationFile.GetValue("Filepaths", newItemGame.Value.ToString());
         }
 
 

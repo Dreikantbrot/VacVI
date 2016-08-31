@@ -114,7 +114,7 @@ namespace EvoVI.Engine
 
 
         #region Variables
-        private static string _language = "de-DE";
+        private static string _language = "en-US";
         private static System.Globalization.CultureInfo _culture;
 
         private static ISoundEngine _soundEngine = new ISoundEngine();
@@ -134,19 +134,26 @@ namespace EvoVI.Engine
 
 
         #region Propeties
-
+        /// <summary> Returns or sets the currently set language
+        /// </summary>
         public static string Language
         {
             get { return SpeechEngine._language; }
             set { SpeechEngine._language = value; }
         }
 
+
+        /// <summary> Returns or sets the culture info object it.
+        /// </summary>
         public static System.Globalization.CultureInfo Culture
         {
             get { return SpeechEngine._culture; }
             set { SpeechEngine._culture = value; }
         }
 
+
+        /// <summary> Returns or sets the voice modulation mode.
+        /// </summary>
         public static VoiceModulationModes VoiceModulation
         {
             get { return SpeechEngine._voiceModulation; }
@@ -172,7 +179,7 @@ namespace EvoVI.Engine
                 EvoVI.PluginContracts.IPlugin crPlugin = PluginManager.GetPlugin("Command Repeater");
                 if (crPlugin != null) { ((EvoVI.Plugins.InternalPlugins.CommandRepeater)crPlugin).ToggleOnOff(false); }
 
-                //Say("I recognized you say: " + e.Result.Text + " - I am to " + Math.Floor(e.Result.Confidence * 100) + "% certain of that.");
+                // Say("I recognized you say: " + e.Result.Text + " - I am to " + Math.Floor(e.Result.Confidence * 100) + "% certain of that.");
             }
         }
 
@@ -190,11 +197,14 @@ namespace EvoVI.Engine
                 {
                     VI.LastRecognizedGrammar = e.Result.Grammar;
                     VI.LastMisunderstoodDialogNode = DialogTreeBuilder.GetPlayerDialog(e.Result.Grammar);
-                    Say(String.Format(EvoVI.Properties.StringTable.DID_NOT_UNDERSTAND_DID_YOU_MEAN, e.Result.Alternates[i].Text));
                     
                     // Enable command repeater plugin dialog
                     EvoVI.PluginContracts.IPlugin crPlugin = PluginManager.GetPlugin("Command Repeater");
-                    if (crPlugin != null) { ((EvoVI.Plugins.InternalPlugins.CommandRepeater)crPlugin).ToggleOnOff(true); }
+                    if (crPlugin != null)
+                    {
+                        Say(String.Format(EvoVI.Properties.StringTable.DID_NOT_UNDERSTAND_DID_YOU_MEAN, e.Result.Alternates[i].Text));
+                        ((EvoVI.Plugins.InternalPlugins.CommandRepeater)crPlugin).ToggleOnOff(true);
+                    }
                     break;
                 }
             }
@@ -212,7 +222,7 @@ namespace EvoVI.Engine
             {
                 _recognizer = new SpeechRecognitionEngine(_culture);
             }
-            catch (ArgumentException e)
+            catch (ArgumentException)
             {
                 _recognizer = null;
                 Say(String.Format(Properties.StringTable.CANNOT_UNDERSTAND_SELECTED_LANGAUGE, _culture.EnglishName));

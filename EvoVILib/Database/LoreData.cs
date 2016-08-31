@@ -95,7 +95,7 @@ namespace EvoVI.Database
             #region Functions
             public static void BuildItemDatabase()
             {
-                string filePath = GameMeta.CurrentGamePath + "\\" + "itemdata.dat";
+                string filePath = GameMeta.CurrentGameDirectoryPath + "\\" + "itemdata.dat";
                 _itemDatabase.Clear();
 
                 if (!File.Exists(filePath)) { return; }
@@ -246,9 +246,9 @@ namespace EvoVI.Database
             {
                 _systemDatabase.Clear();
 
-                if (!File.Exists(GameMeta.CurrentGamePath + "\\systemdata.dat")) { return; }
+                if (!File.Exists(GameMeta.CurrentGameDirectoryPath + "\\systemdata.dat")) { return; }
 
-                string fileContent = File.ReadAllText(GameMeta.CurrentGamePath + "\\systemdata.dat").Replace("\r", "");
+                string fileContent = File.ReadAllText(GameMeta.CurrentGameDirectoryPath + "\\systemdata.dat").Replace("\r", "");
                 MatchCollection systemMatches = SYSTEM_PARSE_REGEX.Matches(fileContent);
 
                 for (int i = 0; i < systemMatches.Count; i++)
@@ -383,7 +383,7 @@ namespace EvoVI.Database
             #region Functions
             public static void BuildTechDatabase()
             {
-                string filePath = GameMeta.CurrentGamePath + "\\" + "techdata.dat";
+                string filePath = GameMeta.CurrentGameDirectoryPath + "\\" + "techdata.dat";
                 _techDatabase.Clear();
 
                 if (!File.Exists(filePath)) { return; }

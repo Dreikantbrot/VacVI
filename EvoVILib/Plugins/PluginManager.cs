@@ -77,17 +77,17 @@ namespace EvoVI
         {
             Plugins.Clear();
 
-            /* Load internal plugins */
-            Plugins.Add(new InternalPlugins.CommandRepeater());
-            Plugins.Add(new InternalPlugins.VIStates());
-
-
             /* Load plugin files */
             string[] dllFileNames = null;
             string pluginPath = GetPluginPath();
 
             _pluginFile = new IniFile(PluginConfigPath);
             _pluginFile.Read();
+
+            /* Load internal plugins, if enabled */
+            if (_pluginFile.ValueIsBoolAndTrue(InternalPlugins.CommandRepeater.PLUGIN_NAME, "Enabled")) { Plugins.Add(new InternalPlugins.CommandRepeater()); }
+            if (_pluginFile.ValueIsBoolAndTrue(InternalPlugins.VIStates.PLUGIN_NAME, "Enabled")) { Plugins.Add(new InternalPlugins.VIStates()); }
+
 
             if (Directory.Exists(pluginPath))
             {

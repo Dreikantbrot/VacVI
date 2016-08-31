@@ -30,6 +30,7 @@ namespace EvoVI.Database
         public const string DEFAULT_SAVEDATA_PATH = @"C:\sw3dg";
         public const string DEFAULT_SAVEDATA_FILENAME = "savedata.txt";
         public const string DEFAULT_GAMECONFIG_FILENAME = "sw.cfg";
+        public const string SAVEDATA_SETTINGS_FILENAME = "savedatasettings.txt";
         #endregion
 
 
@@ -50,9 +51,9 @@ namespace EvoVI.Database
         }
 
 
-        /// <summary> Returns or sets the current game's path.
+        /// <summary> Returns or sets the current game's directory path.
         /// </summary>
-        public static string CurrentGamePath
+        public static string CurrentGameDirectoryPath
         {
             get { return _installDirectories.ContainsKey(_currentGame) ? _installDirectories[_currentGame] : String.Empty; }
             set { _installDirectories[_currentGame] = value; }
@@ -105,6 +106,14 @@ namespace EvoVI.Database
         public static string DefaultGameSettingsPath
         {
             get { return GameMeta.DefaultGameSettingsDirectoryPath + "\\" + DEFAULT_GAMECONFIG_FILENAME; }
+        }
+
+
+        /// <summary> Returns or sets the current game's default configuration file path.
+        /// </summary>
+        public static string CurrentSaveDataSettingsTextFilePath
+        {
+            get { return GameMeta.CurrentGameDirectoryPath + "\\" + SAVEDATA_SETTINGS_FILENAME; }
         }
         #endregion
 

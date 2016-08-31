@@ -130,4 +130,8 @@
     <comment>Speech has been detected as such, but the system is unsure what the user meant exactly.
 This phrase is being used by the internal plugin "Command Repeater".</comment>
   </data>
+  <data name="SAVEDATASETTINGS_FILE_NOT_FOUND" xml:space="preserve">
+    <value>Error - Ship sensor data interface not available!</value>
+    <comment>The "savedatasettings.txt" within the game's installation directory could not be found. Therefore, no in-game data can be retrieved.</comment>
+  </data>
 </root>

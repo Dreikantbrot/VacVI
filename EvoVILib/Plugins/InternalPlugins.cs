@@ -14,6 +14,11 @@ namespace EvoVI.Plugins
     {
         internal class CommandRepeater : IPlugin
         {
+            #region Static Vars
+            internal const string PLUGIN_NAME = "Command Repeater";
+            #endregion
+
+
             #region Variables
             private Guid _guid = new Guid();
             private DialogBase _jumpBackNode;
@@ -30,7 +35,7 @@ namespace EvoVI.Plugins
 
             public string Name
             {
-                get { return "Command Repeater"; }
+                get { return CommandRepeater.PLUGIN_NAME; }
             }
 
             public string Version
@@ -138,6 +143,11 @@ namespace EvoVI.Plugins
 
         internal class VIStates : IPlugin
         {
+            #region Static Vars
+            internal const string PLUGIN_NAME = "VI States";
+            #endregion
+
+
             #region Variables
             private Guid _guid = new Guid();
 
@@ -155,7 +165,7 @@ namespace EvoVI.Plugins
 
             public string Name
             {
-                get { return "VI States"; }
+                get { return VIStates.PLUGIN_NAME; }
             }
 
             public string Version
