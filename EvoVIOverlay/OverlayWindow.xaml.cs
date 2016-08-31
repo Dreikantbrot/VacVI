@@ -17,7 +17,7 @@ namespace EvoVIOverlay
     /// <summary>
     /// Interaktionslogik für MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class OverlayWindow : Window
     {
         #region Window Behaviour Override
         public const int WS_EX_TRANSPARENT = 0x00000020;
@@ -63,13 +63,12 @@ namespace EvoVIOverlay
 
 
         #region Constructor
-        public MainWindow()
+        public OverlayWindow()
         {
             InitializeComponent();
 
             /* Load the main configuration */
             ConfigurationManager.LoadConfiguration();
-
 
             /* Play loading animation */
             _playLoadingAnimation = ConfigurationManager.ConfigurationFile.ValueIsBoolAndTrue("Overlay", "Play_Intro");
@@ -77,6 +76,12 @@ namespace EvoVIOverlay
             {
                 VI.State = VI.VIState.OFFLINE;
                 loadAnimation();
+            }
+            else
+            {
+                // Stop and hide the gif
+                img_LogoBackground.Visibility = System.Windows.Visibility.Hidden;
+                XamlAnimatedGif.AnimationBehavior.SetRepeatBehavior(img_LogoBackground, new RepeatBehavior(0));
             }
 
 
@@ -105,7 +110,7 @@ namespace EvoVIOverlay
             /* Initialize file watchers */
             FileSystemEventHandler eventHandler;
 
-            if (Directory.Exists(GameMeta.DefaultSavedataDirectoryPath))
+            if (File.Exists(GameMeta.DefaultSavedataPath))
             {
                 eventHandler = new FileSystemEventHandler(OnSaveDataChanged);
                 _savedataWatcher = new FileSystemWatcher(GameMeta.DefaultSavedataDirectoryPath, GameMeta.DEFAULT_SAVEDATA_FILENAME);
@@ -116,7 +121,7 @@ namespace EvoVIOverlay
                 File.SetLastWriteTimeUtc(GameMeta.DefaultSavedataPath, DateTime.UtcNow);
             }
 
-            if (Directory.Exists(GameMeta.DefaultGameSettingsDirectoryPath))
+            if (File.Exists(GameMeta.DefaultGameSettingsPath))
             {
                 eventHandler = new FileSystemEventHandler(OnGameConfigChanged);
                 _gameConfigWatcher = new FileSystemWatcher(GameMeta.DefaultGameSettingsDirectoryPath, GameMeta.DEFAULT_GAMECONFIG_FILENAME);
@@ -227,6 +232,8 @@ namespace EvoVIOverlay
 
 
         #region Animations
+        /// <summary> Starts the initial loading animation.
+        /// </summary>
         private void loadAnimation()
         {
             double originalOpacity = this.Opacity;
@@ -358,6 +365,7 @@ namespace EvoVIOverlay
 
             img_LogoBackground.Opacity = 0;
             img_LogoBackground_blur.Radius = 15;
+            XamlAnimatedGif.AnimationBehavior.SetRepeatBehavior(img_LogoBackground, RepeatBehavior.Forever);
 
             txtBlck_MainInfo.Opacity = 0;
             txtBlck_StatusInfo.Opacity = 0;
@@ -368,9 +376,17 @@ namespace EvoVIOverlay
             story.Begin();
         }
 
+
+        /// <summary> Fires, when the loading animation has been finished.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The ecent arguments.</param>
         void onLoadAnimationCompleted(object sender, EventArgs e)
         {
+            // System ready
             VI.State = VI.VIState.READY;
+            XamlAnimatedGif.AnimationBehavior.SetRepeatBehavior(img_LogoBackground, new RepeatBehavior(2));
+            img_LogoBackground.Visibility = System.Windows.Visibility.Hidden;
         }
         #endregion
 

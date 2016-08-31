@@ -14,7 +14,7 @@ namespace EvoVIConfigurator
     /// <summary>
     /// Interaktionslogik für MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class ConfiguratorWindow : Window
     {
         #region Structs
         private struct GameEntry
@@ -100,7 +100,7 @@ namespace EvoVIConfigurator
 
 
         #region Constructor
-        public MainWindow()
+        public ConfiguratorWindow()
         {
             InitializeComponent();
 

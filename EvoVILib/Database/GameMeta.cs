@@ -34,7 +34,7 @@ namespace EvoVI.Database
 
 
         #region Variables
-        private static SupportedGame _currentGame = SupportedGame.EVOCHRON_MERCENARY;
+        private static SupportedGame _currentGame = SupportedGame.NONE;
         private static Dictionary<SupportedGame, string> _folderNames = new Dictionary<SupportedGame, string>();
         private static Dictionary<SupportedGame, string> _installDirectories = new Dictionary<SupportedGame, string>();
         #endregion
@@ -54,7 +54,7 @@ namespace EvoVI.Database
         /// </summary>
         public static string CurrentGamePath
         {
-            get { return _installDirectories[_currentGame]; }
+            get { return _installDirectories.ContainsKey(_currentGame) ? _installDirectories[_currentGame] : String.Empty; }
             set { _installDirectories[_currentGame] = value; }
         }
 
@@ -72,7 +72,7 @@ namespace EvoVI.Database
         /// </summary>
         public static string CurrentGameDefaultFolderName
         {
-            get { return _folderNames[_currentGame]; }
+            get { return _folderNames.ContainsKey(_currentGame) ? _folderNames[_currentGame] : String.Empty; }
         }
 
 
