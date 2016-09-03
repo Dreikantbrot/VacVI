@@ -94,6 +94,17 @@ namespace EvoVIConfigurator
         #endregion
 
 
+        #region Enums
+        private enum CheckBoxColorState
+        {
+            NONE = -1,
+            OKAY = 0,
+            WARNING = 1,
+            ERROR = 2
+        };
+        #endregion
+
+
         #region Variables
         private Label lbl_noParamsToConfigure;
         #endregion
@@ -106,7 +117,7 @@ namespace EvoVIConfigurator
 
             /* Load assets */
             PluginManager.LoadPlugins(true);
-            ConfigurationManager.ConfigurationFile.Read();
+            ConfigurationManager.LoadConfiguration();
 
             /* Fill VI voice list */
             comBox_Config_VIVoice.Items.Clear();
@@ -137,7 +148,7 @@ namespace EvoVIConfigurator
                 if (
                     String.Equals(
                         ((GameEntry)comBox_GameSelection.Items[i]).Value.ToString(),
-                        ConfigurationManager.ConfigurationFile.GetValue("Game", "Current_Game"),
+                        ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_GAME, "Current_Game"),
                         StringComparison.InvariantCultureIgnoreCase
                     )
                 )
@@ -148,19 +159,19 @@ namespace EvoVIConfigurator
             }
             if (comBox_GameSelection.SelectedItem == null) { comBox_GameSelection.SelectedIndex = 0; }
 
-            txt_InstallDir.Text = ConfigurationManager.ConfigurationFile.GetValue("Filepaths", ((GameEntry)comBox_GameSelection.SelectedItem).Value.ToString());
+            txt_InstallDir.Text = ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_FILEPATHS, ((GameEntry)comBox_GameSelection.SelectedItem).Value.ToString());
 
-            chckBox_Config_LoadingAnimation.IsChecked = ConfigurationManager.ConfigurationFile.ValueIsBoolAndTrue("Overlay", "Play_Intro");
+            chckBox_Config_LoadingAnimation.IsChecked = ConfigurationManager.ConfigurationFile.ValueIsBoolAndTrue(ConfigurationManager.SECTION_OVERLAY, "Play_Intro");
 
-            txt_Config_VIName.Text = ConfigurationManager.ConfigurationFile.GetValue("VI", "Name");
-            txt_Config_VIPhoneticName.Text = ConfigurationManager.ConfigurationFile.GetValue("VI", "Phonetic_Name");
+            txt_Config_VIName.Text = ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_VI, "Name");
+            txt_Config_VIPhoneticName.Text = ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_VI, "Phonetic_Name");
 
             for (int i = 0; i < comBox_Config_VIVoice.Items.Count; i++)
             {
                 if (
                     String.Equals(
                         ((VIVoice)comBox_Config_VIVoice.Items[i]).Value.ToString(),
-                        ConfigurationManager.ConfigurationFile.GetValue("VI", "Voice"),
+                        ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_VI, "Voice"),
                         StringComparison.InvariantCultureIgnoreCase
                     )
                 )
@@ -171,8 +182,24 @@ namespace EvoVIConfigurator
             }
             if (comBox_Config_VIVoice.SelectedItem == null) { comBox_Config_VIVoice.SelectedIndex = 0; }
 
-            txt_Config_PlayerName.Text = ConfigurationManager.ConfigurationFile.GetValue("Player", "Name");
-            txt_Config_PlayerPhoneticName.Text = ConfigurationManager.ConfigurationFile.GetValue("Player", "Phonetic_Name");
+            for (int i = 0; i < comBox_Config_SpeechRecLang.Items.Count; i++)
+            {
+                if (
+                    String.Equals(
+                        ((ComboBoxItem)comBox_Config_SpeechRecLang.Items[i]).Content.ToString(),
+                        ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_VI, "Speech_Recognition_Lang"),
+                        StringComparison.InvariantCultureIgnoreCase
+                    )
+                )
+                {
+                    comBox_Config_SpeechRecLang.SelectedIndex = i;
+                    break;
+                }
+            }
+            if (comBox_Config_SpeechRecLang.SelectedItem == null) { comBox_Config_SpeechRecLang.SelectedIndex = 0; }
+
+            txt_Config_PlayerName.Text = ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_PLAYER, "Name");
+            txt_Config_PlayerPhoneticName.Text = ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_PLAYER, "Phonetic_Name");
 
             /* Fill plugin list */
             for (int i = 0; i < PluginManager.Plugins.Count; i++)
@@ -181,13 +208,127 @@ namespace EvoVIConfigurator
                 cmbx.Content = PluginManager.Plugins[i].Name;
                 comBox_PluginSelection.Items.Add(cmbx);
             }
-
             if (PluginManager.Plugins.Count > 0) { comBox_PluginSelection.SelectedIndex = 0; }
+
+            tab_Overview_Label_GotFocus(null, null);
         }
         #endregion
 
 
-        #region General Events
+        #region General Functions
+        /// <summary> Sets the given checkbox's style.
+        /// </summary>
+        /// <param name="chckBox">The checkbox which style to set.</param>
+        /// <param name="state">The state the checkbox's appearance should represent.</param>
+        /// <param name="checkIfAtLeast">Checks the checkbox, if the state ist at least as good as the given value.</param>
+        private void setCheckboxColor(CheckBox chckBox, CheckBoxColorState state, CheckBoxColorState checkIfAtLeast = CheckBoxColorState.OKAY)
+        {
+            chckBox.Foreground = (
+                new System.Windows.Media.SolidColorBrush(
+                    (state == CheckBoxColorState.OKAY) ? Color.FromArgb(200, 0, 200, 0) :
+                    (state == CheckBoxColorState.WARNING) ? Color.FromArgb(200, 200, 180, 0) :
+                    Color.FromArgb(200, 250, 0, 0)
+                )
+            );
+            chckBox.BorderBrush = (
+                new System.Windows.Media.SolidColorBrush(
+                    (state == CheckBoxColorState.OKAY) ? Color.FromArgb(200, 0, 200, 0) :
+                    (state == CheckBoxColorState.WARNING) ? Color.FromArgb(200, 200, 180, 0) :
+                    Color.FromArgb(200, 250, 0, 0)
+                )
+            );
+            chckBox.Background = (
+                new System.Windows.Media.SolidColorBrush(
+                    (state == CheckBoxColorState.OKAY) ? Color.FromArgb(128, 0, 200, 0) :
+                    (state == CheckBoxColorState.WARNING) ? Color.FromArgb(128, 200, 180, 0) :
+                    Color.FromArgb(128, 250, 0, 0)
+                )
+            );
+
+            chckBox.IsChecked = (state <= checkIfAtLeast);
+        }
+        #endregion
+
+
+        #region Events
+        
+        #region Overview Events
+        /// <summary> Fires when the "Overview"-tab is being focused.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void tab_Overview_Label_GotFocus(object sender, RoutedEventArgs e)
+        {
+            // Install directory is valid?
+            setCheckboxColor(
+                chckBox_Overview_InstallDirValid,
+                verifyInstallDir() ? CheckBoxColorState.OKAY : CheckBoxColorState.ERROR
+            );
+            chckBox_Overview_InstallDirValid.Content = "Installation path valid";
+
+            // SW3DG directory is present?
+            setCheckboxColor(
+                chckBox_Overview_SW3DGDir,
+                Directory.Exists(GameMeta.DEFAULT_SAVEDATA_PATH) ? CheckBoxColorState.OKAY : CheckBoxColorState.ERROR
+            );
+            chckBox_Overview_SW3DGDir.Content = "SW3DG directory (" + GameMeta.DEFAULT_SAVEDATA_PATH + ") available";
+
+            // Savedatasettings.txt has been created?
+            setCheckboxColor(
+                chckBox_Overview_Savedatatextssettings,
+                File.Exists(GameMeta.CurrentSaveDataSettingsTextFilePath) ? CheckBoxColorState.OKAY : CheckBoxColorState.WARNING
+            );
+            chckBox_Overview_Savedatatextssettings.Content = "\"SavedataSettings.txt\" found in \"" + GameMeta.CurrentGameDirectoryPath + "\"";
+
+            // Speech recognition engine available?
+            try
+            {
+                new System.Speech.Recognition.SpeechRecognitionEngine(
+                    new System.Globalization.CultureInfo(SpeechEngine.Language, false)
+                );
+                setCheckboxColor(chckBox_Overview_SpeechRecogEngine, CheckBoxColorState.OKAY);
+            }
+            catch (ArgumentException)
+            {
+                setCheckboxColor(chckBox_Overview_SpeechRecogEngine, CheckBoxColorState.ERROR);
+            }
+            chckBox_Overview_SpeechRecogEngine.Content = "Speech recognition language supported";
+
+            // All plugins are compabtible?
+            bool pluginsCompatible = true;
+            foreach(KeyValuePair<string, Dictionary<string, string>> keyal in PluginManager.PluginFile.Sections)
+            {
+                if (PluginManager.PluginFile.ValueIsBoolAndTrue(keyal.Key, "Enabled"))
+                {
+                    IPlugin currPlugin = PluginManager.GetPlugin(keyal.Key);
+
+                    if ((currPlugin.CompatibilityFlags & GameMeta.CurrentGame) != GameMeta.CurrentGame)
+                    {
+                        pluginsCompatible = false;
+                        break;
+                    }
+                }
+            }
+            setCheckboxColor(
+                chckBox_Overview_PluginsCompatible,
+                pluginsCompatible ? CheckBoxColorState.OKAY : CheckBoxColorState.WARNING
+            );
+            chckBox_Overview_PluginsCompatible.Content = "All plugins compatible with selected game";
+        }
+
+
+        /// <summary> Fires when the "Close"-button is clicked.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void btn_Close_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+        #endregion
+
+
+        #region Configuration
         /// <summary> Fires when the "Browse"-button is clicked.
         /// </summary>
         /// <param name="sender">The sender object.</param>
@@ -208,12 +349,14 @@ namespace EvoVIConfigurator
         /// <param name="e">The selection changed event arguments.</param>
         private void comBox_GameSelection_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
+            GameEntry newItemGame = (GameEntry)comBox_GameSelection.SelectedItem;
+            GameMeta.CurrentGame = newItemGame.Value;
+
             verifyInstallDir();
             validatePlugin();
-            
-            GameEntry newItemGame = (GameEntry)comBox_GameSelection.SelectedItem;
-            ConfigurationManager.ConfigurationFile.SetValue("Game", "Current_Game", newItemGame.Value.ToString());
-            txt_InstallDir.Text = ConfigurationManager.ConfigurationFile.GetValue("Filepaths", newItemGame.Value.ToString());
+
+            ConfigurationManager.ConfigurationFile.SetValue(ConfigurationManager.SECTION_GAME, "Current_Game", newItemGame.Value.ToString());
+            txt_InstallDir.Text = ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_FILEPATHS, newItemGame.Value.ToString());
         }
 
 
@@ -228,7 +371,7 @@ namespace EvoVIConfigurator
         #endregion
 
 
-        #region Plugin Configuration Events
+        #region Plugins
         /// <summary> Fires when the plugin within the plugin selection list changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
@@ -393,35 +536,59 @@ namespace EvoVIConfigurator
             }
 
             // Update the "Enabled" checkbox status and style 
-            GameEntry currGame = (GameEntry)comBox_GameSelection.SelectedItem;
-            bool isCompatible = ((currGame.Value & plugin.CompatibilityFlags) == currGame.Value);
-            chck_PluginsEnabled.Foreground = (
-                new System.Windows.Media.SolidColorBrush(
-                    (isCompatible && (chck_PluginsEnabled.IsChecked == true)) ? Color.FromArgb(200, 0, 200, 0) :
-                    (!isCompatible && (chck_PluginsEnabled.IsChecked == true)) ? Color.FromArgb(200, 200, 180, 0) : 
-                    Color.FromArgb(200, 250, 0, 0)
-                )
-            );
-            chck_PluginsEnabled.BorderBrush = (
-                new System.Windows.Media.SolidColorBrush(
-                    (isCompatible && (chck_PluginsEnabled.IsChecked == true)) ? Color.FromArgb(200, 0, 200, 0) :
-                    (!isCompatible && (chck_PluginsEnabled.IsChecked == true)) ? Color.FromArgb(200, 200, 180, 0) :
-                    Color.FromArgb(200, 250, 0, 0)
-                )
-            );
-            chck_PluginsEnabled.Background = (
-                new System.Windows.Media.SolidColorBrush(
-                    (isCompatible && (chck_PluginsEnabled.IsChecked == true)) ? Color.FromArgb(128, 0, 200, 0) :
-                    (!isCompatible && (chck_PluginsEnabled.IsChecked == true)) ? Color.FromArgb(128, 200, 180, 0) :
-                    Color.FromArgb(128, 250, 0, 0)
-                )
+            bool isCompatible = ((GameMeta.CurrentGame & plugin.CompatibilityFlags) == GameMeta.CurrentGame);
+            setCheckboxColor(
+                chck_PluginsEnabled,
+                (isCompatible && (chck_PluginsEnabled.IsChecked == true)) ? CheckBoxColorState.OKAY : 
+                (!isCompatible && (chck_PluginsEnabled.IsChecked == true)) ? CheckBoxColorState.WARNING : 
+                CheckBoxColorState.ERROR,
+                CheckBoxColorState.WARNING
             );
             chck_PluginsEnabled.Content = ((chck_PluginsEnabled.IsChecked == true) ? "En" : "Dis") + "abled";
+        }
+
+
+        /// <summary> Checks and updates the status of the currently loaded plugin.
+        /// </summary>
+        private void validatePlugin()
+        {
+            if (comBox_PluginSelection.SelectedItem == null) { return; }
+
+            // Update plugin information
+            string newItemText = ((ComboBoxItem)comBox_PluginSelection.SelectedItem).Content.ToString();
+            IPlugin plugin = PluginManager.GetPlugin(newItemText);
+
+            if (plugin != null)
+            {
+                lbl_PluginName.Text = plugin.Name;
+                lbl_PluginVersion.Text = "Version: " + (!String.IsNullOrWhiteSpace(plugin.Version) ? plugin.Version : "N/A");
+                lbl_PluginDescription.Text = !String.IsNullOrWhiteSpace(plugin.Description) ? plugin.Description : "";
+                lbl_PluginAuthor.Text = !String.IsNullOrWhiteSpace(plugin.Author) ? plugin.Author : "<Unknown Author>";
+                lbl_PluginHomepage.Text = !String.IsNullOrWhiteSpace(plugin.Homepage) ? plugin.Homepage : "<Homepage N/A>";
+
+                // (Un-)Check the "compatibility" checkbox and update the style
+                bool isCompatible = ((GameMeta.CurrentGame & plugin.CompatibilityFlags) == GameMeta.CurrentGame);
+                txt_PluginCompatibility.Foreground = (
+                    new System.Windows.Media.SolidColorBrush(isCompatible ? Color.FromArgb(200, 0, 200, 0) : Color.FromArgb(200, 250, 0, 0))
+                );
+                txt_PluginCompatibility.Background = (
+                    new System.Windows.Media.SolidColorBrush(isCompatible ? Color.FromArgb(128, 0, 180, 0) : Color.FromArgb(128, 200, 0, 0))
+                );
+                txt_PluginCompatibility.Text = (isCompatible ? "" : "Not ") + "Compatible";
+                txt_PluginCompatibility.Visibility = System.Windows.Visibility.Visible;
+
+                // (Un-)Check the "enabled" checkbox and trigger checked/unchecked event to do the rest
+                chck_PluginsEnabled.IsChecked = (
+                    (!PluginManager.PluginFile.HasKey(plugin.Name, "Enabled")) ||
+                    (PluginManager.PluginFile.ValueIsBoolAndTrue(plugin.Name, "Enabled"))
+                );
+                chck_PluginsEnabled_CheckedUnchecked(null, null);
+            }
         }
         #endregion
 
 
-        #region Main Configuration Events
+        #region Configuration
         /// <summary> Fires when the VI's name has been changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
@@ -455,12 +622,25 @@ namespace EvoVIConfigurator
         /// <summary> Fires when VI voice has been changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
-        /// <param name="e">The routed event arguments.</param>
+        /// <param name="e">The selection changed event arguments.</param>
         private void comBox_Config_VIVoice_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             SpeechEngine.VoiceModulationModes voice = ((VIVoice)(((ComboBox)sender).SelectedItem)).Value;
             SpeechEngine.VoiceModulation = voice;
+            
             ConfigurationManager.ConfigurationFile.SetValue("VI", "Voice", voice.ToString());
+        }
+
+
+        /// <summary> Fires when the language for the speech recognition engine has been changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The selection changed event arguments.</param>
+        private void comBox_Config_SpeechRecLang_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SpeechEngine.Language = ((ComboBoxItem)comBox_Config_SpeechRecLang.SelectedItem).Content.ToString();
+
+            ConfigurationManager.ConfigurationFile.SetValue("VI", "Speech_Recognition_Lang", SpeechEngine.Language);
         }
 
 
@@ -527,31 +707,28 @@ namespace EvoVIConfigurator
         {
             ConfigurationManager.ConfigurationFile.Write(ConfigurationManager.ConfigurationFilepath);
         }
-        #endregion
 
 
-        #region Functions
         /// <summary> Verifies whether the path in the textbox is a valid installation directory.
         /// </summary>
-        private void verifyInstallDir()
+        private bool verifyInstallDir()
         {
-            GameEntry newItemGame = (GameEntry)comBox_GameSelection.SelectedItem;
             txtBox_StatusText.Visibility = System.Windows.Visibility.Visible;
 
             if (String.IsNullOrWhiteSpace(txt_InstallDir.Text))
             {
                 // No path entered
                 txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Colors.White);
-                txtBox_StatusText.Text = "Please enter the installation path for " + newItemGame.DisplayValue + "!";
+                txtBox_StatusText.Text = "Please enter the installation path for " + GameMeta.GetDescription(GameMeta.CurrentGame) + "!";
 
-                return;
+                return false;
             }
 
-            
+
             /* Check whether the entered path is a valid installation directory */
             bool pathIsValid = (
                 (Directory.Exists(txt_InstallDir.Text)) &&
-                (Directory.GetFiles(txt_InstallDir.Text, GameMeta.GetDescription(newItemGame.Value).Replace(' ', '*') + ".exe").Length > 0) &&
+                (Directory.GetFiles(txt_InstallDir.Text, GameMeta.GetDescription(GameMeta.CurrentGame).Replace(' ', '*') + ".exe").Length > 0) &&
                 (Directory.GetFiles(txt_InstallDir.Text, "EvochronData.evo").Length > 0)
             );
 
@@ -559,58 +736,24 @@ namespace EvoVIConfigurator
             {
                 // Path exists
                 txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Color.FromRgb(0, 240, 0));
-                txtBox_StatusText.Text = "Your installation path for " + newItemGame.DisplayValue + " is valid!";
+                txtBox_StatusText.Text = "Your installation path for " + GameMeta.GetDescription(GameMeta.CurrentGame) + " is valid!";
 
                 // Save the game path within the configuration file
-                ConfigurationManager.ConfigurationFile.SetValue("Filepaths", newItemGame.Value.ToString(), txt_InstallDir.Text);
+                ConfigurationManager.ConfigurationFile.SetValue("Filepaths", GameMeta.CurrentGame.ToString(), txt_InstallDir.Text);
+
+                return true;
             }
             else
             {
                 // Entered path does not exist
                 txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Color.FromRgb(220, 0, 0));
-                txtBox_StatusText.Text = "Error: The path given is not a valid " + newItemGame.DisplayValue + " installation directory!";
+                txtBox_StatusText.Text = "Error: The path given is not a valid " + GameMeta.GetDescription(GameMeta.CurrentGame) + " installation directory!";
+
+                return false;
             }
         }
-
-
-        /// <summary> Checks and updates the status of the currently loaded plugin.
-        /// </summary>
-        private void validatePlugin()
-        {
-            if (comBox_PluginSelection.SelectedItem == null) { return; }
-
-            // Update plugin information
-            string newItemText = ((ComboBoxItem)comBox_PluginSelection.SelectedItem).Content.ToString();
-            IPlugin plugin = PluginManager.GetPlugin(newItemText);
-
-            if (plugin != null)
-            {
-                lbl_PluginName.Text = plugin.Name;
-                lbl_PluginVersion.Text = "Version: " + (!String.IsNullOrWhiteSpace(plugin.Version) ? plugin.Version : "N/A");
-                lbl_PluginDescription.Text = !String.IsNullOrWhiteSpace(plugin.Description) ? plugin.Description : "";
-                lbl_PluginAuthor.Text = !String.IsNullOrWhiteSpace(plugin.Author) ? plugin.Author : "<Unknown Author>";
-                lbl_PluginHomepage.Text = !String.IsNullOrWhiteSpace(plugin.Homepage) ? plugin.Homepage : "<Homepage N/A>";
-
-                // (Un-)Check the "compatibility" checkbox and update the style
-                GameEntry currGame = (GameEntry)comBox_GameSelection.SelectedItem;
-                bool isCompatible = ((currGame.Value & plugin.CompatibilityFlags) == currGame.Value);
-                txt_PluginCompatibility.Foreground = (
-                    new System.Windows.Media.SolidColorBrush(isCompatible ? Color.FromArgb(200, 0, 200, 0) : Color.FromArgb(200, 250, 0, 0))
-                );
-                txt_PluginCompatibility.Background = (
-                    new System.Windows.Media.SolidColorBrush(isCompatible ? Color.FromArgb(128, 0, 180, 0) : Color.FromArgb(128, 200, 0, 0))
-                );
-                txt_PluginCompatibility.Text = (isCompatible ? "" : "Not ") + "Compatible";
-                txt_PluginCompatibility.Visibility = System.Windows.Visibility.Visible;
-
-                // (Un-)Check the "enabled" checkbox and trigger checked/unchecked event to do the rest
-                chck_PluginsEnabled.IsChecked = (
-                    (!PluginManager.PluginFile.HasKey(plugin.Name, "Enabled")) ||
-                    (PluginManager.PluginFile.ValueIsBoolAndTrue(plugin.Name, "Enabled"))
-                );
-                chck_PluginsEnabled_CheckedUnchecked(null, null);
-            }
-        }
+        #endregion
+        
         #endregion
     }
 }
