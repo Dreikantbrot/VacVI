@@ -123,7 +123,7 @@
   </data>
   <data name="COULD_NOT_ACQUIRE_DATA" xml:space="preserve">
     <value>Error - Could not acquire ship sensor data!</value>
-    <comment>savedata.txt file could not be read.</comment>
+    <comment>The "savedata.txt" file could not be read.</comment>
   </data>
   <data name="DID_NOT_UNDERSTAND_DID_YOU_MEAN" xml:space="preserve">
     <value>I did not understand that. Did you mean {0}?</value>

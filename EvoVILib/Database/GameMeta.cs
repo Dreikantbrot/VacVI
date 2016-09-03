@@ -12,6 +12,53 @@ namespace EvoVI.Database
     /// </summary>
     public static class GameMeta
     {
+        #region Structs
+        public class GameInfo
+        {
+            #region Variables
+            private SupportedGame _gameType;
+            private string _gameName;
+            //private Image _image;
+            private string _folderName;
+            private string _userInstallDirectory;
+            #endregion
+
+
+            #region Properties
+            public SupportedGame GameType
+            {
+                get { return _gameType; }
+            }
+
+            public string GameName
+            {
+                get { return _gameName; }
+            }
+
+            public string FolderName
+            {
+                get { return _folderName; }
+            }
+
+            public string UserInstallDirectory
+            {
+                get { return _userInstallDirectory; }
+                set { _userInstallDirectory = value; }
+            }
+            #endregion
+
+
+            internal GameInfo(SupportedGame pGameType, string pFolderName)
+            {
+                this._gameName = GameMeta.GetDescription(pGameType);
+                this._gameType = pGameType;
+                this._folderName = pFolderName;
+                this._userInstallDirectory = ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_FILEPATHS, pGameType.ToString());
+            }
+        }
+        #endregion
+
+
         #region Enums
         [Flags]
         public enum SupportedGame {
@@ -36,8 +83,7 @@ namespace EvoVI.Database
 
         #region Variables
         private static SupportedGame _currentGame = SupportedGame.NONE;
-        private static Dictionary<SupportedGame, string> _folderNames = new Dictionary<SupportedGame, string>();
-        private static Dictionary<SupportedGame, string> _installDirectories = new Dictionary<SupportedGame, string>();
+        private static Dictionary<SupportedGame, GameInfo> _gameDetails = new Dictionary<SupportedGame, GameInfo>();
         #endregion
 
 
@@ -50,22 +96,17 @@ namespace EvoVI.Database
             set { _currentGame = value; }
         }
 
+        public static Dictionary<SupportedGame, GameInfo> GameDetails
+        {
+            get { return GameMeta._gameDetails; }
+        }
+
 
         /// <summary> Returns or sets the current game's directory path.
         /// </summary>
         public static string CurrentGameDirectoryPath
         {
-            get { return _installDirectories.ContainsKey(_currentGame) ? _installDirectories[_currentGame] : String.Empty; }
-            set { _installDirectories[_currentGame] = value; }
-        }
-
-
-        /// <summary> Returns or sets the game install directory table.
-        /// </summary>
-        public static Dictionary<SupportedGame, string> InstallDirectories
-        {
-            get { return GameMeta._installDirectories; }
-            set { GameMeta._installDirectories = value; }
+            get { return _gameDetails.ContainsKey(_currentGame) ? _gameDetails[_currentGame].UserInstallDirectory : String.Empty; }
         }
 
 
@@ -73,7 +114,7 @@ namespace EvoVI.Database
         /// </summary>
         public static string CurrentGameDefaultFolderName
         {
-            get { return _folderNames.ContainsKey(_currentGame) ? _folderNames[_currentGame] : String.Empty; }
+            get { return _gameDetails.ContainsKey(_currentGame) ? _gameDetails[_currentGame].FolderName : String.Empty; }
         }
 
 
@@ -121,12 +162,8 @@ namespace EvoVI.Database
         #region (Static) Constructor
         static GameMeta()
         {
-            _folderNames.Add(SupportedGame.EVOCHRON_MERCENARY, "EvochronMercenary");
-            _folderNames.Add(SupportedGame.EVOCHRON_LEGACY, "EvochronLegacy");
-
-            _installDirectories.Add(SupportedGame.NONE, String.Empty);
-            _installDirectories.Add(SupportedGame.EVOCHRON_MERCENARY, String.Empty);
-            _installDirectories.Add(SupportedGame.EVOCHRON_LEGACY, String.Empty);
+            _gameDetails.Add(SupportedGame.EVOCHRON_MERCENARY, new GameInfo(SupportedGame.EVOCHRON_MERCENARY, "EvochronMercenary"));
+            _gameDetails.Add(SupportedGame.EVOCHRON_LEGACY, new GameInfo(SupportedGame.EVOCHRON_LEGACY, "EvochronLegacy"));
         }
         #endregion
 

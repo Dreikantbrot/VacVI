@@ -3,17 +3,19 @@ using EvoVI.Engine;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EvoVI
 {
     public static class ConfigurationManager
     {
         #region Constants
-        private static string CONFIGURATION_FILENAME = "configuration.ini";
+        private const string CONFIGURATION_FILENAME = "configuration.ini";
+        public const string SECTION_GAME = "Game";
+        public const string SECTION_FILEPATHS = "Filepaths";
+        public const string SECTION_OVERLAY = "Overlay";
+        public const string SECTION_VI = "VI";
+        public const string SECTION_PLAYER = "Player";
         #endregion
 
 
@@ -59,7 +61,7 @@ namespace EvoVI
             string section = "";
             _configurationFile.Read();
 
-            section = "Game";
+            section = SECTION_GAME;
             if (_configurationFile.HasSection(section))
             {
                 if (_configurationFile.HasKey(section, "Current_Game"))
@@ -71,7 +73,7 @@ namespace EvoVI
                 }
             }
 
-            section = "Filepaths";
+            section = SECTION_FILEPATHS;
             if (_configurationFile.HasSection(section))
             {
                 Dictionary<string, string> filepaths = _configurationFile.GetSectionAttributes(section);
@@ -80,17 +82,17 @@ namespace EvoVI
                     GameMeta.SupportedGame currentGame;
                     Enum.TryParse(GamePathPair.Key, true, out currentGame);
 
-                    if (GameMeta.InstallDirectories.ContainsKey(currentGame)) { GameMeta.InstallDirectories[currentGame] = GamePathPair.Value; }
+                    if (GameMeta.GameDetails.ContainsKey(currentGame)) { GameMeta.GameDetails[currentGame].UserInstallDirectory = GamePathPair.Value; }
                 }
             }
 
-            section = "Overlay";
+            section = SECTION_OVERLAY;
             if (_configurationFile.HasSection(section))
             {
                 if (_configurationFile.HasKey(section, "Play_Intro")) { VI.Name = _configurationFile.GetValue(section, "Play_Intro"); }
             }
 
-            section = "VI";
+            section = SECTION_VI;
             if (_configurationFile.HasSection(section))
             {
                 if (_configurationFile.HasKey(section, "Name")) { VI.Name = _configurationFile.GetValue(section, "Name"); }
@@ -102,9 +104,10 @@ namespace EvoVI
 
                     SpeechEngine.VoiceModulation = chosenVoice;
                 }
+                if (_configurationFile.HasKey(section, "Speech_Recognition_Lang")) { SpeechEngine.Language = _configurationFile.GetValue(section, "Speech_Recognition_Lang"); }
             }
 
-            section = "Player";
+            section = SECTION_PLAYER;
             if (_configurationFile.HasSection(section))
             {
                 if (_configurationFile.HasKey(section, "Name")) { VI.Name = _configurationFile.GetValue(section, "Name"); }
