@@ -59,6 +59,7 @@
     <Compile Include="Classes\Dialog\DialogTreeBuilder.cs" />
     <Compile Include="Classes\Math\Vector3D.cs" />
     <Compile Include="Classes\Sound\OnSoundStopHandler.cs" />
+    <Compile Include="Database\KeyboardControls.cs" />
     <Compile Include="Plugins\IniFile.cs" />
     <Compile Include="Database\GameMeta.cs" />
     <Compile Include="Database\LoreData.cs" />
@@ -71,9 +72,10 @@
     <Compile Include="Plugins\InternalPlugins.cs" />
     <Compile Include="Plugins\PluginParameterDefault.cs" />
     <Compile Include="VI\ConfigurationManager.cs" />
+    <Compile Include="VI\DIKCodes.cs" />
     <Compile Include="VI\Interactor.cs" />
     <Compile Include="Plugins\IPlugin.cs" />
-    <Compile Include="VI\VKeyCodes.cs" />
+    <Compile Include="VI\VKCodes.cs" />
     <Compile Include="VI\SpeechEngine.cs" />
     <Compile Include="VI\VI.cs" />
     <Compile Include="Plugins\PluginManager.cs" />
@@ -101,6 +103,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\savedata_template.txt" />
+    <Content Include="_devRsc\sw_cfg_explanation.txt" />
+    <Content Include="_devRsc\sw_keymap8_layout.txt" />
+    <Content Include="_devRsc\sw_modKit_savedatasettings.txt" />
+    <Content Include="_devRsc\sw_savedata_exmpl.txt" />
     <Content Include="_dll\irrKlang.NET4.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,0 +1,30 @@
+﻿Optimized		// Resolution
+Standard		// Font Mode (Standard/Classic)
+Off				// Anti-Alisasing
+On
+High
+Keyboard
+High			// Texture Quality
+On2				// 3D Cockpit Type
+On
+Off
+High
+100
+100
+Off2
+High
+2
+0
+Off
+MouseOffset=0
+TextRes=2048
+100
+0
+0
+2				// HUD HUE (0=Blue, 1=Green, 2=Red)
+56				// HUD Red % (0-200)
+135				// HUD Green % (0-200)
+164				// HUD Blue % (0-200)
+2				// Changes Apply to (0=Gunsight Only, 1=Gunsight & Displays, 2=Displays Only)
+2				// Flight Marker (0=Flight Path, 1=Flight Path + Hor./Vert. Velocity, 2=Hor./Vert. Velocity)
+0

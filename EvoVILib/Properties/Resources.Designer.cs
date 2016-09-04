@@ -61,6 +61,58 @@ namespace EvoVI.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die [KEYBOARD]	TURN_RIGHT
+        ///[KEYBOARD]	TURN_LEFT
+        ///[KEYBOARD]	PITCH_DOWN
+        ///[KEYBOARD]	PITCH_UP
+        ///[KEYBOARD]	ROLL_RIGHT
+        ///[KEYBOARD]	ROLL_LEFT
+        ///[KEYBOARD]	STRAFE_RIGHT
+        ///[KEYBOARD]	STRAFE_LEFT
+        ///[KEYBOARD]	AFTERBURNER
+        ///[KEYBOARD]	INERTIAL_SYSTEM_ON_OFF
+        ///[KEYBOARD]	MATCH_TARGET_SPEED
+        ///[KEYBOARD]	FIRE_PRIMARY_WEAPON
+        ///[KEYBOARD]	FIRE_SECONDARY_WEAPON
+        ///[KEYBOARD]	SELECT_NEXT_SECONDARY_WEAPON
+        ///[KEYBOARD]	SELECT_PREVIOUS_SECONDARY_WEAPON
+        ///[KEYBOARD]	COUNTERMEASURES
+        ///[KEYBOARD]	TARGET_NEAREST_SHIP | TARGET_NEAREST_HOSTILE
+        ///[K [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        /// </summary>
+        internal static string Keymap8_EL_Layout {
+            get {
+                return ResourceManager.GetString("Keymap8_EL_Layout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die [KEYBOARD]	TURN_RIGHT
+        ///[KEYBOARD]	TURN_LEFT
+        ///[KEYBOARD]	PITCH_UP
+        ///[KEYBOARD]	PITCH_DOWN
+        ///[KEYBOARD]	ROLL_RIGHT
+        ///[KEYBOARD]	ROLL_LEFT
+        ///[KEYBOARD]	STRAFE_RIGHT
+        ///[KEYBOARD]	STRAFE_LEFT
+        ///[KEYBOARD]	AFTERBURNER
+        ///[KEYBOARD]	INERTIAL_SYSTEM_ON_OFF
+        ///[KEYBOARD]	MATCH_TARGET_SPEED
+        ///[KEYBOARD]	FIRE_PRIMARY_WEAPON
+        ///[KEYBOARD]	FIRE_SECONDARY_WEAPON
+        ///[KEYBOARD]	SELECT_NEXT_SECONDARY_WEAPON
+        ///[KEYBOARD]	SELECT_PREVIOUS_SECONDARY_WEAPON
+        ///[KEYBOARD]	COUNTERMEASURES
+        ///[KEYBOARD]	TARGET_NEAREST_SHIP | TARGET_NEAREST_HOSTILE
+        ///[KEYBOARD]	TARGET_N [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        /// </summary>
+        internal static string Keymap8_EM_Layout {
+            get {
+                return ResourceManager.GetString("Keymap8_EM_Layout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die [EM | EL]	[ PlayerData ]			&lt;string&gt;	Pilot Name 							(string)
         ///[EM | EL]	[ PlayerShipData ]		&lt;integer&gt;	Fuel 								(integer)
         ///[EM | EL]	[ PlayerData ]			&lt;string&gt;	Cash 								(string, includes commas)
