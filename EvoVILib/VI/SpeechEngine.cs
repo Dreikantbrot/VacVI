@@ -8,8 +8,6 @@ using IrrKlang;
 using EvoVI.Classes.Dialog;
 using EvoVI.Classes.Sound;
 
-// TODO: Clean up!
-
 namespace EvoVI.Engine
 {
     public static class SpeechEngine

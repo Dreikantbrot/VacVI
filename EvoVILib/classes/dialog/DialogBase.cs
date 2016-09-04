@@ -3,8 +3,6 @@ using EvoVI.PluginContracts;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-// TODO: Clean up!
-
 namespace EvoVI.Classes.Dialog
 {
     [System.Diagnostics.DebuggerDisplay("{Speaker}: {Text}")]
@@ -283,7 +281,7 @@ namespace EvoVI.Classes.Dialog
             // Filter out the rest of the collected nodes by importance
             for (int i = 0; i < candidatePhrases.Count; i++) { if (candidatePhrases[i].Importance < highestPriority) candidatePhrases.RemoveAt(i); }
 
-            // TODO: Filter out mixed types - go by dominant type
+            // Filter out mixed types - go by dominant type
             Dictionary<DialogSpeaker, int> typeDominance = new Dictionary<DialogSpeaker, int>();
             for (int i = 0; i < candidatePhrases.Count; i++)
             {
