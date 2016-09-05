@@ -27,7 +27,7 @@ namespace EvoVI.Classes.Dialog
 
         /// <summary> The importance of a line of dialog.
         /// </summary>
-        public enum DialogImportance { LOW=0, NORMAL=1, HIGH=2, CRITICAL=3 };
+        public enum DialogImportance { VERY_LOW=0, LOW=1, NORMAL=2, HIGH=3, VERY_HIGH=4, CRITICAL=5 };
         #endregion
 
 
