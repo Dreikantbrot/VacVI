@@ -20,26 +20,47 @@ namespace EvoVI.Database
             private string _gameName;
             //private Image _image;
             private string _folderName;
+            private string _processName;
             private string _userInstallDirectory;
             #endregion
 
 
             #region Properties
+            /// <summary> Returns the game.
+            /// </summary>
             public SupportedGame GameType
             {
                 get { return _gameType; }
             }
 
+
+            /// <summary> Returns the game's name.
+            /// </summary>
             public string GameName
             {
                 get { return _gameName; }
             }
 
+
+            /// <summary> Returns the game's default directory name.
+            /// </summary>
             public string FolderName
             {
                 get { return _folderName; }
             }
 
+
+            /// <summary> Returns the game's default process name.
+            /// </summary>
+
+            public string ProcessName
+            {
+                get { return _processName; }
+            }
+
+
+            /// <summary> Returns the game's current installation path.
+            /// </summary>
             public string UserInstallDirectory
             {
                 get { return _userInstallDirectory; }
@@ -48,24 +69,34 @@ namespace EvoVI.Database
             #endregion
 
 
+            #region Constructors
+            /// <summary> Creates an object containing details about a game.
+            /// </summary>
+            /// <param name="pGameType">The (supported) game.</param>
+            /// <param name="pFolderName">The games directory name.</param>
             internal GameInfo(SupportedGame pGameType, string pFolderName)
             {
                 this._gameName = GameMeta.GetDescription(pGameType);
                 this._gameType = pGameType;
                 this._folderName = pFolderName;
+                this._processName = this._folderName;
                 this._userInstallDirectory = ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_FILEPATHS, pGameType.ToString());
             }
+            #endregion
         }
         #endregion
 
 
         #region Enums
         [Flags]
-        public enum SupportedGame {
+        public enum SupportedGame
+        {
             [Description("None")]
             NONE = 0,
+            
             [Description("Evochron Mercenary")]
             EVOCHRON_MERCENARY = 1,
+            
             [Description("Evochron Legacy")]
             EVOCHRON_LEGACY = 2
         };
@@ -78,6 +109,7 @@ namespace EvoVI.Database
         public const string DEFAULT_SAVEDATA_FILENAME = "savedata.txt";
         public const string DEFAULT_GAMECONFIG_FILENAME = "sw.cfg";
         public const string SAVEDATA_SETTINGS_FILENAME = "savedatasettings.txt";
+        public const string KEYMAPPING_FILENAME = "keymap8.sw";
         #endregion
 
 
@@ -142,6 +174,14 @@ namespace EvoVI.Database
         }
 
 
+        /// <summary> Returns the current game's default keymap configuration file path.
+        /// </summary>
+        public static string DefaultKeymapFilePath
+        {
+            get { return GameMeta.DefaultGameSettingsDirectoryPath + "\\" + KEYMAPPING_FILENAME; }
+        }
+
+
         /// <summary> Returns or sets the current game's default configuration file path.
         /// </summary>
         public static string DefaultGameSettingsPath
@@ -171,11 +211,11 @@ namespace EvoVI.Database
         #region Functions
         /// <summary> Gets the description tag entry from the SupportedGame enum.
         /// </summary>
-        /// <param name="game">The enum flagfor which to get the description for.</param>
+        /// <param name="game">The enum flag for which to get the description.</param>
         /// <returns>The description (the game's name).</returns>
         public static string GetDescription(SupportedGame game)
         {
-            Type valType = game.GetType();
+            Type valType = typeof(SupportedGame);
             string name = Enum.GetName(valType, game);
 
             if (name != null)

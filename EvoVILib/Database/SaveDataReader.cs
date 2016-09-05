@@ -116,6 +116,7 @@ namespace EvoVI.Database
                 _name = pName;
                 _fileIndex = pFileIndex;
                 _gameFlags = pGameFlags;
+                _category = pCategory;
 
                 switch (pType.ToLower())
                 {
@@ -148,7 +149,7 @@ namespace EvoVI.Database
 
         #region Regexes (readonly)
         private readonly static Regex SAVEDATA_TEMPLATE_REGEX = new Regex(
-            @"\[\s*(?<Availability>(?:EM)?\s*\|\s*(?:EL)?)\s*\]\s*" + 
+            @"\[\s*(?<Availability>.*?)\s*\]\s*" + 
             @"\[\s*(?<Category>.*?)\s*\]\s*" + 
             @"<(?<DataType>.*?)>\s*" + 
             @"(?<ParamName>.*?)\s*" + 
@@ -242,7 +243,7 @@ namespace EvoVI.Database
             }
 
             try { fileContent = File.ReadAllLines(filepath); }
-            catch (System.IO.IOException e) { return false; }
+            catch (System.IO.IOException) { return false; }
 
             // Get all in-game values and store them inside the database
             for (int i = 0; i < Math.Min(fileContent.Length, _saveData.Count); i++)

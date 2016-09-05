@@ -187,11 +187,16 @@ namespace ShipSystemControl
         {
             if (PlayerShipData.EnergyLevel == 100)
             {
-                if (_jumpState == JumpState.EMERGENCY) { Interactor.PressKey(VKeyCodes.VK_LMENU, Interactor.KeyPressMode.KEY_DOWN); }
-                Interactor.PressKey(VKeyCodes.VK_F2, Interactor.KeyPressMode.KEY_PRESS, 100);
-                if (_jumpState == JumpState.EMERGENCY) { Interactor.PressKey(VKeyCodes.VK_LMENU, Interactor.KeyPressMode.KEY_UP); }
-
-                SpeechEngine.Say((_jumpState == JumpState.EMERGENCY) ? _dialg_EmergencyJump : _dialg_Jump);
+                if (_jumpState == JumpState.EMERGENCY)
+                {
+                    Interactor.ExecuteAction(GameAction.ENGAGE_JUMP_DRIVE_MAXIMUM_RANGE);
+                    SpeechEngine.Say(_dialg_EmergencyJump);
+                }
+                else
+                {
+                    Interactor.ExecuteAction(GameAction.ENGAGE_JUMP_DRIVE);
+                    SpeechEngine.Say(_dialg_Jump);
+                }
 
                 _jumpState = JumpState.NONE;
             }

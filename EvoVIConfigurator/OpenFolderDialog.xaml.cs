@@ -12,10 +12,6 @@ namespace EvoVIConfigurator
     public partial class OpenFolderDialog : Window
     {
         #region Constants
-        readonly Image CD_ICON;
-        readonly Image HDD_ICON;
-        readonly Image DIR_ICON;
-
         const string DEFAULT_START_FOLDER = "";
         #endregion
 

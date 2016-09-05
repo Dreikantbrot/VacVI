@@ -58,6 +58,7 @@ namespace EvoVIOverlay
         private DispatcherTimer _updateTimer;
         private FileSystemWatcher _savedataWatcher;
         private FileSystemWatcher _gameConfigWatcher;
+        private FileSystemWatcher _keymapConfigWatcher;
         private bool _playLoadingAnimation;
         #endregion
 
@@ -90,6 +91,7 @@ namespace EvoVIOverlay
             SpeechEngine.Initialize();
             Interactor.Initialize();
             SaveDataReader.BuildDatabase();
+            KeyboardControls.BuildDatabase();
             LoreData.Items.BuildItemDatabase();
             LoreData.Systems.BuildSystemDatabase();
             LoreData.Tech.BuildTechDatabase();
@@ -126,10 +128,21 @@ namespace EvoVIOverlay
                 eventHandler = new FileSystemEventHandler(OnGameConfigChanged);
                 _gameConfigWatcher = new FileSystemWatcher(GameMeta.DefaultGameSettingsDirectoryPath, GameMeta.DEFAULT_GAMECONFIG_FILENAME);
                 _gameConfigWatcher.Changed += new FileSystemEventHandler(eventHandler);
-                _savedataWatcher.NotifyFilter = (NotifyFilters.LastWrite | NotifyFilters.CreationTime);
+                _gameConfigWatcher.NotifyFilter = (NotifyFilters.LastWrite | NotifyFilters.CreationTime);
                 _gameConfigWatcher.IncludeSubdirectories = false;
                 _gameConfigWatcher.EnableRaisingEvents = true;
                 File.SetLastWriteTimeUtc(GameMeta.DefaultGameSettingsPath, DateTime.UtcNow);
+            }
+
+            if (File.Exists(GameMeta.DefaultKeymapFilePath))
+            {
+                eventHandler = new FileSystemEventHandler(OnKeymapChanged);
+                _keymapConfigWatcher = new FileSystemWatcher(GameMeta.DefaultGameSettingsDirectoryPath, GameMeta.KEYMAPPING_FILENAME);
+                _keymapConfigWatcher.Changed += new FileSystemEventHandler(eventHandler);
+                _keymapConfigWatcher.NotifyFilter = (NotifyFilters.LastWrite | NotifyFilters.CreationTime);
+                _keymapConfigWatcher.IncludeSubdirectories = false;
+                _keymapConfigWatcher.EnableRaisingEvents = true;
+                File.SetLastWriteTimeUtc(GameMeta.DefaultKeymapFilePath, DateTime.UtcNow);
             }
 
             /* Initialize systems manually, if no animation is played */
@@ -205,6 +218,16 @@ namespace EvoVIOverlay
                 DispatcherPriority.Background,
                 new Action(() => { setOverlayColor(newR, newG, newB, hueMode); })
             );
+        }
+
+
+        /// <summary> Fires each time, the "keymap8.txt"-file gets changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The file system event arguments.</param>
+        private void OnKeymapChanged(object sender, System.IO.FileSystemEventArgs e)
+        {
+            KeyboardControls.LoadKeymap();
         }
         #endregion
 

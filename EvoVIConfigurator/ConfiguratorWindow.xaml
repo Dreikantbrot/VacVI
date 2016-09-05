@@ -114,8 +114,26 @@
                 </GroupBox>
             </Grid>
         </TabItem>
-        <TabItem x:Name="tab_Controls_Label" Header="Controls" Background="{Binding Background, ElementName=tab_Config_Label}" Margin="2,0,0,0" HorizontalAlignment="Left" Width="100" Foreground="Black">
-            <TextBox TextWrapping="Wrap" Background="#7FC8BF00" CaretBrush="{Binding SelectionBrush, ElementName=txt_PluginCompatibility}" VerticalContentAlignment="Center" Foreground="#FFCFC838" HorizontalContentAlignment="Center" IsReadOnly="True" FontWeight="Bold" BorderThickness="0" FontSize="36" Text="Not yet implemented!" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="30,10"/>
+        <TabItem x:Name="tab_Controls_Label" Header="Controls" Background="{Binding Background, ElementName=tab_Config_Label}" Margin="2,0,0,0" Width="100" Foreground="Black" ScrollViewer.CanContentScroll="True" GotFocus="tab_Controls_Label_GotFocus">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="68"/>
+                </Grid.RowDefinitions>
+                <GroupBox Header="Current Configuration" Margin="10" Background="#33FFFFFF" BorderBrush="White" Foreground="White" FontWeight="Bold">
+                    <ScrollViewer VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalScrollBarVisibility="Auto">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="300"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel x:Name="stck_ControlDescr" Orientation="Vertical" Margin="0"/>
+                            <StackPanel x:Name="stck_Controls" Orientation="Vertical" Grid.Column="1" Margin="0"/>
+                        </Grid>
+                    </ScrollViewer>
+                </GroupBox>
+                <TextBox Margin="10" TextWrapping="Wrap" Background="#54FFFFFF" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" TextChanged="txt_InstallDir_TextChanged" HorizontalContentAlignment="Center" FontWeight="Bold" FontSize="14" Focusable="False" Grid.Row="1" Text="Note: These displayed controls have automatically been extracted from the current game profile."/>
+            </Grid>
         </TabItem>
         <TabItem x:Name="tab_Plugins_Label" Header="Pugins" Background="{Binding Background, ElementName=tab_Config_Label}" Margin="2,0,0,0" HorizontalAlignment="Left" Width="100" Foreground="Black">
             <Grid x:Name="tab_Main_Plugins" Background="#00E5E5E5">

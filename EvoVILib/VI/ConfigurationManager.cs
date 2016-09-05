@@ -61,6 +61,7 @@ namespace EvoVI
             string section = "";
             _configurationFile.Read();
 
+            /* "Game" section */
             section = SECTION_GAME;
             if (_configurationFile.HasSection(section))
             {
@@ -73,6 +74,8 @@ namespace EvoVI
                 }
             }
 
+
+            /* "Filepaths" section */
             section = SECTION_FILEPATHS;
             if (_configurationFile.HasSection(section))
             {
@@ -86,17 +89,34 @@ namespace EvoVI
                 }
             }
 
+
+            /* "Overlay" section */
             section = SECTION_OVERLAY;
             if (_configurationFile.HasSection(section))
             {
-                if (_configurationFile.HasKey(section, "Play_Intro")) { VI.Name = _configurationFile.GetValue(section, "Play_Intro"); }
+                if (_configurationFile.HasKey(section, "Play_Intro")) { /* Handled externally by the overlay itself */ }
             }
 
+
+            /* "VI" section */
             section = SECTION_VI;
             if (_configurationFile.HasSection(section))
             {
-                if (_configurationFile.HasKey(section, "Name")) { VI.Name = _configurationFile.GetValue(section, "Name"); }
-                if (_configurationFile.HasKey(section, "Phonetic_Name")) { VI.PhoneticName = _configurationFile.GetValue(section, "Phonetic_Name"); }
+                // VI Name
+                if (
+                    (_configurationFile.HasKey(section, "Name")) &&
+                    (!String.IsNullOrWhiteSpace(_configurationFile.GetValue(section, "Name")))
+                )
+                { VI.Name = _configurationFile.GetValue(section, "Name"); }
+
+                // VI Phonetic Name
+                if (
+                    (_configurationFile.HasKey(section, "Phonetic_Name")) &&
+                    (!String.IsNullOrWhiteSpace(_configurationFile.GetValue(section, "Phonetic_Name")))
+                )
+                { VI.PhoneticName = _configurationFile.GetValue(section, "Phonetic_Name"); }
+
+                // VI Voice
                 if (_configurationFile.HasKey(section, "Voice"))
                 {
                     SpeechEngine.VoiceModulationModes chosenVoice;
@@ -104,14 +124,22 @@ namespace EvoVI
 
                     SpeechEngine.VoiceModulation = chosenVoice;
                 }
-                if (_configurationFile.HasKey(section, "Speech_Recognition_Lang")) { SpeechEngine.Language = _configurationFile.GetValue(section, "Speech_Recognition_Lang"); }
+
+                // Speech recognition language
+                if (
+                    (_configurationFile.HasKey(section, "Speech_Recognition_Lang")) &&
+                    (!String.IsNullOrWhiteSpace(_configurationFile.GetValue(section, "Speech_Recognition_Lang")))
+                )
+                { SpeechEngine.Language = _configurationFile.GetValue(section, "Speech_Recognition_Lang"); }
             }
 
+
+            /* "Player" section */
             section = SECTION_PLAYER;
             if (_configurationFile.HasSection(section))
             {
-                if (_configurationFile.HasKey(section, "Name")) { VI.Name = _configurationFile.GetValue(section, "Name"); }
-                if (_configurationFile.HasKey(section, "Phonetic_Name")) { VI.PhoneticName = _configurationFile.GetValue(section, "Phonetic_Name"); }
+                if (_configurationFile.HasKey(section, "Name")) { /* Not yet implemented */ }
+                if (_configurationFile.HasKey(section, "Phonetic_Name")) { /* Not yet implemented */ }
             }
         }
         #endregion

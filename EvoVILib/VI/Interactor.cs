@@ -1,8 +1,11 @@
-﻿using System;
+﻿using EvoVI.Database;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Windows.Input;
 
 // TODO: Input will not be recognized, if the game is run as administrator
 
@@ -91,6 +94,48 @@ namespace EvoVI.Engine
         }
         #endregion
 
+        
+        #region Structs
+        public struct ControlMapping
+        {
+            private GameAction _control;
+            private List<int> _keyMap;
+            private List<KeyPressMode> _keyPressModes;
+
+            public List<int> KeyMap
+            {
+                get { return _keyMap; }
+                set { _keyMap = value; }
+            }
+
+            public ControlMapping(GameAction pControl)
+            {
+                this._control = pControl;
+                this._keyMap = new List<int>();
+                this._keyPressModes = new List<KeyPressMode>();
+            }
+
+
+            public void AddKeyPress(Key key, KeyPressMode pressMode)
+            {
+                AddKeyPress((uint)KeyInterop.VirtualKeyFromKey(key), pressMode);
+            }
+
+
+            public void AddKeyPress(uint vKeyCode, KeyPressMode pressMode)
+            {
+                AddKeyPress(MapVirtualKey(vKeyCode, 0), pressMode);
+            }
+
+
+            public void AddKeyPress(int keyCode, KeyPressMode pressMode)
+            {
+                _keyMap.Add((int)keyCode);
+                _keyPressModes.Add(pressMode);
+            }
+        }
+        #endregion
+
 
         #region Enums
         public enum KeyPressMode
@@ -106,10 +151,20 @@ namespace EvoVI.Engine
         #region Variables
         private static Process _targetProcess = null;
         private static IntPtr _targetWindowHandle;
+        private static Dictionary<GameAction, ControlMapping> _gameControls = new Dictionary<GameAction, ControlMapping>();
         #endregion
 
 
         #region Properties
+        /// <summary> Returns the control map for the game.
+        /// </summary>
+        public static Dictionary<GameAction, ControlMapping> GameControls
+        {
+            get { return Interactor._gameControls; }
+            set { Interactor._gameControls = value; }
+        }
+
+
         /// <summary> Returns the name of the currently targeted process.
         /// </summary>
         public static string TargetProcessName
@@ -124,8 +179,7 @@ namespace EvoVI.Engine
         /// </summary>
         public static void Initialize()
         {
-            // TODO: Remove dummy
-            getAllProcessesByName("EvochronMercenary");
+            getAllProcessesByName(GameMeta.GameDetails[GameMeta.CurrentGame].ProcessName);
         }
 
 
@@ -136,6 +190,20 @@ namespace EvoVI.Engine
         {
             _targetProcess = Process.GetProcessesByName(process).FirstOrDefault();
             if (_targetProcess != null) { _targetWindowHandle = _targetProcess.MainWindowHandle; }
+        }
+
+
+        /// <summary> Executes a game action via simulated keypresses.
+        /// </summary>
+        /// <param name="action">The action to simulate.</param>
+        public static void ExecuteAction(GameAction action)
+        {
+            if (KeyboardControls.GameActions.ContainsKey(action))
+            {
+                if (KeyboardControls.GameActions[action].IsAltAction) { Interactor.PressKey(VKCodes.Keys.LMENU, Interactor.KeyPressMode.KEY_DOWN); }
+                PressKey((int)KeyboardControls.GameActions[action].Scancode, KeyPressMode.KEY_PRESS, 30);
+                if (KeyboardControls.GameActions[action].IsAltAction) { Interactor.PressKey(VKCodes.Keys.LMENU, Interactor.KeyPressMode.KEY_UP); }
+            }
         }
 
 
@@ -180,7 +248,29 @@ namespace EvoVI.Engine
 
         /// <summary> Sends the specified key to the target application, if active.
         /// </summary>
-        /// <param name="keyCode">The keycode.</param>
+        /// <param name="keyCode">The DirectInput keycode to send.</param>
+        /// <param name="pressMode">The mode of the keypress. Determines how the key is pressed.</param>
+        /// <param name="pressTime">The time to wait in ms after pressing the key and before releasing it.</param>
+        public static void PressKey(DIKCodes.Keys key, KeyPressMode pressMode = KeyPressMode.KEY_PRESS, int pressTime = 0)
+        {
+            PressKey((int)key, pressMode, pressTime, true);
+        }
+
+
+        /// <summary> Sends the specified key to the target application, if active.
+        /// </summary>
+        /// <param name="keyCode">The virtual keycode to send.</param>
+        /// <param name="pressMode">The mode of the keypress. Determines how the key is pressed.</param>
+        /// <param name="pressTime">The time to wait in ms after pressing the key and before releasing it.</param>
+        public static void PressKey(VKCodes.Keys key, KeyPressMode pressMode = KeyPressMode.KEY_PRESS, int pressTime = 0)
+        {
+            PressKey((uint)key, pressMode, pressTime, true);
+        }
+
+
+        /// <summary> Sends the specified key to the target application, if active.
+        /// </summary>
+        /// <param name="keyCode">The virtual keycode.</param>
         /// <param name="pressMode">The mode of the keypress. Determines how the key is pressed.</param>
         /// <param name="pressTime">The time to wait in ms after pressing the key and before releasing it.</param>
         /// <param name="isScancode">If true, the keycode will be interpreted as a scan code, else as unicode.</param>
