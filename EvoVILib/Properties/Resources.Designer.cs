@@ -61,54 +61,21 @@ namespace EvoVI.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die [KEYBOARD]	TURN_RIGHT
-        ///[KEYBOARD]	TURN_LEFT
-        ///[KEYBOARD]	PITCH_DOWN
-        ///[KEYBOARD]	PITCH_UP
-        ///[KEYBOARD]	ROLL_RIGHT
-        ///[KEYBOARD]	ROLL_LEFT
-        ///[KEYBOARD]	STRAFE_RIGHT
-        ///[KEYBOARD]	STRAFE_LEFT
-        ///[KEYBOARD]	AFTERBURNER
-        ///[KEYBOARD]	INERTIAL_SYSTEM_ON_OFF
-        ///[KEYBOARD]	MATCH_TARGET_SPEED
-        ///[KEYBOARD]	FIRE_PRIMARY_WEAPON
-        ///[KEYBOARD]	FIRE_SECONDARY_WEAPON
-        ///[KEYBOARD]	SELECT_NEXT_SECONDARY_WEAPON
-        ///[KEYBOARD]	SELECT_PREVIOUS_SECONDARY_WEAPON
-        ///[KEYBOARD]	COUNTERMEASURES
-        ///[KEYBOARD]	TARGET_NEAREST_SHIP | TARGET_NEAREST_HOSTILE
-        ///[K [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die [ EM | EL ]	[ NULL ]	[ KEYBOARD ]	TURN_RIGHT
+        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	TURN_LEFT
+        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	PITCH_DOWN
+        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	PITCH_UP
+        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	ROLL_RIGHT
+        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	ROLL_LEFT
+        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	STRAFE_RIGHT
+        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	STRAFE_LEFT
+        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	AFTERBURNER
+        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	INERTIAL_SYSTEM_ON_OFF
+        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	MATCH_ [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
-        internal static string Keymap8_EL_Layout {
+        internal static string Keymap8_Layout {
             get {
-                return ResourceManager.GetString("Keymap8_EL_Layout", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die [KEYBOARD]	TURN_RIGHT
-        ///[KEYBOARD]	TURN_LEFT
-        ///[KEYBOARD]	PITCH_UP
-        ///[KEYBOARD]	PITCH_DOWN
-        ///[KEYBOARD]	ROLL_RIGHT
-        ///[KEYBOARD]	ROLL_LEFT
-        ///[KEYBOARD]	STRAFE_RIGHT
-        ///[KEYBOARD]	STRAFE_LEFT
-        ///[KEYBOARD]	AFTERBURNER
-        ///[KEYBOARD]	INERTIAL_SYSTEM_ON_OFF
-        ///[KEYBOARD]	MATCH_TARGET_SPEED
-        ///[KEYBOARD]	FIRE_PRIMARY_WEAPON
-        ///[KEYBOARD]	FIRE_SECONDARY_WEAPON
-        ///[KEYBOARD]	SELECT_NEXT_SECONDARY_WEAPON
-        ///[KEYBOARD]	SELECT_PREVIOUS_SECONDARY_WEAPON
-        ///[KEYBOARD]	COUNTERMEASURES
-        ///[KEYBOARD]	TARGET_NEAREST_SHIP | TARGET_NEAREST_HOSTILE
-        ///[KEYBOARD]	TARGET_N [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
-        /// </summary>
-        internal static string Keymap8_EM_Layout {
-            get {
-                return ResourceManager.GetString("Keymap8_EM_Layout", resourceCulture);
+                return ResourceManager.GetString("Keymap8_Layout", resourceCulture);
             }
         }
         

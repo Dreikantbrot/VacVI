@@ -103,8 +103,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\savedata_template.txt" />
+    <Resource Include="_devRsc\sw_keymap8_EM_Layout.txt" />
+    <Resource Include="_devRsc\sw_keymap8_EL_Layout.txt" />
+    <Resource Include="Resources\Keymap8_Layout.txt" />
     <Content Include="_devRsc\sw_cfg_explanation.txt" />
-    <Content Include="_devRsc\sw_keymap8_layout.txt" />
     <Content Include="_devRsc\sw_modKit_savedatasettings.txt" />
     <Content Include="_devRsc\sw_savedata_exmpl.txt" />
     <Content Include="_dll\irrKlang.NET4.dll" />
