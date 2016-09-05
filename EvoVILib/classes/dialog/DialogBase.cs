@@ -1,5 +1,6 @@
 ﻿using EvoVI.Engine;
 using EvoVI.PluginContracts;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
@@ -11,6 +12,11 @@ namespace EvoVI.Classes.Dialog
         #region Regexes (readonly)
         protected readonly Regex VALIDATION_REGEX = new Regex(@"^(?:\s|\.|,|;|:)*$");
         protected readonly Regex CHOICES_REGEX = new Regex(@"(?:\$\((?<Choice>.*?)\))|(?:\$\[(?<OptChoice>.*?)\])");
+        #endregion
+
+
+        #region Delegates
+        public delegate bool DialogConditionFnc();
         #endregion
 
 
@@ -33,6 +39,7 @@ namespace EvoVI.Classes.Dialog
         protected DialogSpeaker _speaker;
         protected DialogImportance _importance;
         protected string _pluginToStart;
+        protected Func<bool> _contitionFunction;
         protected object _data;
         #endregion
 
@@ -134,6 +141,15 @@ namespace EvoVI.Classes.Dialog
         }
 
 
+        /// <summary> Returns or sets the delegate function that checks for the fullfillment of the dialog node's condition.
+        /// </summary>
+        protected Func<bool> ContitionFunction
+        {
+            get { return _contitionFunction; }
+            set { _contitionFunction = value; }
+        }
+
+
         /// <summary> Returns or sets the custom data contained within the dialog node.
         /// </summary>
         public object Data
@@ -149,14 +165,16 @@ namespace EvoVI.Classes.Dialog
         /// </summary>
         /// <param name="pText">The text to be spoken by the VI.</param>
         /// <param name="pImportance">The importance this node has over others.</param>
+        /// <param name="pConditionFunction">The delegate function that checks for the fullfillment of the dialog node's condition.</param>
         /// <param name="pPluginToStart">The name of the plugin to start, when triggered.</param>
         /// <param name="pData">An object containing custom, user-defined data.</param>
-        public DialogBase(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, string pPluginToStart = null, object pData = null)
+        public DialogBase(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, Func<bool> pConditionFunction = null, string pPluginToStart = null, object pData = null)
         {
             this._text = pText;
             this._importance = pImportance;
             this._pluginToStart = pPluginToStart;
             this._data = pData;
+            this._contitionFunction = pConditionFunction;
 
             this._disabled = false;
             this._speaker = DialogSpeaker.NULL;
@@ -195,6 +213,90 @@ namespace EvoVI.Classes.Dialog
         public void RemoveChild(DialogBase targetNode)
         {
             if (_childNodes.Contains(targetNode)) { _childNodes.Remove(targetNode); }
+        }
+
+
+        /// <summary> Finds and activates the next node within the dialog tree.
+        /// </summary>
+        public void NextNode()
+        {
+            if (
+                (!this.IsActive) ||
+                (
+                    (VI.State <= VI.VIState.SLEEPING) &&
+                    (_importance < DialogImportance.CRITICAL)
+                )
+            )
+            { return; }
+
+            List<DialogBase> candidatePhrases = new List<DialogBase>();
+
+            // Collect candidate phrases and determine highest priority
+            DialogImportance highestPriority = DialogImportance.LOW;
+            for (int i = 0; i < _childNodes.Count; i++)
+            {
+                // Filter disabled nodes or nodes that already do not meet the maximum importance or their condition
+                if (
+                    (_childNodes[i].Disabled) ||
+                    (_childNodes[i].Importance < highestPriority) ||
+                    (
+                        (_childNodes[i]._contitionFunction != null) &&
+                        (!_childNodes[i]._contitionFunction())
+                    )
+                )
+                { continue; }
+
+                // Update highest priority
+                if (_childNodes[i].Importance > highestPriority) { highestPriority = _childNodes[i].Importance; }
+
+                candidatePhrases.Add(_childNodes[i]);
+            }
+
+            // Filter out the rest of the collected nodes by importance
+            for (int i = 0; i < candidatePhrases.Count; i++) { if (candidatePhrases[i].Importance < highestPriority) candidatePhrases.RemoveAt(i); }
+
+            // Filter out mixed types - go by dominant type
+            Dictionary<DialogSpeaker, int> typeDominance = new Dictionary<DialogSpeaker, int>();
+            for (int i = 0; i < candidatePhrases.Count; i++)
+            {
+                if (!typeDominance.ContainsKey(candidatePhrases[i].Speaker))
+                {
+                    typeDominance.Add(candidatePhrases[i].Speaker, 1);
+                }
+                else
+                {
+                    typeDominance[candidatePhrases[i].Speaker]++;
+                }
+            }
+
+            int highestDominance = 0;
+            DialogSpeaker dominantType = DialogSpeaker.NULL;
+            foreach (KeyValuePair<DialogSpeaker, int> keyVal in typeDominance)
+            {
+                if (keyVal.Value > highestDominance)
+                {
+                    highestDominance = keyVal.Value;
+                    dominantType = keyVal.Key;
+                }
+            }
+            for (int i = 0; i < candidatePhrases.Count; i++) { if (candidatePhrases[i].Speaker != dominantType) candidatePhrases.RemoveAt(i); }
+
+            // Only set next node active if NOT waiting for player input
+            if (dominantType != DialogSpeaker.PLAYER)
+            {
+                // Select a winner phrase
+                if (candidatePhrases.Count > 0)
+                {
+                    // Choose random element from the candidates (in case there are multiple ones)
+                    System.Random randNr = new System.Random();
+                    candidatePhrases[randNr.Next(0, candidatePhrases.Count)].SetActive();
+                }
+                else
+                {
+                    // No "winner" phrase - back to root
+                    DialogTreeBuilder.RootDialogNode.SetActive();
+                }
+            }
         }
         #endregion
 
@@ -241,88 +343,6 @@ namespace EvoVI.Classes.Dialog
 
             IPlugin plugin = PluginManager.GetPlugin(_pluginToStart);
             if (plugin != null) { plugin.OnDialogAction(this); }
-        }
-
-
-        /// <summary> Finds and activates the next node within the dialog tree.
-        /// </summary>
-        public void NextNode()
-        {
-            if (
-                (!this.IsActive) ||
-                (
-                    (VI.State <= VI.VIState.SLEEPING) &&
-                    (_importance < DialogImportance.CRITICAL)
-                )
-            )
-            { return; }
-
-            List<DialogBase> candidatePhrases = new List<DialogBase>();
-
-            // Collect candidate phrases and determine highest priority
-            DialogImportance highestPriority = DialogImportance.LOW;
-            for (int i = 0; i < _childNodes.Count; i++)
-            {
-                // Filter disabled nodes or nodes that already do not meet the maximum importance
-                if (
-                    (_childNodes[i].Disabled) ||
-                    (_childNodes[i].Importance < highestPriority)
-                )
-                { continue; }
-
-                // Update highest priority
-                if (_childNodes[i].Importance > highestPriority) { highestPriority = _childNodes[i].Importance; }
-
-                // TODO: Filter out nodes that do not meet their conditions
-
-                candidatePhrases.Add(_childNodes[i]);
-            }
-
-            // Filter out the rest of the collected nodes by importance
-            for (int i = 0; i < candidatePhrases.Count; i++) { if (candidatePhrases[i].Importance < highestPriority) candidatePhrases.RemoveAt(i); }
-
-            // Filter out mixed types - go by dominant type
-            Dictionary<DialogSpeaker, int> typeDominance = new Dictionary<DialogSpeaker, int>();
-            for (int i = 0; i < candidatePhrases.Count; i++)
-            {
-                if (!typeDominance.ContainsKey(candidatePhrases[i].Speaker))
-                {
-                    typeDominance.Add(candidatePhrases[i].Speaker, 1);
-                }
-                else
-                {
-                    typeDominance[candidatePhrases[i].Speaker]++;
-                }
-            }
-            
-            int highestDominance = 0;
-            DialogSpeaker dominantType = DialogSpeaker.NULL;
-            foreach (KeyValuePair<DialogSpeaker, int> keyVal in typeDominance)
-            {
-                if (keyVal.Value > highestDominance)
-                {
-                    highestDominance = keyVal.Value;
-                    dominantType = keyVal.Key;
-                }
-            }
-            for (int i = 0; i < candidatePhrases.Count; i++) { if (candidatePhrases[i].Speaker != dominantType) candidatePhrases.RemoveAt(i); }
-
-            // Only set next node active if NOT waiting for player input
-            if (dominantType != DialogSpeaker.PLAYER)
-            {
-                // Select a winner phrase
-                if (candidatePhrases.Count > 0)
-                {
-                    // Choose random element from the candidates (in case there are multiple ones)
-                    System.Random randNr = new System.Random();
-                    candidatePhrases[randNr.Next(0, candidatePhrases.Count)].SetActive();
-                }
-                else
-                {
-                    // No "winner" phrase - back to root
-                    DialogTreeBuilder.RootDialogNode.SetActive();
-                }
-            }
         }
 
 

@@ -101,7 +101,7 @@ namespace Smalltalk
                 new DialogTreeBranch(
                     new DialogPlayer("Start test"),
                     new DialogTreeBranch(
-                        new DialogCommand("Smalltalk", DialogBase.DialogImportance.NORMAL, "Trigger Smalltalk")
+                        new DialogCommand("Smalltalk", DialogBase.DialogImportance.NORMAL, null, "Trigger Smalltalk")
                     )
                 ),
 

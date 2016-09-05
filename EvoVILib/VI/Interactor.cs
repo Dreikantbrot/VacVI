@@ -196,12 +196,13 @@ namespace EvoVI.Engine
         /// <summary> Executes a game action via simulated keypresses.
         /// </summary>
         /// <param name="action">The action to simulate.</param>
-        public static void ExecuteAction(GameAction action)
+        /// <param name="pressTime">The time to wait in ms after pressing the key and before releasing it.</param>
+        public static void ExecuteAction(GameAction action, int pressTime = 60)
         {
             if (KeyboardControls.GameActions.ContainsKey(action))
             {
                 if (KeyboardControls.GameActions[action].IsAltAction) { Interactor.PressKey(VKCodes.Keys.LMENU, Interactor.KeyPressMode.KEY_DOWN); }
-                PressKey((int)KeyboardControls.GameActions[action].Scancode, KeyPressMode.KEY_PRESS, 30);
+                PressKey((int)KeyboardControls.GameActions[action].Scancode, KeyPressMode.KEY_PRESS, pressTime);
                 if (KeyboardControls.GameActions[action].IsAltAction) { Interactor.PressKey(VKCodes.Keys.LMENU, Interactor.KeyPressMode.KEY_UP); }
             }
         }

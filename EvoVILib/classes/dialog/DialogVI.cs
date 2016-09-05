@@ -45,11 +45,12 @@ namespace EvoVI.Classes.Dialog
         /// </summary>
         /// <param name="pText">The text for the VI to say (see dialog text syntax).</param>
         /// <param name="pImportance">The importance this node has over others.</param>
+        /// <param name="pConditionFunction">The delegate function that checks for the fullfillment of the dialog node's condition.</param>
         /// <param name="pPluginToStart">The name of the plugin to start, when triggered.</param>
         /// <param name="pData">An object containing custom, user-defined data.</param>
         /// <param name="pWaituntilFinished">If set to true, the plugin will start after the text has been spoken, else it will be run asynchonously.</param>
-        public DialogVI(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, string pPluginToStart = null, object pData = null, bool pWaituntilFinished = false) :
-            base(pText, pImportance, pPluginToStart, pData)
+        public DialogVI(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, System.Func<bool> pConditionFunction = null, string pPluginToStart = null, object pData = null, bool pWaituntilFinished = false) :
+            base(pText, pImportance, pConditionFunction, pPluginToStart, pData)
         {
             this._speaker = DialogSpeaker.VI;
             this._waitUntilFinished = pWaituntilFinished;

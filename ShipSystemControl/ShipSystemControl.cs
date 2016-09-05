@@ -16,7 +16,7 @@ namespace ShipSystemControl
 
 
         #region Constants
-        const string VI_COMMAND_ACK = "Aye aye;Acknowledged;Sure";
+        const string VI_COMMAND_ACK = "$(Aye aye|Acknowledged|Sure)";
         #endregion
 
 
@@ -35,6 +35,7 @@ namespace ShipSystemControl
         private bool _autoFire = false;
         private bool _autoFireMissile = false;
         private JumpState _jumpState = JumpState.NONE;
+        private DateTime _lastTimeFired = DateTime.Now;
 
         private DialogVI _dialg_Jump = new DialogVI("Initiating $[fulcrum ]jump;Jumping...");
         private DialogVI _dialg_EmergencyJump = new DialogVI("I'm getting us out of here!;Let's get out of here!");
@@ -91,49 +92,68 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer("$[Auto ]fire;$(fire|shoot) when you have a lock on", DialogBase.DialogImportance.CRITICAL),
                     new DialogTreeBranch(
-                        new DialogVI("I'll light'em up, $(when|as soon as) I can", DialogBase.DialogImportance.NORMAL, this.Name, "init_auto_fire")
+                        new DialogVI("I'll light'em up, $(when|as soon as) I can", DialogBase.DialogImportance.NORMAL, null, this.Name, "auto_fire")
+                    ),
+                    new DialogTreeBranch(
+                        new DialogVI("$[I'm sorry but|Sorry but] I won't shoot at a friendly target.", DialogBase.DialogImportance.HIGH, () => { return (TargetShipData.ThreatLevel == "LOW"); }, this.Name, "auto_fire_cancel")
                     )
                 ),
 
                 new DialogTreeBranch(
                     new DialogPlayer("Stop $[Auto-|automatically ]$(firing|shooting);Manual fire", DialogBase.DialogImportance.CRITICAL),
                     new DialogTreeBranch(
-                        new DialogVI("$(Aye aye|Got it) - manual fire", DialogBase.DialogImportance.NORMAL, this.Name, "init_auto_fire_cancel")
+                        new DialogVI("$(Aye aye|Got it) - manual fire", DialogBase.DialogImportance.NORMAL, null, this.Name, "auto_fire_cancel")
                     )
                 ),
 
                 new DialogTreeBranch(
                     new DialogPlayer("$(fire|launch|shoot) a missile $[as soon as possible|asap]", DialogBase.DialogImportance.CRITICAL),
                     new DialogTreeBranch(
-                        new DialogVI("Give me a lock-on and I'll shoot", DialogBase.DialogImportance.NORMAL, this.Name, "init_auto_fire_missile")
+                        new DialogVI("$[I'm sorry but|Sorry but] I won't shoot at a friendly target.", DialogBase.DialogImportance.HIGH, () => { return (TargetShipData.ThreatLevel == "LOW"); }, this.Name, "auto_fire_missile_cancel")
+                    ),
+                    new DialogTreeBranch(
+                        new DialogVI("$[I'm|I am] already on it!", DialogBase.DialogImportance.NORMAL, () => { return (_autoFireMissile); })
+                    ),
+                    new DialogTreeBranch(
+                        new DialogVI("Give me a lock-on and I'll shoot", DialogBase.DialogImportance.LOW, null, this.Name, "auto_fire_missile")
+                    )
+                ),
+
+                new DialogTreeBranch(
+                    new DialogPlayer("Cancel missile launch", DialogBase.DialogImportance.CRITICAL),
+                    new DialogTreeBranch(
+                        new DialogVI("$(Aye aye|Got it) - cancelling missile launch", DialogBase.DialogImportance.NORMAL, null, this.Name, "auto_fire_missile_cancel")
                     )
                 ),
 
                 new DialogTreeBranch(
                     new DialogPlayer("Initiate $[fulcrum ]jump", DialogBase.DialogImportance.CRITICAL),
                     new DialogTreeBranch(
-                        new DialogVI(VI_COMMAND_ACK, DialogBase.DialogImportance.NORMAL, this.Name, "init_jump")
+                        new DialogVI(VI_COMMAND_ACK, DialogBase.DialogImportance.NORMAL, null, this.Name, "jump")
                     )
                 ),
 
                 new DialogTreeBranch(
-                    new DialogPlayer("$[Initiate ]auto-jump", DialogBase.DialogImportance.CRITICAL),
+                    new DialogPlayer("$[Initiate ]auto-jump;Jump $(as soon as possible|asap)", DialogBase.DialogImportance.CRITICAL),
                     new DialogTreeBranch(
-                        new DialogVI(VI_COMMAND_ACK + " - I'll jump when possible", DialogBase.DialogImportance.NORMAL, this.Name, "init_auto_jump")
+                        new DialogVI(VI_COMMAND_ACK + " - I'll jump when possible", DialogBase.DialogImportance.NORMAL, null, this.Name, "auto_jump")
                     )
                 ),
 
                 new DialogTreeBranch(
                     new DialogPlayer("$[Initiate ]emergency jump;Get $(me|us) out of here", DialogBase.DialogImportance.CRITICAL),
                     new DialogTreeBranch(
-                        new DialogVI(VI_COMMAND_ACK + " - let's get out of here!", DialogBase.DialogImportance.NORMAL, this.Name, "init_emergency_jump")
+                        new DialogVI(VI_COMMAND_ACK + " - let's get out of here!", DialogBase.DialogImportance.HIGH, () => { return (PlayerShipData.EnergyLevel <= 60); }, this.Name, "emergency_jump")
+                    ),
+                    new DialogTreeBranch(
+                        new DialogVI(VI_COMMAND_ACK, DialogBase.DialogImportance.NORMAL, null, this.Name, "emergency_jump")
                     )
                 ),
 
                 new DialogTreeBranch(
                     new DialogPlayer("Cancel $[auto-]jump", DialogBase.DialogImportance.CRITICAL),
                     new DialogTreeBranch(
-                        new DialogVI(VI_COMMAND_ACK + " - Cancelling jump;Jump cancelled", DialogBase.DialogImportance.NORMAL, this.Name, "init_auto_jump_cancel")
+                        new DialogVI(VI_COMMAND_ACK + " - Cancelling jump;Jump cancelled", DialogBase.DialogImportance.NORMAL, null, this.Name, "auto_jump_cancel")
                     )
                 )
             };
@@ -145,14 +165,15 @@ namespace ShipSystemControl
         {
             switch(originNode.Data.ToString())
             {
-                case "init_auto_fire": _autoFire = true; OnGameDataUpdate(); break;
-                case "init_auto_fire_cancel": _autoFire = false; break;
-                case "init_auto_fire_missile": _autoFireMissile = true; OnGameDataUpdate(); break;
+                case "auto_fire": _autoFire = true; OnGameDataUpdate(); break;
+                case "auto_fire_cancel": _autoFire = false; break;
+                case "auto_fire_missile": _autoFireMissile = true; OnGameDataUpdate(); break;
+                case "auto_fire_missile_cancel": _autoFireMissile = false; break;
 
-                case "init_jump": if (_jumpState < JumpState.MANUAL) _jumpState = JumpState.MANUAL; EmergencyJump(); break;
-                case "init_auto_jump": if (_jumpState < JumpState.AUTO) _jumpState = JumpState.AUTO; EmergencyJump(); break;
-                case "init_emergency_jump": if (_jumpState < JumpState.EMERGENCY) _jumpState = JumpState.EMERGENCY; EmergencyJump(); break;
-                case "init_auto_jump_cancel": _jumpState = JumpState.NONE; break;
+                case "jump": if (_jumpState < JumpState.MANUAL) _jumpState = JumpState.MANUAL; EmergencyJump(); break;
+                case "auto_jump": if (_jumpState < JumpState.AUTO) _jumpState = JumpState.AUTO; EmergencyJump(); break;
+                case "emergency_jump": if (_jumpState < JumpState.EMERGENCY) _jumpState = JumpState.EMERGENCY; EmergencyJump(); break;
+                case "auto_jump_cancel": _jumpState = JumpState.NONE; break;
             }
         }
 
@@ -211,10 +232,14 @@ namespace ShipSystemControl
         /// </summary>
         private void Fire()
         {
-            if (PlayerShipData.Mtds == PlayerShipData.MTDSState.LOCKED)
+            if (
+                (TargetShipData.ThreatLevel != "LOW") &&
+                (PlayerShipData.Mtds == PlayerShipData.MTDSState.LOCKED) &&
+                ((DateTime.Now - _lastTimeFired).TotalMilliseconds >= 1000)
+            )
             {
-                SpeechEngine.Say("$(Pew pew pew!|Take this!)");
-                //Interactor.PressKey(VKeyCodes.VK_KEY_B, Interactor.KeyPressMode.KEY_PRESS, 1000);
+                Interactor.ExecuteAction(GameAction.FIRE_PRIMARY_WEAPON, 500);
+                _lastTimeFired = DateTime.Now;
             }
         }
 
@@ -224,12 +249,12 @@ namespace ShipSystemControl
         private void FireMissile()
         {
             if (
+                (TargetShipData.ThreatLevel != "LOW") &&
                 (PlayerShipData.MissileLock == PlayerShipData.MissileState.LOCKED) &&
                 (PlayerShipData.SecWeapon[0] != null)
             )
             {
-                SpeechEngine.Say("Missile");
-                //Interactor.PressKey(VKeyCodes.VK_RBUTTON, Interactor.KeyPressMode.KEY_PRESS, 100);
+                Interactor.ExecuteAction(GameAction.FIRE_SECONDARY_WEAPON);
                 _autoFireMissile = false;
             }
         }

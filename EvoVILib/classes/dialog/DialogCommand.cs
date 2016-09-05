@@ -10,17 +10,20 @@ namespace EvoVI.Classes.Dialog
         /// </summary>
         /// <param name="pPluginToStart">The name of the plugin to start, when triggered.</param>
         /// <param name="pImportance">The importance this node has over others.</param>
+        /// <param name="pConditionFunction">The delegate function that checks for the fullfillment of the dialog node's condition.</param>
         /// <param name="pCommandDescr">An optional description of what this command does.</param>
         /// <param name="pData">An object containing custom, user-defined data.</param>
         public DialogCommand(
             string pCommandDescr = "",
             DialogImportance pImportance = DialogImportance.NORMAL,
+            System.Func<bool> pConditionFunction = null, 
             string pPluginToStart = null, 
             object pData = null
         ) :
         base(
             "<COMMAND" + ((pCommandDescr.Trim().Length > 0) ? ": \"" + pCommandDescr.Trim() + "\"" : "") + ">", 
             pImportance,
+            pConditionFunction,
             pPluginToStart, 
             pData
         )

@@ -254,10 +254,11 @@ namespace EvoVI.Classes.Dialog
         /// </summary>
         /// <param name="pText">The text to say (see dialog text syntax).</param>
         /// <param name="pImportance">The importance this node has over others.</param>
+        /// <param name="pConditionFunction">The delegate function that checks for the fullfillment of the dialog node's condition.</param>
         /// <param name="pPluginToStart">The name of the plugin to start, when triggered.</param>
         /// <param name="pData">An object containing custom, user-defined data.</param>
-        public DialogPlayer(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, string pPluginToStart = null, object pData = null) :
-            base(pText, pImportance, pPluginToStart, pData)
+        public DialogPlayer(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, System.Func<bool> pConditionFunction = null, string pPluginToStart = null, object pData = null) :
+            base(pText, pImportance, pConditionFunction, pPluginToStart, pData)
         {
             this._speaker = DialogSpeaker.PLAYER;
 
@@ -275,8 +276,16 @@ namespace EvoVI.Classes.Dialog
         public override void UpdateState()
         {
             if (
-                (_importance < DialogImportance.CRITICAL) && 
-                (_disabled || !this.IsNextInTurn || (VI.State <= VI.VIState.SLEEPING))
+                (
+                    // Node is non-critical and not available
+                    (_importance < DialogImportance.CRITICAL) && 
+                    (_disabled || !this.IsNextInTurn || (VI.State <= VI.VIState.SLEEPING))
+                ) ||
+                (
+                    // Node does not meet it's requirements
+                    (_contitionFunction != null) &&
+                    (!_contitionFunction())
+                )
             )
             {
                 this.sleep();
