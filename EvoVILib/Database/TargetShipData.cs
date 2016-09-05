@@ -40,6 +40,7 @@ namespace EvoVI.Database
         private static string[] _cargoBay = new string[10];
         private static string[] _capitalShipTurret = new string[5];
         private static Dictionary<ShieldLevelState, int> _shieldLevel = new Dictionary<ShieldLevelState, int>();
+        private static ThreadLevelState _threadLevel = ThreadLevelState.LOW;
         #endregion
 
 
@@ -60,6 +61,12 @@ namespace EvoVI.Database
 		{
 			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? TargetShipData._shieldLevel : null; }
 		}
+
+
+        public static ThreadLevelState? ThreatLevel
+        {
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (ThreadLevelState?)TargetShipData._threadLevel : null; }
+        }
         #endregion
 
 
@@ -67,12 +74,6 @@ namespace EvoVI.Database
         public static string Description 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (string)SaveDataReader.GetEntry(PARAM_TARGET_DESCRIPTION).Value : string.Empty; }
-		}
-
-
-        public static string ThreatLevel 
-		{
-			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (string)SaveDataReader.GetEntry(PARAM_TARGET_THREAT_LEVEL).Value : string.Empty; }
 		}
 
 
@@ -198,6 +199,14 @@ namespace EvoVI.Database
                 0
             );
             for (int i = 0; i < maxCount; i++) { _cargoBay[i] = (string)SaveDataReader.GetEntry(PARAM_TARGET_CARGO_BAY[i]).Value; }
+
+            // Get threat level
+            switch (((string)SaveDataReader.GetEntry(PARAM_TARGET_THREAT_LEVEL).Value).ToLowerInvariant())
+            {
+                case "low": _threadLevel = ThreadLevelState.LOW; break;
+                case "med": _threadLevel = ThreadLevelState.MED; break;
+                case "high": _threadLevel = ThreadLevelState.HIGH; break;
+            }
         }
         #endregion
     }

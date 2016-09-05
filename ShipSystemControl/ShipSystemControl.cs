@@ -95,7 +95,7 @@ namespace ShipSystemControl
                         new DialogVI("I'll light'em up, $(when|as soon as) I can", DialogBase.DialogImportance.NORMAL, null, this.Name, "auto_fire")
                     ),
                     new DialogTreeBranch(
-                        new DialogVI("$[I'm sorry but|Sorry but] I won't shoot at a friendly target.", DialogBase.DialogImportance.HIGH, () => { return (TargetShipData.ThreatLevel == "LOW"); }, this.Name, "auto_fire_cancel")
+                        new DialogVI("$[I'm sorry but|Sorry but] I won't shoot at a friendly target.", DialogBase.DialogImportance.HIGH, () => { return (TargetShipData.ThreatLevel <= ThreadLevelState.LOW); }, this.Name, "auto_fire_cancel")
                     )
                 ),
 
@@ -109,7 +109,7 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer("$(fire|launch|shoot) a missile $[as soon as possible|asap]", DialogBase.DialogImportance.CRITICAL),
                     new DialogTreeBranch(
-                        new DialogVI("$[I'm sorry but|Sorry but] I won't shoot at a friendly target.", DialogBase.DialogImportance.HIGH, () => { return (TargetShipData.ThreatLevel == "LOW"); }, this.Name, "auto_fire_missile_cancel")
+                        new DialogVI("$[I'm sorry but|Sorry but] I won't shoot at a friendly target.", DialogBase.DialogImportance.HIGH, () => { return (TargetShipData.ThreatLevel <= ThreadLevelState.LOW); }, this.Name, "auto_fire_missile_cancel")
                     ),
                     new DialogTreeBranch(
                         new DialogVI("$[I'm|I am] already on it!", DialogBase.DialogImportance.NORMAL, () => { return (_autoFireMissile); })
@@ -233,7 +233,7 @@ namespace ShipSystemControl
         private void Fire()
         {
             if (
-                (TargetShipData.ThreatLevel != "LOW") &&
+                (TargetShipData.ThreatLevel > ThreadLevelState.LOW) &&
                 (PlayerShipData.Mtds == PlayerShipData.MTDSState.LOCKED) &&
                 ((DateTime.Now - _lastTimeFired).TotalMilliseconds >= 1000)
             )
@@ -249,7 +249,7 @@ namespace ShipSystemControl
         private void FireMissile()
         {
             if (
-                (TargetShipData.ThreatLevel != "LOW") &&
+                (TargetShipData.ThreatLevel > ThreadLevelState.LOW) &&
                 (PlayerShipData.MissileLock == PlayerShipData.MissileState.LOCKED) &&
                 (PlayerShipData.SecWeapon[0] != null)
             )

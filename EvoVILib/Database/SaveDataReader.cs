@@ -9,6 +9,7 @@ namespace EvoVI.Database
     #region Enums (shared)
     public enum OnOffState { OFF = 0, ON = 1 };
     public enum ShieldLevelState { FRONT, RIGHT, LEFT, REAR, TOTAL };
+    public enum ThreadLevelState { LOW = 0, MED = 1, HIGH = 2 };
     #endregion
 
 
