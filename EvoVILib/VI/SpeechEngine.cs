@@ -96,7 +96,9 @@ namespace EvoVI.Engine
                         break;
                 }
 
-                speechStopCause.OriginDialogNode.NextNode();
+                // Start a new thread to prevent another VI or Command dialog to remove this 
+                // object while it's still in use
+                new Thread(n => { speechStopCause.OriginDialogNode.NextNode(); }).Start();
             }
             #endregion
         }
@@ -162,6 +164,7 @@ namespace EvoVI.Engine
 
         #region Event Handlers
         /// <summary> Fires, when a voice command has been recognized.
+        /// <para>This is called after the plugin functions.</para>
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The speech recognition engine's event arguments.</param>
