@@ -80,7 +80,7 @@ namespace EvoVI.Plugins
                     new DialogTreeBranch(
                         _dialg_no,
                         new DialogTreeBranch(
-                            new DialogVI("$[Oh - I see. ]What $[did you need|was it] then?", DialogBase.DialogImportance.NORMAL, null, this.Name, "jump_back")
+                            new DialogVI("$[Oh - I see.] What $[did you need|was it] then?", DialogBase.DialogImportance.NORMAL, null, this.Name, "jump_back")
                         )
                     )
                 };
@@ -196,18 +196,19 @@ namespace EvoVI.Plugins
             {
                 DialogTreeBranch[] standardDialogs = new DialogTreeBranch[] {
                     new DialogTreeBranch(
-                        new DialogPlayer("Take a nap;Go to sleep;Goodnight;Go on standby", DialogBase.DialogImportance.CRITICAL, null, this.Name, "sleep"),
+                        new DialogPlayer("Take a nap;Go to sleep;Goodnight;Go on standby", DialogBase.DialogImportance.CRITICAL),
                         new DialogTreeBranch(  
                             new DialogVI("Goodnight;Nap time!;Wake me up if you need me.", DialogBase.DialogImportance.NORMAL, () => { return (VI.State >= VI.VIState.READY); }, this.Name, "sleep")
                         )
                     ),
+
                     new DialogTreeBranch(
                         new DialogPlayer(String.Format("$[Hey ]$[{0} ], $(wake up|I need you|I need your help)", VI.PhoneticName), DialogBase.DialogImportance.CRITICAL),
                         new DialogTreeBranch(  
-                            new DialogVI("$[But] I was $[already] awake the whole time.", DialogBase.DialogImportance.NORMAL, () => { return (VI.State >= VI.VIState.READY); })
+                            new DialogVI("$[But] I was $[already] awake the whole time.", DialogBase.DialogImportance.CRITICAL, () => { return (VI.State >= VI.VIState.READY); })
                         ),
                         new DialogTreeBranch(  
-                            new DialogVI("Hello world!;Systems online;Returning from standby.", DialogBase.DialogImportance.NORMAL, () => { return (VI.State < VI.VIState.READY); }, this.Name, "wake_up")
+                            new DialogVI("Hello world!;Systems online;Returning from standby.", DialogBase.DialogImportance.CRITICAL, () => { return (VI.State < VI.VIState.READY); }, this.Name, "wake_up")
                         )
                     )
                 };

@@ -136,6 +136,9 @@ namespace EvoVI.Classes.Dialog
         /// <param name="e">The speech recognized event arguments.</param>
         private void onDialogDone(object sender, SpeechRecognizedEventArgs e)
         {
+            VI.CurrRecognizedGrammar = e.Result.Grammar;
+            VI.CurrRecognizedPhrase = e.Result.Text;
+
             SetActive();
             Trigger();
             NextNode();

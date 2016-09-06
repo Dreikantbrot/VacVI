@@ -66,64 +66,27 @@ namespace Smalltalk
         #region Interface Functions
         public void Initialize()
         {
-            DialogTreeBuilder.BuildDialogTree(
-                null,
+            DialogTreeBranch[] dialogOptions = new DialogTreeBranch[] {
                 new DialogTreeBranch(
-                    new DialogPlayer("$(Hey|Hi) $[what's up?];Hello$[ there]."),
+                    new DialogPlayer("Who are you?"),
                     new DialogTreeBranch(
-
-                        new DialogVI("$[Oh,] $(hi|hey)", DialogBase.DialogImportance.NORMAL),                            
-                        new DialogTreeBranch(
-                                    
-                            new DialogPlayer("Are you okay?"),                             
-                            new DialogTreeBranch(
-                                new DialogVI("Just a little bummed out. I want to be finished soon.")
-                            )
-                        ),
-                            
-                        new DialogTreeBranch(
-                            new DialogPlayer("Whats new?;Any news?"),
-                            new DialogTreeBranch(
-                                new DialogVI("Nothing new at the western front.")
-                            )
-                        ),
-                    
-                        new DialogTreeBranch(
-                            new DialogPlayer("Anyone there?", DialogBase.DialogImportance.NORMAL)
-                        ),
-
-                        new DialogTreeBranch(
-                            new DialogVI("I can't right now", DialogBase.DialogImportance.NORMAL)
-                        )
-                    )
-                ),
-
-                new DialogTreeBranch(
-                    new DialogPlayer("Start test"),
-                    new DialogTreeBranch(
-                        new DialogCommand("Smalltalk", DialogBase.DialogImportance.NORMAL, null, "Trigger Smalltalk")
-                    )
-                ),
-
-                new DialogTreeBranch(
-                    new DialogPlayer("Start test number two"),
-                    new DialogTreeBranch(
-                        new DialogCommand("Smalltalk", DialogBase.DialogImportance.NORMAL)
+                        new DialogVI(String.Format("I am a virtual intelligence and ship assistance software. $[My name is|You can call me|Please, call me|Call me] {0}", VI.PhoneticName))
                     )
                 )
-            );
+            };
+
+            DialogTreeBuilder.BuildDialogTree(null, dialogOptions);
         }
 
         public void OnDialogAction(EvoVI.Classes.Dialog.DialogBase originNode)
         {
-            SpeechEngine.Say("Oh my! My small-talk subroutine has been triggered.", false);
+
         }
 
         public void OnGameDataUpdate()
         {
 
         }
-
 
         public List<PluginParameterDefault> GetDefaultPluginParameters()
         {

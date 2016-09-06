@@ -141,12 +141,14 @@ namespace EvoVI.Engine
 
 
         #region Enums
+        [Flags]
         public enum KeyPressMode
         {
-            KEY_DOWN = 1,
-            KEY_UP = 2,
-            KEY_PRESS = (KEY_DOWN & KEY_UP),
-            KEY_PRESS_NO_SLEEP = 4
+            NONE,
+            KEY_DOWN,
+            KEY_UP,
+            KEY_PRESS,
+            KEY_PRESS_NO_SLEEP
         }
         #endregion
 
@@ -204,9 +206,9 @@ namespace EvoVI.Engine
         {
             if (KeyboardControls.GameActions.ContainsKey(action))
             {
-                if (KeyboardControls.GameActions[action].IsAltAction) { Interactor.PressKey(VKCodes.Keys.LMENU, Interactor.KeyPressMode.KEY_DOWN); }
+                if (KeyboardControls.GameActions[action].IsAltAction) { Interactor.PressKey(DIKCodes.Keys.LMENU, Interactor.KeyPressMode.KEY_DOWN); }
                 PressKey((int)KeyboardControls.GameActions[action].Scancode, KeyPressMode.KEY_PRESS, pressTime);
-                if (KeyboardControls.GameActions[action].IsAltAction) { Interactor.PressKey(VKCodes.Keys.LMENU, Interactor.KeyPressMode.KEY_UP); }
+                if (KeyboardControls.GameActions[action].IsAltAction) { Interactor.PressKey(DIKCodes.Keys.LMENU, Interactor.KeyPressMode.KEY_UP); }
             }
         }
 
@@ -228,7 +230,7 @@ namespace EvoVI.Engine
             { return; }
 
             uint result = 0;
-            if ((pressMode & KeyPressMode.KEY_DOWN) == pressMode)
+            if ((pressMode & KeyPressMode.KEY_DOWN) == KeyPressMode.KEY_DOWN)
             {
                 inputs[0].u.ki.dwFlags = (uint)(KeyEventF.KeyDown | (isScancode ? KeyEventF.Scancode : KeyEventF.Unicode));
                 result = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(Input)));
@@ -236,7 +238,7 @@ namespace EvoVI.Engine
 
             if (pressTime > 0) { Thread.Sleep(pressTime); }
 
-            if ((pressMode & KeyPressMode.KEY_UP) == pressMode)
+            if ((pressMode & KeyPressMode.KEY_UP) == KeyPressMode.KEY_UP)
             {
                 inputs[0].u.ki.dwFlags = (uint)(KeyEventF.KeyUp | (isScancode ? KeyEventF.Scancode : KeyEventF.Unicode));
                 result = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(Input)));

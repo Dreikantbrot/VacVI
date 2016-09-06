@@ -342,6 +342,7 @@ namespace EvoVI.Classes.Dialog
             { return; }
 
             IPlugin plugin = PluginManager.GetPlugin(_pluginToStart);
+            VI.CurrCommand = plugin;
             if (plugin != null) { plugin.OnDialogAction(this); }
         }
 

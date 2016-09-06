@@ -138,8 +138,8 @@ namespace EvoVI
             section = SECTION_PLAYER;
             if (_configurationFile.HasSection(section))
             {
-                if (_configurationFile.HasKey(section, "Name")) { /* Not yet implemented */ }
-                if (_configurationFile.HasKey(section, "Phonetic_Name")) { /* Not yet implemented */ }
+                if (_configurationFile.HasKey(section, "Name")) { VI.PlayerName = _configurationFile.GetValue(section, "Name"); }
+                if (_configurationFile.HasKey(section, "Phonetic_Name")) { VI.PlayerPhoneticName = _configurationFile.GetValue(section, "Phonetic_Name"); }
             }
         }
         #endregion

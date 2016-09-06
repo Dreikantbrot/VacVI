@@ -81,6 +81,9 @@ namespace EvoVI.Database
 
 
         #region Variables - Converted values
+        private static int _fuelRemaining = 0;
+        private static int _fuelTotal = 0;
+        private static double _fuelPercentage = 0;
         private static string[] _cargoBay = new string[10];
         private static Vector3D _position = new Vector3D();
         private static Vector3D _sectorPosition = new Vector3D();
@@ -100,6 +103,24 @@ namespace EvoVI.Database
 
 
         #region Properties - Converted values
+        public static int? FuelRemaining
+        {
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)PlayerShipData._fuelRemaining : null; }
+        }
+
+
+        public static int? FuelTotal
+        {
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)PlayerShipData._fuelTotal : null; }
+        }
+
+
+        public static double? FuelPercentage
+        {
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (double?)PlayerShipData._fuelPercentage : null; }
+        }
+
+
         public static string[] CargoBay 
 		{
 			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? PlayerShipData._cargoBay : null; }
@@ -192,12 +213,6 @@ namespace EvoVI.Database
 
 
         #region Properties - Unconverted Values
-        public static int? Fuel 
-		{
-			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_FUEL).Value : null; }
-		}
-
-
         public static int? EnergyLevel 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_ENERGY_LEVEL).Value : null; }
@@ -391,6 +406,12 @@ namespace EvoVI.Database
         public static void Update()
         {
             int maxCount;
+
+            // Get fuel
+            string fuel = (string)SaveDataReader.GetEntry(PARAM_FUEL).Value;
+            Int32.TryParse(fuel.Substring(0, fuel.IndexOf('/')), out _fuelRemaining);
+            Int32.TryParse(fuel.Substring(fuel.IndexOf('/') + 1), out _fuelTotal);
+            _fuelPercentage = (double)_fuelRemaining / _fuelTotal;
 
             // Get cargo bays
             maxCount = (

@@ -24,8 +24,15 @@ namespace EvoVI.Engine
         private static VIState _state = VIState.READY;
         private static uint _affiliationToPlayer = 50;
 
+        private static string _playerName = "Pilot";
+        private static string _playerPhoneticName = "Pilot";
+
         private static DialogBase _currentDialogNode;
         private static DialogBase _previousDialogNode;
+
+        private static IPlugin _currCommand;
+        private static string _currRecognizedPhrase;
+        private static Grammar _currRecognizedGrammar;
 
         private static IPlugin _lastCommand;
         private static string _lastRecognizedPhrase;
@@ -59,6 +66,18 @@ namespace EvoVI.Engine
             get { return VI._affiliationToPlayer; }
         }
 
+        public static string PlayerName
+        {
+            get { return VI._playerName; }
+            set { VI._playerName = value; }
+        }
+
+        public static string PlayerPhoneticName
+        {
+            get { return VI._playerPhoneticName; }
+            set { VI._playerPhoneticName = value; }
+        }
+
         public static DialogBase CurrentDialogNode
         {
             get { return VI._currentDialogNode; }
@@ -69,6 +88,24 @@ namespace EvoVI.Engine
         {
             get { return VI._previousDialogNode; }
             set { VI._previousDialogNode = value; }
+        }
+
+        public static IPlugin CurrCommand
+        {
+            get { return VI._currCommand; }
+            set { VI._currCommand = value; }
+        }
+
+        public static string CurrRecognizedPhrase
+        {
+            get { return VI._currRecognizedPhrase; }
+            set { VI._currRecognizedPhrase = value; }
+        }
+
+        public static Grammar CurrRecognizedGrammar
+        {
+            get { return VI._currRecognizedGrammar; }
+            set { VI._currRecognizedGrammar = value; }
         }
 
         public static IPlugin LastCommand

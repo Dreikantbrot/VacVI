@@ -134,8 +134,8 @@ namespace EvoVI.Engine
         private static List<DialogVI> _queue = new List<DialogVI>();
 
         private static bool _speechDone = false;
-        private static float _confidenceThreshold = 0.15f;
         private static int _maxSpeechNodeAge = 2000;
+        private static float _confidenceThreshold = 0.60f;
         private static VoiceModulationModes _voiceModulation = VoiceModulationModes.ROBOTIC;
         #endregion
 
