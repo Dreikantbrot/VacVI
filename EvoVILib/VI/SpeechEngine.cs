@@ -85,14 +85,20 @@ namespace EvoVI.Engine
                 switch (speechStopCause.SoundType)
                 {
                     case OnSoundStopHandler.SoundType.SPEECH:
-                        _queue.RemoveAt(0);
+                        // Remove dialog nodes that are too old
+                        for (int i = _queue.Count - 1; i >= 0; i--)
+                        {
+                            if ((DateTime.Now - _queue[i].SpeechRegisteredInQueue).TotalMilliseconds > _maxSpeechNodeAge) { _queue.RemoveAt(i); }
+                        }
+
+                        if (_queue.Count > 0) { _queue.RemoveAt(0); }
                         if (_queue.Count > 0)
                         {
                             Thread starter = new Thread(n => { Say(_queue[0]); });
                             starter.Start();
                         }
 
-                        if (!speechStopCause.PlayedAsync) { _speechDone = true; }
+                        if (!speechStopCause.PlayedAsync) { SpeechDone = true; }
                         break;
                 }
 
@@ -129,11 +135,12 @@ namespace EvoVI.Engine
 
         private static bool _speechDone = false;
         private static float _confidenceThreshold = 0.15f;
+        private static int _maxSpeechNodeAge = 2000;
         private static VoiceModulationModes _voiceModulation = VoiceModulationModes.ROBOTIC;
         #endregion
 
 
-        #region Propeties
+        #region Properties
         /// <summary> Returns or sets the currently set language
         /// </summary>
         public static string Language
@@ -158,6 +165,15 @@ namespace EvoVI.Engine
         {
             get { return SpeechEngine._voiceModulation; }
             set { SpeechEngine._voiceModulation = value; }
+        }
+
+
+        /// <summary> Returns or sets the time in milliseconds a VI dialog node will be held in the queue before deletion.
+        /// </summary>
+        public static bool SpeechDone
+        {
+            get { return SpeechEngine._speechDone; }
+            set { SpeechEngine._speechDone = value; }
         }
         #endregion
 
@@ -287,7 +303,12 @@ namespace EvoVI.Engine
             )
             { return; }
 
-            if (!_queue.Contains(dialogNode)) { _queue.Add(dialogNode); }
+            if (!_queue.Contains(dialogNode))
+            {
+                _queue.Add(dialogNode);
+                dialogNode.SpeechRegisteredInQueue = DateTime.Now; 
+            }
+
             if (_queue[0] != dialogNode) { return; }
 
             _speechDone = false;

@@ -9,6 +9,7 @@ namespace EvoVI.Classes.Dialog
     {
         #region Variables
         private bool _waitUntilFinished;
+        private DateTime _speechRegisteredInQueue;
         #endregion
 
 
@@ -35,6 +36,15 @@ namespace EvoVI.Classes.Dialog
         {
             get { return _waitUntilFinished; }
             set { _waitUntilFinished = value; }
+        }
+
+
+        /// <summary> Returns or sets the time when this node has been reigstered within SpeechEngine's queue.
+        /// </summary>
+        internal DateTime SpeechRegisteredInQueue
+        {
+            get { return _speechRegisteredInQueue; }
+            set { _speechRegisteredInQueue = value; }
         }
         #endregion
 
