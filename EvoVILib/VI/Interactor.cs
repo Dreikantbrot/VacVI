@@ -22,6 +22,9 @@ namespace EvoVI.Engine
 
         [DllImport("user32.dll")]
         static extern int MapVirtualKey(uint uCode, uint uMapType);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
         #endregion
 
 
@@ -218,7 +221,11 @@ namespace EvoVI.Engine
         /// </param>
         private static void pressKey(Input[] inputs, KeyPressMode pressMode, int pressTime, bool isScancode)
         {
-            if (VI.State <= VI.VIState.SLEEPING) { return; }
+            if (
+                (VI.State <= VI.VIState.SLEEPING) ||
+                (_targetWindowHandle != GetForegroundWindow())
+            )
+            { return; }
 
             uint result = 0;
             if ((pressMode & KeyPressMode.KEY_DOWN) == pressMode)
