@@ -232,7 +232,7 @@ namespace EvoVI.Classes.Dialog
             List<DialogBase> candidatePhrases = new List<DialogBase>();
 
             // Collect candidate phrases and determine highest priority
-            DialogImportance highestPriority = DialogImportance.LOW;
+            DialogImportance highestPriority = DialogImportance.VERY_LOW;
             for (int i = 0; i < _childNodes.Count; i++)
             {
                 // Filter disabled nodes or nodes that already do not meet the maximum importance or their condition

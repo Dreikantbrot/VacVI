@@ -455,7 +455,7 @@ namespace EvoVIOverlay
                 );
 
                 string importanceMark = "[";
-                for (DialogBase.DialogImportance u = DialogBase.DialogImportance.LOW; u < currChild.Importance; u++) { importanceMark += "*"; }
+                for (DialogBase.DialogImportance u = DialogBase.DialogImportance.VERY_LOW; u < currChild.Importance; u++) { importanceMark += "*"; }
                 for (DialogBase.DialogImportance u = currChild.Importance; u < DialogBase.DialogImportance.CRITICAL; u++) { importanceMark += " "; }
                 importanceMark += "]";
 
