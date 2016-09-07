@@ -6,7 +6,7 @@ using EvoVI.Plugins;
 using System;
 using System.Collections.Generic;
 
-namespace ShipSystemControl
+namespace Native
 {
     public class ShipSystemControl : IPlugin
     {
@@ -25,7 +25,7 @@ namespace ShipSystemControl
         private enum JumpState
         {
             MANUAL = 1,
-            AUTO = 2, 
+            AUTO = 2,
             EMERGENCY = 3,
             NONE = ~(MANUAL | AUTO | EMERGENCY)
         }
@@ -640,22 +640,22 @@ namespace ShipSystemControl
 
         public void OnDialogAction(DialogBase originNode)
         {
-            switch(originNode.Data.ToString())
+            switch (originNode.Data.ToString())
             {
                 #region Auto-Fire
-                case "auto_fire": 
-                    _autoFire = true; 
-                    OnGameDataUpdate(); 
+                case "auto_fire":
+                    _autoFire = true;
+                    OnGameDataUpdate();
                     break;
-                case "auto_fire_cancel": 
-                    _autoFire = false; 
+                case "auto_fire_cancel":
+                    _autoFire = false;
                     break;
-                case "auto_fire_missile": 
-                    _autoFireMissile = true; 
-                    OnGameDataUpdate(); 
+                case "auto_fire_missile":
+                    _autoFireMissile = true;
+                    OnGameDataUpdate();
                     break;
-                case "auto_fire_missile_cancel": 
-                    _autoFireMissile = false; 
+                case "auto_fire_missile_cancel":
+                    _autoFireMissile = false;
                     break;
                 #endregion
 
@@ -674,24 +674,24 @@ namespace ShipSystemControl
                 #region Jumping
                 case "jump":
                     if (_jumpState < JumpState.MANUAL) { _jumpState = JumpState.MANUAL; }
-                    emergencyJump(); 
+                    emergencyJump();
                     break;
                 case "auto_jump":
                     if (_jumpState < JumpState.AUTO) { _jumpState = JumpState.AUTO; }
-                    emergencyJump(); 
+                    emergencyJump();
                     break;
                 case "emergency_jump":
                     if (_jumpState < JumpState.EMERGENCY) { _jumpState = JumpState.EMERGENCY; }
-                    emergencyJump(); 
+                    emergencyJump();
                     break;
-                case "auto_jump_cancel": 
+                case "auto_jump_cancel":
                     _jumpState = JumpState.NONE;
                     break;
                 #endregion
 
                 #region Thruster
-                case "full_stop": 
-                    Interactor.ExecuteAction(GameAction.ZERO_THROTTLE); 
+                case "full_stop":
+                    Interactor.ExecuteAction(GameAction.ZERO_THROTTLE);
                     break;
                 case "set_ids_multiplier":
                     Int32.TryParse(VI.CurrRecognizedPhrase.Substring(VI.CurrRecognizedPhrase.Length - 1), out _targetIdsMultiplier);
@@ -717,7 +717,7 @@ namespace ShipSystemControl
                 #region HUD
                 case "toggle_HUD":
                     _targetHudMode = (
-                        VI.CurrRecognizedPhrase.Contains("full") ? (int)HudData.HudStatus.FULL : 
+                        VI.CurrRecognizedPhrase.Contains("full") ? (int)HudData.HudStatus.FULL :
                         VI.CurrRecognizedPhrase.Contains("partial") ? (int)HudData.HudStatus.PARTIAL :
                         -1
                     );
@@ -830,7 +830,7 @@ namespace ShipSystemControl
             if (_targetAutopilotState == (int)PlayerShipData.Autopilot) { _targetAutopilotState = -1; }
             if (_targetAutopilotState < 0) { return; }
 
-            switch(_targetAutopilotState)
+            switch (_targetAutopilotState)
             {
                 case (int)PlayerShipData.AutopilotState.FORM_ON_TARGET:
                     Interactor.ExecuteAction(GameAction.FORM_ON_TARGET);
@@ -896,7 +896,7 @@ namespace ShipSystemControl
                 "Engines @" + PlayerShipData.EngineDamage + "%. " +
                 "Navigations @" + PlayerShipData.NavDamage + "%. " +
                 "Weapons @" + PlayerShipData.WeaponDamage + "%. " +
-                "Shields @" + PlayerShipData.ShieldLevel[ShieldLevelState.TOTAL] + "%. " + 
+                "Shields @" + PlayerShipData.ShieldLevel[ShieldLevelState.TOTAL] + "%. " +
                 Math.Round((double)PlayerShipData.FuelPercentage * 100) + "% fuel remaining."
             );
         }
@@ -913,8 +913,8 @@ namespace ShipSystemControl
                 "Faction: " + TargetShipData.Faction + ", " +
                 "Hull Integrity " + TargetShipData.DamageLevel + "%, " +
                 "Threat Level: " + (
-                    (TargetShipData.ThreatLevel == ThreadLevelState.LOW) ? "Low" : 
-                    (TargetShipData.ThreatLevel == ThreadLevelState.MED) ? "Medium" : 
+                    (TargetShipData.ThreatLevel == ThreadLevelState.LOW) ? "Low" :
+                    (TargetShipData.ThreatLevel == ThreadLevelState.MED) ? "Medium" :
                     "High"
                 )
             );

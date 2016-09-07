@@ -69,7 +69,6 @@
     <Compile Include="Database\PlayerData.cs" />
     <Compile Include="Database\PlayerShipData.cs" />
     <Compile Include="Database\TargetShipData.cs" />
-    <Compile Include="Plugins\InternalPlugins.cs" />
     <Compile Include="Plugins\PluginParameterDefault.cs" />
     <Compile Include="VI\ConfigurationManager.cs" />
     <Compile Include="VI\DIKCodes.cs" />

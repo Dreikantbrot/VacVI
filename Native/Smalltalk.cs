@@ -1,12 +1,12 @@
-﻿using EvoVI.PluginContracts;
-using System;
-using EvoVI.Classes.Dialog;
-using EvoVI.Engine;
+﻿using EvoVI.Classes.Dialog;
 using EvoVI.Database;
-using System.Collections.Generic;
+using EvoVI.Engine;
+using EvoVI.PluginContracts;
 using EvoVI.Plugins;
+using System;
+using System.Collections.Generic;
 
-namespace Smalltalk
+namespace Native
 {
     public class Smalltalk : IPlugin
     {
@@ -59,7 +59,7 @@ namespace Smalltalk
 
 
         #region Variables
-        private Dictionary<string, string> _parameter = new Dictionary<string,string>();
+        private Dictionary<string, string> _parameter = new Dictionary<string, string>();
         #endregion
 
 

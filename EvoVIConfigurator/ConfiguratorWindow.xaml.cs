@@ -23,17 +23,17 @@ namespace EvoVIConfigurator
         #endregion
 
 
-        #region Structs
-        private struct GameEntry
+        #region Classes
+        private class ValueLabelPair
         {
             #region Variables
-            GameMeta.SupportedGame _value;
-            string _displayValue;
+            protected object _value;
+            protected string _displayValue;
             #endregion
 
 
             #region Properties
-            public GameMeta.SupportedGame Value
+            public object Value
             {
                 get { return _value; }
                 set { _value = value; }
@@ -47,40 +47,22 @@ namespace EvoVIConfigurator
             #endregion
 
 
-            public GameEntry(GameMeta.SupportedGame pValue)
+            public ValueLabelPair(object pValue = null, string pLabel = null)
             {
                 _value = pValue;
-                _displayValue = GameMeta.GetDescription(pValue);
+                _displayValue = pLabel;
             }
         }
 
-        private struct VIVoice
+        private class GameEntry : ValueLabelPair
         {
-            #region Variables
-            SpeechEngine.VoiceModulationModes _value;
-            string _displayValue;
-            #endregion
+            public GameEntry(GameMeta.SupportedGame pValue) : base(pValue, GameMeta.GetDescription(pValue)) { }
+        }
 
-
-            #region Properties
-            public SpeechEngine.VoiceModulationModes Value
-            {
-                get { return _value; }
-                set { _value = value; }
-            }
-
-            public string DisplayValue
-            {
-                get { return _displayValue; }
-                set { _displayValue = value; }
-            }
-            #endregion
-
-
-            public VIVoice(SpeechEngine.VoiceModulationModes pValue)
-            {
-                _value = pValue;
-                
+        private class VIVoice : ValueLabelPair
+        {
+            public VIVoice(SpeechEngine.VoiceModulationModes pValue) : base(pValue)
+            {                
                 switch(pValue)
                 {
                     case SpeechEngine.VoiceModulationModes.NORMAL:
@@ -163,7 +145,7 @@ namespace EvoVIConfigurator
             // "Game" section
             for (int i = 0; i < comBox_GameSelection.Items.Count; i++)
             {
-                if (GameMeta.CurrentGame == ((GameEntry)comBox_GameSelection.Items[i]).Value)
+                if (GameMeta.CurrentGame == (GameMeta.SupportedGame)((ValueLabelPair)comBox_GameSelection.Items[i]).Value)
                 {
                     comBox_GameSelection.SelectedIndex = i;
                     break;
@@ -183,7 +165,7 @@ namespace EvoVIConfigurator
 
             for (int i = 0; i < comBox_Config_VIVoice.Items.Count; i++)
             {
-                SpeechEngine.VoiceModulationModes currVoice = ((VIVoice)comBox_Config_VIVoice.Items[i]).Value;
+                SpeechEngine.VoiceModulationModes currVoice = (SpeechEngine.VoiceModulationModes)((ValueLabelPair)comBox_Config_VIVoice.Items[i]).Value;
                 if (SpeechEngine.VoiceModulation == currVoice) { comBox_Config_VIVoice.SelectedIndex = i; break; }
             }
             if (comBox_Config_VIVoice.SelectedItem == null) { comBox_Config_VIVoice.SelectedIndex = 0; }
@@ -201,11 +183,17 @@ namespace EvoVIConfigurator
 
 
             /* Fill plugin list */
-            for (int i = 0; i < PluginManager.Plugins.Count; i++)
+            foreach (KeyValuePair<string, List<IPlugin>> dllPlugin in PluginManager.LoadedDLLs)
             {
-                ComboBoxItem cmbx = new ComboBoxItem();
-                cmbx.Content = PluginManager.Plugins[i].Name;
-                comBox_PluginSelection.Items.Add(cmbx);
+                for (int i = 0; i < dllPlugin.Value.Count; i++)
+                {
+                    comBox_PluginSelection.Items.Add(
+                        new ValueLabelPair(
+                            PluginManager.Plugins[i].Name,
+                            "[ " + dllPlugin.Key.Substring(0, dllPlugin.Key.LastIndexOf('.')) + " ] - " + PluginManager.Plugins[i].Name
+                        )
+                    );
+                }
             }
             if (PluginManager.Plugins.Count > 0) { comBox_PluginSelection.SelectedIndex = 0; }
 
@@ -352,8 +340,8 @@ namespace EvoVIConfigurator
         /// <param name="e">The selection changed event arguments.</param>
         private void comBox_GameSelection_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            GameEntry newItemGame = (GameEntry)comBox_GameSelection.SelectedItem;
-            GameMeta.CurrentGame = newItemGame.Value;
+            ValueLabelPair newItemGame = (ValueLabelPair)(comBox_GameSelection.SelectedItem);
+            GameMeta.CurrentGame = (GameMeta.SupportedGame)newItemGame.Value;
 
             verifyInstallDir();
             validatePlugin();
@@ -409,7 +397,7 @@ namespace EvoVIConfigurator
         /// <param name="e">The selection changed event arguments.</param>
         private void comBox_Config_VIVoice_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            SpeechEngine.VoiceModulationModes voice = ((VIVoice)(((ComboBox)sender).SelectedItem)).Value;
+            SpeechEngine.VoiceModulationModes voice = (SpeechEngine.VoiceModulationModes)((ValueLabelPair)(((ComboBox)sender).SelectedItem)).Value;
             SpeechEngine.VoiceModulation = voice;
 
             ConfigurationManager.ConfigurationFile.SetValue("VI", "Voice", voice.ToString());
@@ -600,8 +588,8 @@ namespace EvoVIConfigurator
             validatePlugin();
 
             // Build configuration menu
-            string newItemText = ((ComboBoxItem)comBox_PluginSelection.SelectedItem).Content.ToString();
-            IPlugin plugin = PluginManager.GetPlugin(newItemText);
+            string newSelectedPluginName = ((ValueLabelPair)comBox_PluginSelection.SelectedItem).Value.ToString();
+            IPlugin plugin = PluginManager.GetPlugin(newSelectedPluginName);
             Dictionary<string, string> pluginParams = PluginManager.PluginFile.GetSectionAttributes(plugin.Name);
 
             stck_PluginsParameters.Children.Clear();
@@ -710,8 +698,8 @@ namespace EvoVIConfigurator
         {
             if (((ComboBox)sender).SelectedValue == null) { return; }
 
-            string newItemText = ((ComboBoxItem)comBox_PluginSelection.SelectedItem).Content.ToString();
-            IPlugin plugin = PluginManager.GetPlugin(newItemText);
+            string newSelectedPluginName = ((ValueLabelPair)comBox_PluginSelection.SelectedItem).Value.ToString();
+            IPlugin plugin = PluginManager.GetPlugin(newSelectedPluginName);
 
             string currParamValue = ((ComboBox)sender).SelectedValue.ToString();
             string currParamKey = ((ComboBox)sender).Tag.ToString();
@@ -727,8 +715,8 @@ namespace EvoVIConfigurator
         /// <param name="e">The text changed event arguments.</param>
         void onParamValueChanged(object sender, TextChangedEventArgs e)
         {
-            string newItemText = ((ComboBoxItem)comBox_PluginSelection.SelectedItem).Content.ToString();
-            IPlugin plugin = PluginManager.GetPlugin(newItemText);
+            string newSelectedPluginName = ((ValueLabelPair)comBox_PluginSelection.SelectedItem).Value.ToString();
+            IPlugin plugin = PluginManager.GetPlugin(newSelectedPluginName);
 
             string currParamKey = ((TextBox)sender).Tag.ToString();
 
@@ -743,8 +731,8 @@ namespace EvoVIConfigurator
         /// <param name="e">The routed event arguments.</param>
         private void chck_PluginsEnabled_CheckedUnchecked(object sender, RoutedEventArgs e)
         {
-            string newItemText = ((ComboBoxItem)comBox_PluginSelection.SelectedItem).Content.ToString();
-            IPlugin plugin = PluginManager.GetPlugin(newItemText);
+            string newSelectedPluginName = ((ValueLabelPair)comBox_PluginSelection.SelectedItem).Value.ToString();
+            IPlugin plugin = PluginManager.GetPlugin(newSelectedPluginName);
 
             if (plugin != null)
             {
@@ -773,8 +761,8 @@ namespace EvoVIConfigurator
             if (comBox_PluginSelection.SelectedItem == null) { return; }
 
             // Update plugin information
-            string newItemText = ((ComboBoxItem)comBox_PluginSelection.SelectedItem).Content.ToString();
-            IPlugin plugin = PluginManager.GetPlugin(newItemText);
+            string newSelectedPluginName = ((ValueLabelPair)comBox_PluginSelection.SelectedItem).Value.ToString();
+            IPlugin plugin = PluginManager.GetPlugin(newSelectedPluginName);
 
             if (plugin != null)
             {

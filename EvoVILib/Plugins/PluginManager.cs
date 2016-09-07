@@ -18,6 +18,7 @@ namespace EvoVI
         public static List<IPlugin> Plugins = new List<IPlugin>();
         private static IniFile _pluginFile;
         private static Dictionary<string, Dictionary<string, PluginParameterDefault>> _pluginDefaults = new Dictionary<string, Dictionary<string, PluginParameterDefault>>();
+        private static Dictionary<string, List<IPlugin>> _dllDictionary = new Dictionary<string, List<IPlugin>>();
         #endregion
 
 
@@ -43,6 +44,11 @@ namespace EvoVI
         public static string PluginConfigPath
         {
             get { return PluginManager.GetPluginPath() + "\\" + "plugins.ini"; }
+        }
+
+        public static Dictionary<string, List<IPlugin>> LoadedDLLs
+        {
+            get { return PluginManager._dllDictionary; }
         }
         #endregion
 
@@ -76,6 +82,7 @@ namespace EvoVI
         public static void LoadPlugins(bool loadDisabledPlugins=false)
         {
             Plugins.Clear();
+            _dllDictionary.Clear();
 
             /* Load plugin files */
             string[] dllFileNames = null;
@@ -83,20 +90,6 @@ namespace EvoVI
 
             _pluginFile = new IniFile(PluginConfigPath);
             _pluginFile.Read();
-
-            /* Load internal plugins, if enabled */
-            if (
-                (loadDisabledPlugins) ||
-                (_pluginFile.ValueIsBoolAndTrue(InternalPlugins.CommandRepeater.PLUGIN_NAME, "Enabled"))
-            )
-            { Plugins.Add(new InternalPlugins.CommandRepeater()); }
-
-            if (
-                (loadDisabledPlugins) ||
-                (_pluginFile.ValueIsBoolAndTrue(InternalPlugins.VIStates.PLUGIN_NAME, "Enabled"))
-            )
-            { Plugins.Add(new InternalPlugins.VIStates()); }
-
 
             if (Directory.Exists(pluginPath))
             {
@@ -143,6 +136,10 @@ namespace EvoVI
                     )
                     { continue; }
                     
+                    string dllFileName = Path.GetFileName(plugin.GetType().Assembly.CodeBase);
+                    if (!_dllDictionary.ContainsKey(dllFileName)) { _dllDictionary.Add(dllFileName, new List<IPlugin>()); }
+                    
+                    _dllDictionary[dllFileName].Add(plugin);
                     Plugins.Add(plugin);
                 }
             }
