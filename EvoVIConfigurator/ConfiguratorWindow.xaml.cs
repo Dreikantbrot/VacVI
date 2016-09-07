@@ -806,7 +806,20 @@ namespace EvoVIConfigurator
             }
         }
         #endregion
-                
+
+
+        #region About Events
+        /// <summary> Fires when a Hyperlink has been clicked.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The request navigate event arguments.</param>
+        private void OnNavigateURL(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+        {
+            System.Diagnostics.Process.Start(e.Uri.AbsoluteUri);
+            e.Handled = true;
+        }
+        #endregion
+
         #endregion
     }
 }

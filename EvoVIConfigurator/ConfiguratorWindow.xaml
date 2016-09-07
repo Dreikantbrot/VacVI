@@ -197,5 +197,53 @@
                 <TextBox x:Name="txt_PluginCompatibility" Grid.Column="2" HorizontalAlignment="Left" Height="26" Margin="214,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="150" Background="#7F00C800" CaretBrush="{Binding SelectionBrush, ElementName=txt_PluginCompatibility}" VerticalContentAlignment="Center" Foreground="White" HorizontalContentAlignment="Center" IsReadOnly="True" FontWeight="Bold" BorderThickness="0" FontSize="14" Text="Compatible"/>
             </Grid>
         </TabItem>
+        <TabItem x:Name="tab_About" Header="About" Background="{Binding Background, ElementName=tab_Config_Label}" Margin="2,0,-2,0" HorizontalAlignment="Left" Width="100" Foreground="Black">
+            <Grid x:Name="tab_Main_About" Margin="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="401*"/>
+                    <ColumnDefinition Width="317*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="27*"/>
+                    <RowDefinition Height="32*"/>
+                </Grid.RowDefinitions>
+                <Image Margin="10" Source="_Rsc/Logo VI.png" Opacity="0.9"/>
+                <TextBlock Background="#33FFFFFF" Foreground="White" Padding="5,5,5,5" TextWrapping="Wrap" FontWeight="Bold" Margin="10" Grid.Row="1" TextAlignment="Center" Focusable="False" LineHeight="18">
+                    <Run Text="&#x0a;Disclaimer"/>
+                    <Run Text="&#x0a;-------------------------------------------"/>
+                    <Run Text="&#x0a;"/>
+                    <Run Text="&#x0a;Evochron, including Evochron Mercenary and Evochron Legacy, as well as the Arvoch Series and all title images (except for the EvoVI Logo, pictured above) within the &quot;Overview&quot; tab are property of StarWraith3D Games."/>
+                    <Run Text="&#x0a;"/>
+                    <Run Text="&#x0a;"/>
+                    <Run Text="&#x0a;Visit "/><Hyperlink NavigateUri="http://www.starwraith.com/" RequestNavigate="OnNavigateURL" Foreground="SkyBlue"><Run Text="SarWraith3D Games"/></Hyperlink><Run Text=" for more information!"/>
+                </TextBlock>
+                <ScrollViewer Margin="10" Grid.Column="1" Grid.RowSpan="2" VerticalScrollBarVisibility="Auto">
+                    <TextBlock Background="#33FFFFFF" Foreground="White" Padding="5,5,5,5" TextWrapping="Wrap" FontWeight="Bold" TextAlignment="Center" TextTrimming="CharacterEllipsis" IsHitTestVisible="True">
+                        <Run Text="&#x0a;EvoVI:"/>
+                        <Run Text="&#x0a;-----------------------"/>
+                        <Run Text="&#x0a;"/>
+                        <Run Text="&#x0a;Progam written by:"/>
+                        <Run Text="&#x0a;"/>
+                        <Run Text="&#x0a;Kevin Haberland"/>
+                        <Run Text="&#x0a;Nickname: Scavenger4711"/>
+                        <Run Text="&#x0a;E-Mail: "/><Hyperlink NavigateUri="mailto:haberland.kevin@vodafone.de" RequestNavigate="OnNavigateURL" Foreground="SkyBlue">haberland.kevin@vodafone.de</Hyperlink>
+                        <Run Text="&#x0a;"/>
+                        <Run Text="&#x0a;----"/>
+                        <Run Text="&#x0a;"/>     
+                        <Run Text="&#x0a;EvoVI-Logo by:"/>
+                        <Run Text="&#x0a;"/>
+                        <Run Text="&#x0a;[ REDACTED ]"/>
+                        <Run Text="&#x0a;Nickname: [ REDACTED ]"/>
+                        <Run Text="&#x0a;E-Mail: [ REDACTED ]"/>
+                        <Run Text="&#x0a;"/>
+                        <Run Text="&#x0a;----"/>
+                        <Run Text="&#x0a;"/>       
+                        <Run Text="&#x0a;Special Thanks:"/>
+                        <Run Text="&#x0a;"/>
+                        <Run Text="&#x0a;You, for checking out our software!"/>
+                    </TextBlock>
+                </ScrollViewer>
+            </Grid>
+        </TabItem>
     </TabControl>
 </Window>
