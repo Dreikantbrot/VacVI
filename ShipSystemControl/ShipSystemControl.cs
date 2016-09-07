@@ -104,12 +104,12 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "$[Auto ]fire;$(fire|shoot) when you have a lock on", 
-                        DialogBase.DialogImportance.CRITICAL
+                        DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "I'll light'em up, $(when|as soon as) I can", 
-                            DialogBase.DialogImportance.NORMAL, 
+                            DialogBase.DialogPriority.NORMAL, 
                             () => { return (TargetShipData.ThreatLevel > ThreadLevelState.LOW); }, 
                             this.Name, 
                             "auto_fire"
@@ -118,7 +118,7 @@ namespace ShipSystemControl
                     new DialogTreeBranch(
                         new DialogVI(
                             "$[I'm sorry but|Sorry but] I won't shoot at a friendly target.", 
-                            DialogBase.DialogImportance.HIGH, 
+                            DialogBase.DialogPriority.HIGH, 
                             () => { return (TargetShipData.ThreatLevel <= ThreadLevelState.LOW); }, 
                             this.Name, 
                             "auto_fire_cancel"
@@ -129,12 +129,12 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "Stop $[Auto-|automatically ]$(firing|shooting);Manual fire", 
-                        DialogBase.DialogImportance.CRITICAL
+                        DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "$(Aye aye|Got it) - manual fire", 
-                            DialogBase.DialogImportance.NORMAL, 
+                            DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
                             "auto_fire_cancel"
@@ -145,12 +145,12 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "$(fire|launch|shoot) a missile $[as soon as possible|asap]", 
-                        DialogBase.DialogImportance.CRITICAL
+                        DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "$[I'm sorry but|Sorry but] I won't shoot at a friendly target.", 
-                            DialogBase.DialogImportance.HIGH, 
+                            DialogBase.DialogPriority.HIGH, 
                             () => { return (TargetShipData.ThreatLevel <= ThreadLevelState.LOW); }, 
                             this.Name, 
                             "auto_fire_missile_cancel"
@@ -159,14 +159,14 @@ namespace ShipSystemControl
                     new DialogTreeBranch(
                         new DialogVI(
                             "$[I'm|I am] already on it!", 
-                            DialogBase.DialogImportance.HIGH, 
+                            DialogBase.DialogPriority.HIGH, 
                             () => { return (_autoFireMissile); }
                         )
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "Give me a lock-on and I'll shoot", 
-                            DialogBase.DialogImportance.NORMAL, 
+                            DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
                             "auto_fire_missile"
@@ -177,12 +177,12 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "Cancel missile launch", 
-                        DialogBase.DialogImportance.CRITICAL
+                        DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "$(Aye aye|Got it) - cancelling missile launch", 
-                            DialogBase.DialogImportance.NORMAL, 
+                            DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
                             "auto_fire_missile_cancel"
@@ -195,19 +195,19 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "Form on target", 
-                        DialogBase.DialogImportance.CRITICAL
+                        DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "$[Sorry - but] form on what target exactly?", 
-                            DialogBase.DialogImportance.HIGH, 
+                            DialogBase.DialogPriority.HIGH, 
                             () => { return String.IsNullOrWhiteSpace(TargetShipData.Description); }
                         )
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             VI_COMMAND_ACK, 
-                            DialogBase.DialogImportance.NORMAL, 
+                            DialogBase.DialogPriority.NORMAL, 
                             () => { return (PlayerShipData.Autopilot != PlayerShipData.AutopilotState.FORM_ON_TARGET); },
                             this.Name, 
                             "form_on_target"
@@ -216,7 +216,7 @@ namespace ShipSystemControl
                     new DialogTreeBranch(
                         new DialogVI(
                             "I'm already on it", 
-                            DialogBase.DialogImportance.NORMAL, 
+                            DialogBase.DialogPriority.NORMAL, 
                             () => { return (PlayerShipData.Autopilot == PlayerShipData.AutopilotState.FORM_ON_TARGET); }
                         )
                     )
@@ -225,12 +225,12 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "Break the formation", 
-                        DialogBase.DialogImportance.CRITICAL
+                        DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "Breaking formation", 
-                            DialogBase.DialogImportance.NORMAL, 
+                            DialogBase.DialogPriority.NORMAL, 
                             () => { return (PlayerShipData.Autopilot == PlayerShipData.AutopilotState.FORM_ON_TARGET); },
                             this.Name, 
                             "form_on_target"
@@ -265,19 +265,19 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "Manual control", 
-                        DialogBase.DialogImportance.CRITICAL
+                        DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             String.Format("You already are in control $[, {0}]", VI.PlayerPhoneticName), 
-                            DialogBase.DialogImportance.NORMAL, 
+                            DialogBase.DialogPriority.NORMAL, 
                             () => { return (PlayerShipData.Autopilot == PlayerShipData.AutopilotState.OFF); }
                         )
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             String.Format("You have the controls;Passing controls back to you $[, {0}]", VI.PlayerPhoneticName),
-                            DialogBase.DialogImportance.NORMAL, 
+                            DialogBase.DialogPriority.NORMAL, 
                             () => { return (PlayerShipData.Autopilot != PlayerShipData.AutopilotState.OFF); },
                             this.Name, 
                             "autopilot_off"
@@ -290,26 +290,26 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "Initiate $[fulcrum ]jump", 
-                        DialogBase.DialogImportance.CRITICAL
+                        DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "I wouldn't jump from within a planet's atmosphere", 
-                            DialogBase.DialogImportance.VERY_HIGH, 
+                            DialogBase.DialogPriority.VERY_HIGH, 
                             () => { return playerIsInAtmosphere; }
                         )
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "$[Sorry - but] $(we're unable|we don't have enough energy) to jump", 
-                            DialogBase.DialogImportance.NORMAL, 
+                            DialogBase.DialogPriority.NORMAL, 
                             () => { return (PlayerShipData.EnergyLevel < 100); }
                         )
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             VI_COMMAND_ACK, 
-                            DialogBase.DialogImportance.NORMAL, 
+                            DialogBase.DialogPriority.NORMAL, 
                             () => { return (PlayerShipData.EnergyLevel >= 100); }, 
                             this.Name, 
                             "jump"
@@ -320,12 +320,12 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "$[Initiate ]auto-jump;Jump $(as soon as possible|asap)", 
-                        DialogBase.DialogImportance.CRITICAL
+                        DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             VI_COMMAND_ACK + " - I'll jump when possible", 
-                            DialogBase.DialogImportance.NORMAL, 
+                            DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
                             "auto_jump"
@@ -336,19 +336,19 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "$[Initiate ]emergency jump;Get $(me|us) out of here", 
-                        DialogBase.DialogImportance.CRITICAL
+                        DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "We need to get out of the atmosphere first!", 
-                            DialogBase.DialogImportance.VERY_HIGH, 
+                            DialogBase.DialogPriority.VERY_HIGH, 
                             () => { return playerIsInAtmosphere; }
                         )
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             VI_COMMAND_ACK + " - let's get out of here!", 
-                            DialogBase.DialogImportance.HIGH, 
+                            DialogBase.DialogPriority.HIGH, 
                             () => { return (PlayerShipData.EnergyLevel <= 60); }, 
                             this.Name, 
                             "emergency_jump"
@@ -357,7 +357,7 @@ namespace ShipSystemControl
                     new DialogTreeBranch(
                         new DialogVI(
                             VI_COMMAND_ACK, 
-                            DialogBase.DialogImportance.NORMAL, 
+                            DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
                             "emergency_jump"
@@ -366,11 +366,11 @@ namespace ShipSystemControl
                 ),
 
                 new DialogTreeBranch(
-                    new DialogPlayer("Cancel $[auto-]jump", DialogBase.DialogImportance.CRITICAL),
+                    new DialogPlayer("Cancel $[auto-]jump", DialogBase.DialogPriority.CRITICAL),
                     new DialogTreeBranch(
                         new DialogVI(
                             VI_COMMAND_ACK + " - Cancelling jump;Jump cancelled", 
-                            DialogBase.DialogImportance.NORMAL, 
+                            DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
                             "auto_jump_cancel"
@@ -383,12 +383,12 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "Full Stop", 
-                        DialogBase.DialogImportance.CRITICAL
+                        DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "$[Aye aye -|Got it -] Full stop", 
-                            DialogBase.DialogImportance.NORMAL, 
+                            DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
                             "full_stop"
@@ -399,11 +399,11 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "$[Set ]IDS $[Multiplier|Factor ]to $(1|2|3|4|5)", 
-                        DialogBase.DialogImportance.CRITICAL
+                        DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI("$(Aye aye|Got it)", 
-                            DialogBase.DialogImportance.NORMAL, 
+                            DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
                             "set_ids_multiplier"
@@ -416,13 +416,13 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "Open navigation console",
-                        DialogBase.DialogImportance.CRITICAL,
+                        DialogBase.DialogPriority.CRITICAL,
                         () => { return (HudData.NavigationConsole == OnOffState.OFF); }
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "Aye aye",
-                            DialogBase.DialogImportance.NORMAL,
+                            DialogBase.DialogPriority.NORMAL,
                             null, 
                             this.Name,
                             "toggle_nav_console"
@@ -433,13 +433,13 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "Close navigation console", 
-                        DialogBase.DialogImportance.CRITICAL,
+                        DialogBase.DialogPriority.CRITICAL,
                         () => { return (HudData.NavigationConsole == OnOffState.ON); }
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "Aye aye",
-                            DialogBase.DialogImportance.NORMAL,
+                            DialogBase.DialogPriority.NORMAL,
                             null,
                             this.Name, 
                             "toggle_nav_console"
@@ -450,13 +450,13 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "Open build console",
-                        DialogBase.DialogImportance.CRITICAL,
+                        DialogBase.DialogPriority.CRITICAL,
                         () => { return ((GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) && HudData.BuildConsole == OnOffState.OFF); }
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "Aye aye",
-                            DialogBase.DialogImportance.NORMAL,
+                            DialogBase.DialogPriority.NORMAL,
                             null,
                             this.Name,
                             "toggle_build_console"
@@ -467,13 +467,13 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "Close build console",
-                        DialogBase.DialogImportance.CRITICAL, 
+                        DialogBase.DialogPriority.CRITICAL, 
                         () => { return ((GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) && HudData.BuildConsole == OnOffState.ON); }
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "Aye aye",
-                            DialogBase.DialogImportance.NORMAL, 
+                            DialogBase.DialogPriority.NORMAL, 
                             null,
                             this.Name,
                             "toggle_build_console"
@@ -484,13 +484,13 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "Open inventory console",
-                        DialogBase.DialogImportance.CRITICAL, 
+                        DialogBase.DialogPriority.CRITICAL, 
                         () => { return (HudData.InventoryConsole == OnOffState.OFF); }
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "Aye aye",
-                            DialogBase.DialogImportance.NORMAL,
+                            DialogBase.DialogPriority.NORMAL,
                             null,
                             this.Name, 
                             "toggle_inventory_console"
@@ -501,13 +501,13 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "Close inventory console",
-                        DialogBase.DialogImportance.CRITICAL, 
+                        DialogBase.DialogPriority.CRITICAL, 
                         () => { return (HudData.InventoryConsole == OnOffState.ON); }
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "Aye aye",
-                            DialogBase.DialogImportance.NORMAL, 
+                            DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
                             "toggle_inventory_console"
@@ -518,12 +518,12 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "Open trade console", 
-                        DialogBase.DialogImportance.CRITICAL, 
+                        DialogBase.DialogPriority.CRITICAL, 
                         () => { return (HudData.TradeConsole == OnOffState.OFF); }
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "Aye aye", DialogBase.DialogImportance.NORMAL, 
+                            "Aye aye", DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
                             "toggle_trade_console"
@@ -534,12 +534,12 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "Close trade console", 
-                        DialogBase.DialogImportance.CRITICAL, 
+                        DialogBase.DialogPriority.CRITICAL, 
                         () => { return (HudData.TradeConsole == OnOffState.ON); }
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "Aye aye", DialogBase.DialogImportance.NORMAL, 
+                            "Aye aye", DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
                             "toggle_trade_console"
@@ -552,12 +552,12 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "$(Switch to|Display) $(partial|full) HUD;Set Hud to $(partial|full) $[mode]",
-                        DialogBase.DialogImportance.CRITICAL
+                        DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "Aye aye",
-                            DialogBase.DialogImportance.NORMAL,
+                            DialogBase.DialogPriority.NORMAL,
                             null, 
                             this.Name,
                             "toggle_HUD"
@@ -568,13 +568,13 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "Disable HUD;Turn off the HUD",
-                        DialogBase.DialogImportance.CRITICAL,
+                        DialogBase.DialogPriority.CRITICAL,
                         () => { return (HudData.Hud != HudData.HudStatus.OFF); }
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "Aye aye",
-                            DialogBase.DialogImportance.NORMAL,
+                            DialogBase.DialogPriority.NORMAL,
                             null, 
                             this.Name,
                             "disable_HUD"
@@ -587,21 +587,22 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "$(Damage|Status|Ship Status) Report;Ship Status",
-                        DialogBase.DialogImportance.CRITICAL
+                        DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "Aye aye", 
-                            DialogBase.DialogImportance.NORMAL, 
+                            DialogBase.DialogPriority.NORMAL, 
                             null, 
                             null,
                             null,
+                            DialogBase.DialogFlags.NONE,
                             true
                         ),
                         new DialogTreeBranch(
                             new DialogCommand(
                                 "Status Report",
-                                DialogBase.DialogImportance.NORMAL,
+                                DialogBase.DialogPriority.NORMAL,
                                 null,
                                 this.Name,
                                 "status_report"
@@ -613,19 +614,19 @@ namespace ShipSystemControl
                 new DialogTreeBranch(
                     new DialogPlayer(
                         "Target Status", 
-                        DialogBase.DialogImportance.CRITICAL
+                        DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "Aye aye", 
-                            DialogBase.DialogImportance.NORMAL, 
+                            DialogBase.DialogPriority.NORMAL, 
                             () => { return !String.IsNullOrWhiteSpace(TargetShipData.Description); }, this.Name, "target_status"
                         )
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
                             "No target selected",
-                            DialogBase.DialogImportance.NORMAL,
+                            DialogBase.DialogPriority.NORMAL,
                             () => { return String.IsNullOrWhiteSpace(TargetShipData.Description); }
                         )
                     )

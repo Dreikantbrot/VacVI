@@ -180,7 +180,7 @@ namespace EvoVI.Engine
 
         #region Event Handlers
         /// <summary> Fires, when a voice command has been recognized.
-        /// <para>This is called after the plugin functions.</para>
+        /// <para>This is called after the plugin functions and player dialog node recognition.</para>
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The speech recognition engine's event arguments.</param>
@@ -192,9 +192,8 @@ namespace EvoVI.Engine
                 VI.LastMisunderstoodDialogNode = null;
                 VI.LastRecognizedGrammar = null;
 
-                // Disable command repeater plugin dialog, in case it was active but ignored by the user
-                EvoVI.PluginContracts.IPlugin crPlugin = PluginManager.GetPlugin("Command Repeater");
-                if (crPlugin != null) { ((EvoVI.Plugins.InternalPlugins.CommandRepeater)crPlugin).ToggleOnOff(false); }
+                // Update dialog states to disable Command Repeater plugin
+                if (PluginManager.GetPlugin("Command Repeater") != null) { DialogTreeBuilder.UpdateReadyNodes(); }
 
                 // Say("I recognized you say: " + e.Result.Text + " - I am to " + Math.Floor(e.Result.Confidence * 100) + "% certain of that.");
             }
@@ -210,17 +209,16 @@ namespace EvoVI.Engine
             for (int i = 0; i < e.Result.Alternates.Count; i++)
             {
                 RecognizedPhrase currAlternative = e.Result.Alternates[i];
-                if (currAlternative.Confidence >= _confidenceThreshold)
+                if (currAlternative.Confidence >= 0.15f)
                 {
                     VI.LastRecognizedGrammar = e.Result.Grammar;
                     VI.LastMisunderstoodDialogNode = DialogTreeBuilder.GetPlayerDialog(e.Result.Grammar);
-                    
-                    // Enable command repeater plugin dialog
-                    EvoVI.PluginContracts.IPlugin crPlugin = PluginManager.GetPlugin("Command Repeater");
-                    if (crPlugin != null)
+
+                    // Update dialog states to enable Command Repeater plugin
+                    if (PluginManager.GetPlugin("Command Repeater") != null)
                     {
                         Say(String.Format(EvoVI.Properties.StringTable.DID_NOT_UNDERSTAND_DID_YOU_MEAN, e.Result.Alternates[i].Text));
-                        ((EvoVI.Plugins.InternalPlugins.CommandRepeater)crPlugin).ToggleOnOff(true);
+                        DialogTreeBuilder.UpdateReadyNodes();
                     }
                     break;
                 }
@@ -298,7 +296,7 @@ namespace EvoVI.Engine
                 (String.IsNullOrWhiteSpace(dialogNode.Text)) ||
                 (
                     (VI.State <= VI.VIState.SLEEPING) &&
-                    (dialogNode.Importance < DialogBase.DialogImportance.CRITICAL)
+                    (dialogNode.Priority < DialogBase.DialogPriority.CRITICAL)
                 )
             )
             { return; }

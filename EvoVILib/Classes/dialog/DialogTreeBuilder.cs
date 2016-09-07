@@ -31,8 +31,9 @@ namespace EvoVI.Classes.Dialog
     public static class DialogTreeBuilder
     {
         #region Variables
-        public static DialogBase RootDialogNode = new DialogBase();
+        public static DialogBase RootDialogNode = new DialogBase(" ", DialogBase.DialogPriority.VERY_LOW, null, null, null, (DialogBase.DialogFlags.IGNORE_VI_STATE | DialogBase.DialogFlags.INGORE_READY_STATE));
         private static Dictionary<string, DialogPlayer> _grammarLookupTable = new Dictionary<string, DialogPlayer>();
+        private static List<DialogBase> _dialogNodes = new List<DialogBase>();
         #endregion
 
 
@@ -60,7 +61,17 @@ namespace EvoVI.Classes.Dialog
                         break;
                 }
 
+                _dialogNodes.Add(currStruct._node);
                 BuildDialogTree(currStruct._node, currStruct._children);
+            }
+        }
+
+
+        public static void UpdateReadyNodes()
+        {
+            for (int i = 0; i < _dialogNodes.Count; i++)
+            {
+                if (_dialogNodes[i].IsReady) { _dialogNodes[i].UpdateState(); }
             }
         }
 

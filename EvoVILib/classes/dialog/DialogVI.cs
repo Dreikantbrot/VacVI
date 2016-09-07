@@ -54,13 +54,22 @@ namespace EvoVI.Classes.Dialog
         /// <para>This node is triggered automatically, as soon as it is active.</para>
         /// </summary>
         /// <param name="pText">The text for the VI to say (see dialog text syntax).</param>
-        /// <param name="pImportance">The importance this node has over others.</param>
+        /// <param name="pPriority">The node's priority.</param>
         /// <param name="pConditionFunction">The delegate function that checks for the fullfillment of the dialog node's condition.</param>
         /// <param name="pPluginToStart">The name of the plugin to start, when triggered.</param>
         /// <param name="pData">An object containing custom, user-defined data.</param>
+        /// <param name="pFlags">The behaviour-flags, modifying the node's behaviour.</param>
         /// <param name="pWaituntilFinished">If set to true, the plugin will start after the text has been spoken, else it will be run asynchonously.</param>
-        public DialogVI(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, System.Func<bool> pConditionFunction = null, string pPluginToStart = null, object pData = null, bool pWaituntilFinished = false) :
-            base(pText, pImportance, pConditionFunction, pPluginToStart, pData)
+        public DialogVI(
+            string pText = " ",
+            DialogPriority pPriority = DialogPriority.NORMAL,
+            System.Func<bool> pConditionFunction = null,
+            string pPluginToStart = null,
+            object pData = null,
+            DialogFlags pFlags = DialogFlags.NONE,
+            bool pWaituntilFinished = false
+        ) :
+            base(pText, pPriority, pConditionFunction, pPluginToStart, pData, pFlags)
         {
             this._speaker = DialogSpeaker.VI;
             this._waitUntilFinished = pWaituntilFinished;
@@ -126,8 +135,8 @@ namespace EvoVI.Classes.Dialog
         {
             base.SetActive();
             
-            // Auto-trigger when active
-            Trigger();
+            // Auto-trigger if active
+            if (IsActive) { Trigger(); }
         }
 
 
@@ -137,6 +146,8 @@ namespace EvoVI.Classes.Dialog
         {
             SpeechEngine.Say(this, !_waitUntilFinished);
             base.Trigger();
+
+            // Next node is being selected via the onSpeechFinished event handler
         }
         #endregion
     }

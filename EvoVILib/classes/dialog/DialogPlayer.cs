@@ -110,19 +110,11 @@ namespace EvoVI.Classes.Dialog
         }
 
 
-        /// <summary> Returns whether a node is ready and can be triggered.
-        /// </summary>
-        public override bool IsReady
-        {
-            get { return anyGrammarActive; }
-        }
-
-
         /// <summary> Returns or sets whether the dialog node is disabled or not.
         /// </summary>
         public override bool Disabled
         {
-            get { return _disabled; }
+            get { return _disabled || !anyGrammarActive; }
             set { _disabled = value; UpdateState(); }
         }
         #endregion
@@ -256,12 +248,20 @@ namespace EvoVI.Classes.Dialog
         /// <para>This node is only triggered, if a valid phrase has been recognized.</para>
         /// </summary>
         /// <param name="pText">The text to say (see dialog text syntax).</param>
-        /// <param name="pImportance">The importance this node has over others.</param>
+        /// <param name="pPriority">The node's priority.</param>
         /// <param name="pConditionFunction">The delegate function that checks for the fullfillment of the dialog node's condition.</param>
         /// <param name="pPluginToStart">The name of the plugin to start, when triggered.</param>
         /// <param name="pData">An object containing custom, user-defined data.</param>
-        public DialogPlayer(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, System.Func<bool> pConditionFunction = null, string pPluginToStart = null, object pData = null) :
-            base(pText, pImportance, pConditionFunction, pPluginToStart, pData)
+        /// <param name="pFlags">The behaviour-flags, modifying the node's behaviour.</param>
+        public DialogPlayer(
+            string pText = " ",
+            DialogPriority pPriority = DialogPriority.NORMAL, 
+            System.Func<bool> pConditionFunction = null, 
+            string pPluginToStart = null,
+            object pData = null,
+            DialogFlags pFlags = DialogFlags.NONE
+        ) :
+            base(pText, pPriority, pConditionFunction, pPluginToStart, pData, pFlags)
         {
             this._speaker = DialogSpeaker.PLAYER;
 
@@ -280,22 +280,18 @@ namespace EvoVI.Classes.Dialog
         {
             if (
                 (
-                    // Node is non-critical and not available
-                    (_importance < DialogImportance.CRITICAL) && 
-                    (_disabled || !this.IsNextInTurn || (VI.State <= VI.VIState.SLEEPING))
-                ) ||
-                (
-                    // Node does not meet it's requirements
-                    (_contitionFunction != null) &&
-                    (!_contitionFunction())
-                )
+                    (IsReady) ||
+                    ((_flags & DialogFlags.INGORE_READY_STATE) == DialogFlags.INGORE_READY_STATE)
+                ) &&
+                (!_disabled) &&
+                (CheckCondition())
             )
             {
-                this.sleep();
+                this.wakeUp();
             }
             else
             {
-                this.wakeUp();
+                this.sleep();
             }
         }
         #endregion

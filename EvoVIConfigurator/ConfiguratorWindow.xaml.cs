@@ -295,13 +295,15 @@ namespace EvoVIConfigurator
             }
             chckBox_Overview_SpeechRecogEngine.Content = "Speech recognition language supported";
 
-            // All plugins are compabtible?
+            // All plugins are compatible?
             bool pluginsCompatible = true;
             foreach(KeyValuePair<string, Dictionary<string, string>> keyal in PluginManager.PluginFile.Sections)
             {
                 if (PluginManager.PluginFile.ValueIsBoolAndTrue(keyal.Key, "Enabled"))
                 {
                     IPlugin currPlugin = PluginManager.GetPlugin(keyal.Key);
+
+                    if (currPlugin == null) { continue; }
 
                     if ((currPlugin.CompatibilityFlags & GameMeta.CurrentGame) != GameMeta.CurrentGame)
                     {

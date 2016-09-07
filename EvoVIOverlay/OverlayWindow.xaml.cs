@@ -443,9 +443,11 @@ namespace EvoVIOverlay
                 DialogBase currChild = parentNode.ChildNodes[i];
 
                 // Is listening mark
-                string listeningMark = currChild.IsReady ? 
-                    "[" + ((currChild.Speaker == DialogBase.DialogSpeaker.PLAYER) ? "!" : "-") + "]" : 
-                    "[ ]";
+                string listeningMark = "[" + (
+                    currChild.Disabled ? "~" : 
+                    currChild.IsReady ? "!" : 
+                    " "
+                ) + "]";
 
                 // Prepare spacing
                 string arrow = (
@@ -455,8 +457,8 @@ namespace EvoVIOverlay
                 );
 
                 string importanceMark = "[";
-                for (DialogBase.DialogImportance u = DialogBase.DialogImportance.VERY_LOW; u < currChild.Importance; u++) { importanceMark += "*"; }
-                for (DialogBase.DialogImportance u = currChild.Importance; u < DialogBase.DialogImportance.CRITICAL; u++) { importanceMark += " "; }
+                for (DialogBase.DialogPriority u = DialogBase.DialogPriority.VERY_LOW; u < currChild.Priority; u++) { importanceMark += "*"; }
+                for (DialogBase.DialogPriority u = currChild.Priority; u < DialogBase.DialogPriority.CRITICAL; u++) { importanceMark += " "; }
                 importanceMark += "]";
 
                 // Prepare "dock"
@@ -464,15 +466,12 @@ namespace EvoVIOverlay
                 dock.Append("|");
                 dock.Append('-', level * 2);
 
-                // Draw "is active" mark
-                if (!currChild.Disabled)
-                {
-                    dialogInfo += "" +
-                        listeningMark + "" +
-                        importanceMark + "" +
-                        arrow + dock + " " +
-                        currChild.Speaker + ": " + currChild.GUIDisplayText + "\n";
-                }
+                dialogInfo += "" +
+                    listeningMark + "" +
+                    importanceMark + "" +
+                    arrow + dock + " " +
+                    currChild.Speaker + ": " + currChild.GUIDisplayText + "\n";
+
                 dialogInfo += buildDialogInfo(currChild, level + 1);
             }
 

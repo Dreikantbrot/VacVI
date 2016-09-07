@@ -27,7 +27,12 @@ namespace EvoVI.Classes.Dialog
 
         /// <summary> The importance of a line of dialog.
         /// </summary>
-        public enum DialogImportance { VERY_LOW=0, LOW=1, NORMAL=2, HIGH=3, VERY_HIGH=4, CRITICAL=5 };
+        public enum DialogPriority { VERY_LOW=0, LOW=1, NORMAL=2, HIGH=3, VERY_HIGH=4, CRITICAL=5 };
+
+        /// <summary> A collection of flags determining the node's behaviour.
+        /// </summary>
+        [Flags]
+        public enum DialogFlags { NONE=0, ALWAYS_UPDATE=1, INGORE_READY_STATE=2, IGNORE_VI_STATE=4 };
         #endregion
 
 
@@ -37,20 +42,21 @@ namespace EvoVI.Classes.Dialog
         protected DialogBase _parentNode;
         protected List<DialogBase> _childNodes;
         protected DialogSpeaker _speaker;
-        protected DialogImportance _importance;
+        protected DialogPriority _priority;
         protected string _pluginToStart;
-        protected Func<bool> _contitionFunction;
+        protected Func<bool> _conditionFunction;
         protected object _data;
+        protected DialogFlags _flags;
         #endregion
 
 
         #region Properties
         /// <summary> Returns or sets the line's importance.
         /// </summary>
-        public DialogImportance Importance
+        public DialogPriority Priority
         {
-            get { return _importance; }
-            set { _importance = value; }
+            get { return _priority; }
+            set { _priority = value; }
         }
 
 
@@ -103,11 +109,53 @@ namespace EvoVI.Classes.Dialog
         }
 
 
-        /// <summary> Returns whether a node is ready and can be triggered.
+        /// <summary> Returns or sets the delegate function that checks for the fullfillment of the dialog node's condition.
+        /// </summary>
+        protected Func<bool> ConditionFunction
+        {
+            get { return _conditionFunction; }
+            set { _conditionFunction = value; }
+        }
+
+
+        /// <summary> Returns or sets the custom data contained within the dialog node.
+        /// </summary>
+        public object Data
+        {
+            get { return _data; }
+            set { _data = value; }
+        }
+
+
+        /// <summary> Returns or sets the dialog node's behaviour flags.
+        /// </summary>
+        protected DialogFlags Flags
+        {
+            get { return _flags; }
+            set { _flags = value; }
+        }
+
+
+        /// <summary> Returns whether a node is ready and can be activated or triggered.
         /// </summary>
         public virtual bool IsReady
         {
-            get { return true; }
+            get
+            {
+                return (
+                    (
+                        (VI.State > VI.VIState.SLEEPING) ||
+                        ((_flags & DialogFlags.IGNORE_VI_STATE) == DialogFlags.IGNORE_VI_STATE)
+                    ) &&
+                    (
+                        (IsActive || IsNextInTurn) ||
+                        (
+                            (_priority >= DialogPriority.CRITICAL) ||
+                            ((_flags & DialogFlags.INGORE_READY_STATE) == DialogFlags.INGORE_READY_STATE)
+                        )
+                    )
+                ); 
+            }
         }
 
 
@@ -139,24 +187,6 @@ namespace EvoVI.Classes.Dialog
         {
             get { return this._text; }
         }
-
-
-        /// <summary> Returns or sets the delegate function that checks for the fullfillment of the dialog node's condition.
-        /// </summary>
-        protected Func<bool> ContitionFunction
-        {
-            get { return _contitionFunction; }
-            set { _contitionFunction = value; }
-        }
-
-
-        /// <summary> Returns or sets the custom data contained within the dialog node.
-        /// </summary>
-        public object Data
-        {
-            get { return _data; }
-            set { _data = value; }
-        }
         #endregion
 
 
@@ -164,17 +194,26 @@ namespace EvoVI.Classes.Dialog
         /// <summary> Creates a new instance for a node within a dialog tree.
         /// </summary>
         /// <param name="pText">The text to be spoken by the VI.</param>
-        /// <param name="pImportance">The importance this node has over others.</param>
+        /// <param name="pPriority">The node's priority.</param>
         /// <param name="pConditionFunction">The delegate function that checks for the fullfillment of the dialog node's condition.</param>
         /// <param name="pPluginToStart">The name of the plugin to start, when triggered.</param>
         /// <param name="pData">An object containing custom, user-defined data.</param>
-        public DialogBase(string pText = " ", DialogImportance pImportance = DialogImportance.NORMAL, Func<bool> pConditionFunction = null, string pPluginToStart = null, object pData = null)
+        /// <param name="pFlags">The behaviour-flags, modifying the node's behaviour.</param>
+        public DialogBase(
+            string pText = " ",
+            DialogPriority pPriority = DialogPriority.NORMAL,
+            Func<bool> pConditionFunction = null,
+            string pPluginToStart = null,
+            object pData = null,
+            DialogFlags pFlags = DialogFlags.NONE
+        )
         {
             this._text = pText;
-            this._importance = pImportance;
+            this._priority = pPriority;
             this._pluginToStart = pPluginToStart;
             this._data = pData;
-            this._contitionFunction = pConditionFunction;
+            this._conditionFunction = pConditionFunction;
+            this._flags = pFlags;
 
             this._disabled = false;
             this._speaker = DialogSpeaker.NULL;
@@ -216,46 +255,51 @@ namespace EvoVI.Classes.Dialog
         }
 
 
+        /// <summary> Checks whether the node's condition has been fullfilled.
+        /// </summary>
+        /// <returns>Whether the node's condition has been fullfilled</returns>
+        public bool CheckCondition()
+        {
+            return (
+                (_conditionFunction == null) ||
+                (_conditionFunction())
+            );
+        }
+
+
         /// <summary> Finds and activates the next node within the dialog tree.
         /// </summary>
         public void NextNode()
         {
-            if (
-                (!this.IsActive) ||
-                (
-                    (VI.State <= VI.VIState.SLEEPING) &&
-                    (_importance < DialogImportance.CRITICAL)
-                )
-            )
-            { return; }
+            if (!IsActive) { return; }
 
             List<DialogBase> candidatePhrases = new List<DialogBase>();
 
-            // Collect candidate phrases and determine highest priority
-            DialogImportance highestPriority = DialogImportance.VERY_LOW;
+            /* Collect candidate phrases and determine highest priority */
+            DialogPriority highestPriority = DialogPriority.VERY_LOW;
             for (int i = 0; i < _childNodes.Count; i++)
             {
                 // Filter disabled nodes or nodes that already do not meet the maximum importance or their condition
                 if (
                     (_childNodes[i].Disabled) ||
-                    (_childNodes[i].Importance < highestPriority) ||
-                    (
-                        (_childNodes[i]._contitionFunction != null) &&
-                        (!_childNodes[i]._contitionFunction())
-                    )
+                    (_childNodes[i].Priority < highestPriority) ||
+                    (!_childNodes[i].IsReady) ||
+                    (!_childNodes[i].CheckCondition())
                 )
                 { continue; }
 
                 // Update highest priority
-                if (_childNodes[i].Importance > highestPriority) { highestPriority = _childNodes[i].Importance; }
+                if (_childNodes[i].Priority > highestPriority) { highestPriority = _childNodes[i].Priority; }
 
                 candidatePhrases.Add(_childNodes[i]);
             }
 
-            // Filter out the rest of the collected nodes by importance
-            for (int i = 0; i < candidatePhrases.Count; i++) { if (candidatePhrases[i].Importance < highestPriority) candidatePhrases.RemoveAt(i); }
 
-            // Filter out mixed types - go by dominant type
+            /* Filter out the rest of the collected nodes by importance */
+            for (int i = 0; i < candidatePhrases.Count; i++) { if (candidatePhrases[i].Priority < highestPriority) candidatePhrases.RemoveAt(i); }
+
+
+            /* Filter out mixed types - go by dominant type */
             Dictionary<DialogSpeaker, int> typeDominance = new Dictionary<DialogSpeaker, int>();
             for (int i = 0; i < candidatePhrases.Count; i++)
             {
@@ -281,7 +325,8 @@ namespace EvoVI.Classes.Dialog
             }
             for (int i = 0; i < candidatePhrases.Count; i++) { if (candidatePhrases[i].Speaker != dominantType) candidatePhrases.RemoveAt(i); }
 
-            // Only set next node active if NOT waiting for player input
+
+            /* Only set next node active if NOT waiting for player input */
             if (dominantType != DialogSpeaker.PLAYER)
             {
                 // Select a winner phrase
@@ -306,28 +351,12 @@ namespace EvoVI.Classes.Dialog
         /// </summary>
         public virtual void SetActive()
         {
-            if (
-                (VI.State <= VI.VIState.SLEEPING) &&
-                (_importance < DialogImportance.CRITICAL)
-            )
-            { return; }
+            if (!IsReady) { return; }
 
             VI.PreviousDialogNode = VI.CurrentDialogNode;
             VI.CurrentDialogNode = this;
 
-            // Update status of the previous dialog node + siblings (in case it programatically jumped somewhere completely different)
-            for (int i = 0; i < VI.PreviousDialogNode.ChildNodes.Count; i++) { VI.PreviousDialogNode.ChildNodes[i].UpdateState(); }
-            if (VI.PreviousDialogNode.ParentNode != null)
-            {
-                for (int i = 0; i < VI.PreviousDialogNode.ParentNode.ChildNodes.Count; i++) { VI.PreviousDialogNode.ParentNode.ChildNodes[i].UpdateState(); }
-            }
-
-            // Update status of the current dialog node + siblings
-            for (int i = 0; i < _childNodes.Count; i++) { _childNodes[i].UpdateState(); }
-            if (_parentNode != null)
-            {
-                for (int i = 0; i < _parentNode._childNodes.Count; i++) { _parentNode._childNodes[i].UpdateState(); }
-            }
+            DialogTreeBuilder.UpdateReadyNodes();
         }
 
 
@@ -335,11 +364,7 @@ namespace EvoVI.Classes.Dialog
         /// </summary>
         public virtual void Trigger()
         {
-            if (
-                (VI.State <= VI.VIState.SLEEPING) &&
-                (_importance < DialogImportance.CRITICAL)
-            )
-            { return; }
+            if (!IsReady) { return; }
 
             IPlugin plugin = PluginManager.GetPlugin(_pluginToStart);
             VI.CurrCommand = plugin;
