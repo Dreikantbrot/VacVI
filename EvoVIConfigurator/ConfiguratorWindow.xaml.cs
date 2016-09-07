@@ -97,6 +97,10 @@ namespace EvoVIConfigurator
         #region Variables
         private Label lbl_noParamsToConfigure;
         private List<Key> keyDowns = new List<Key>();
+
+        private System.Windows.Media.Imaging.BitmapImage _imgEvochronMercenary = new System.Windows.Media.Imaging.BitmapImage(new Uri(@"Resources/EvochronMercenary.png", UriKind.RelativeOrAbsolute));
+        private System.Windows.Media.Imaging.BitmapImage _imgEvochronLegacy = new System.Windows.Media.Imaging.BitmapImage(new Uri(@"Resources/EvochronLegacy.png", UriKind.RelativeOrAbsolute));
+        private System.Windows.Media.Imaging.BitmapImage _imgLogo_VI = new System.Windows.Media.Imaging.BitmapImage(new Uri(@"Resources/Logo_VI.png", UriKind.RelativeOrAbsolute));
         #endregion
 
 
@@ -254,13 +258,15 @@ namespace EvoVIConfigurator
                 verifyInstallDir() ? CheckBoxColorState.OKAY : CheckBoxColorState.ERROR
             );
             chckBox_Overview_InstallDirValid.Content = "Installation path valid";
+            lbl_Overview_InstallDirValid_Hints.Visibility = (chckBox_Overview_InstallDirValid.IsChecked == true) ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
 
             // SW3DG directory is present?
             setCheckboxColor(
                 chckBox_Overview_SW3DGDir,
-                Directory.Exists(GameMeta.DEFAULT_SAVEDATA_PATH) ? CheckBoxColorState.OKAY : CheckBoxColorState.ERROR
+                Directory.Exists(GameMeta.DefaultGameSettingsDirectoryPath) ? CheckBoxColorState.OKAY : CheckBoxColorState.ERROR
             );
-            chckBox_Overview_SW3DGDir.Content = "SW3DG directory (" + GameMeta.DEFAULT_SAVEDATA_PATH + ") available";
+            chckBox_Overview_SW3DGDir.Content = "SW3DG game directory (" + GameMeta.DefaultGameSettingsDirectoryPath + ") available";
+            lbl_Overview_SW3DGDir_Hints.Visibility = (chckBox_Overview_SW3DGDir.IsChecked == true) ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
 
             // Savedatasettings.txt has been created?
             setCheckboxColor(
@@ -268,6 +274,7 @@ namespace EvoVIConfigurator
                 File.Exists(GameMeta.CurrentSaveDataSettingsTextFilePath) ? CheckBoxColorState.OKAY : CheckBoxColorState.WARNING
             );
             chckBox_Overview_Savedatatextssettings.Content = "\"SavedataSettings.txt\" found in \"" + GameMeta.CurrentGameDirectoryPath + "\"";
+            lbl_Overview_Savedatatextssettings_Hints.Visibility = (chckBox_Overview_Savedatatextssettings.IsChecked == true) ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
 
             // Speech recognition engine available?
             try
@@ -282,6 +289,7 @@ namespace EvoVIConfigurator
                 setCheckboxColor(chckBox_Overview_SpeechRecogEngine, CheckBoxColorState.ERROR);
             }
             chckBox_Overview_SpeechRecogEngine.Content = "Speech recognition language supported";
+            lbl_Overview_SpeechRecogEngine_Hints.Visibility = (chckBox_Overview_SpeechRecogEngine.IsChecked == true) ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
 
             // All plugins are compatible?
             bool pluginsCompatible = true;
@@ -305,6 +313,7 @@ namespace EvoVIConfigurator
                 pluginsCompatible ? CheckBoxColorState.OKAY : CheckBoxColorState.WARNING
             );
             chckBox_Overview_PluginsCompatible.Content = "All plugins compatible with selected game";
+            lbl_Overview_PluginsCompatible_Hints.Visibility = (chckBox_Overview_PluginsCompatible.IsChecked == true) ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
         }
 
 
@@ -348,6 +357,11 @@ namespace EvoVIConfigurator
 
             ConfigurationManager.ConfigurationFile.SetValue(ConfigurationManager.SECTION_GAME, "Current_Game", newItemGame.Value.ToString());
             txt_InstallDir.Text = ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_FILEPATHS, newItemGame.Value.ToString());
+            img_currentGame.Source = (
+                (GameMeta.CurrentGame == GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (ImageSource)_imgEvochronMercenary :
+                (GameMeta.CurrentGame == GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (ImageSource)_imgEvochronLegacy :
+                (ImageSource)_imgLogo_VI
+            );
         }
 
 

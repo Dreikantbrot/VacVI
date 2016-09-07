@@ -83,6 +83,26 @@ namespace EvoVIConfigurator.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap EvochronLegacy {
+            get {
+                object obj = ResourceManager.GetObject("EvochronLegacy", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap EvochronMercenary {
+            get {
+                object obj = ResourceManager.GetObject("EvochronMercenary", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap EvoVIConfigurator_Background {
             get {
                 object obj = ResourceManager.GetObject("EvoVIConfigurator_Background", resourceCulture);

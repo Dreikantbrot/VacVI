@@ -358,8 +358,11 @@ namespace EvoVI.Database
         public static void LoadKeymap()
         {
             /* Assign the scancodes to each keymap */
-            string[] configFile = File.ReadAllLines(GameMeta.DefaultKeymapFilePath);
+            string[] configFile;
             int currScancodeIndex = 0;
+
+            try { configFile = File.ReadAllLines(GameMeta.DefaultKeymapFilePath); }
+            catch (IOException) { return; }
             
             foreach(KeyValuePair<GameAction, ActionDetail> typeAction in _gameActions)
             {

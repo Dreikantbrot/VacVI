@@ -9,9 +9,9 @@
         <TabItem x:Name="tab_Overview_Label" Header="Overview" Background="{Binding Background, ElementName=tab_Config_Label}" Margin="0" HorizontalAlignment="Left" Width="100" Foreground="Black" GotFocus="tab_Overview_Label_GotFocus">
             <Grid x:Name="tab_Overview" Background="#00E5E5E5" Margin="0,5">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="210*"/>
-                    <RowDefinition Height="210*"/>
-                    <RowDefinition Height="63*"/>
+                    <RowDefinition Height="170"/>
+                    <RowDefinition Height="133*"/>
+                    <RowDefinition Height="24*"/>
                 </Grid.RowDefinitions>
                 <Button x:Name="btn_StartGame" Content="Start Game" Margin="0,0,10,10" BorderBrush="#FF3C6C8D" Background="#BF66BFF1" Padding="0" FontWeight="Bold" HorizontalAlignment="Right" Width="120" Grid.Row="2" Height="26" VerticalAlignment="Bottom">
                     <Button.Foreground>
@@ -28,16 +28,45 @@
                         </EventTrigger>
                     </Button.Triggers>
                 </Button>
-                <GroupBox Header="Checklist" Margin="10,25" Background="#33FFFFFF" Foreground="White" FontWeight="Bold" Grid.Row="1">
-                    <Grid Margin="0" VerticalAlignment="Center">
-                        <CheckBox x:Name="chckBox_Overview_InstallDirValid" Content="&lt; Install Directory is valid &gt;" HorizontalAlignment="Left" Margin="10,10,0,10" VerticalAlignment="Top" FontSize="14" Background="White" Foreground="White" BorderThickness="2" Focusable="False" IsHitTestVisible="False" ToolTip="valid?"/>
-                        <CheckBox x:Name="chckBox_Overview_SW3DGDir" Content="&lt; SW3DG Directory is present &gt;" HorizontalAlignment="Left" Margin="10,33,0,10" VerticalAlignment="Top" FontSize="14" Background="White" Foreground="White" BorderThickness="2" Focusable="False" IsHitTestVisible="False"/>
-                        <CheckBox x:Name="chckBox_Overview_Savedatatextssettings" Content="&lt; Savedatasettings.txt file is present &gt;" HorizontalAlignment="Left" Margin="10,56,0,10" VerticalAlignment="Top" FontSize="14" Background="White" Foreground="White" BorderThickness="2" Focusable="False" IsHitTestVisible="False"/>
-                        <CheckBox x:Name="chckBox_Overview_SpeechRecogEngine" Content="&lt; Speech Recognition language is supported &gt;" HorizontalAlignment="Left" Margin="10,79,0,10" VerticalAlignment="Top" FontSize="14" Background="White" Foreground="White" BorderThickness="2" Focusable="False" IsHitTestVisible="False"/>
-                        <CheckBox x:Name="chckBox_Overview_PluginsCompatible" Content="&lt; Plugins are compatible with the game &gt;" HorizontalAlignment="Left" Margin="10,102,0,10" VerticalAlignment="Top" FontSize="14" Background="White" Foreground="White" BorderThickness="2" Focusable="False" IsHitTestVisible="False"/>
-                    </Grid>
+                <GroupBox Header="Checklist" Margin="10,20" Background="#33FFFFFF" Foreground="White" FontWeight="Bold" Grid.Row="1">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="8,5,3,3">
+                        <StackPanel Margin="0" VerticalAlignment="Center">
+                            <CheckBox x:Name="chckBox_Overview_InstallDirValid" Content="&lt; Install Directory is valid &gt;"                  HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="14" Background="White" Foreground="White" BorderThickness="2" Focusable="False" IsHitTestVisible="False" Margin="5,8,5,0"/>
+                            <TextBox x:Name="lbl_Overview_InstallDirValid_Hints" IsHitTestVisible="False" IsReadOnly="True" Focusable="False" Padding="3" Margin="40,5,0,10" VerticalAlignment="Top" FontSize="10" Foreground="WhiteSmoke" Background="#549FD3F1" BorderBrush="#FF9FB9F1" BorderThickness="1,1,0,1" Visibility="Collapsed"
+                                 xml:space="default"
+                                     Text="The installation directory is not set. Without it, additional information all around the lore of the game cannot be loaded.&#x0a;To fix this, please select the appropriate installation directory under the &quot;Configuration&quot; tab." TextWrapping="Wrap"
+                            />
+                            <CheckBox x:Name="chckBox_Overview_SW3DGDir" Content="&lt; SW3DG Directory is present &gt;"                         HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="14" Background="White" Foreground="White" BorderThickness="2" Focusable="False" IsHitTestVisible="False" Margin="5,8,5,0"/>
+                            <TextBox x:Name="lbl_Overview_SW3DGDir_Hints" IsHitTestVisible="False" IsReadOnly="True" Focusable="False" Padding="3" Margin="40,5,0,10" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="12" Foreground="WhiteSmoke" Background="#549FD3F1" BorderBrush="#FF9FB9F1" BorderThickness="1,1,0,1" Visibility="Collapsed" Cursor=""
+                                 xml:space="default"
+                                     Text="The specified directory is not available. This folder is needed in order to retrieve the current control scheme and in-game data.&#x0a;Starting the game once should recreate it and resolve this issue."
+                            />
+                            <CheckBox x:Name="chckBox_Overview_Savedatatextssettings" Content="&lt; Savedatasettings.txt file is present &gt;"  HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="14" Background="White" Foreground="White" BorderThickness="2" Focusable="False" IsHitTestVisible="False" Margin="5,8,5,0"/>
+                            <TextBox x:Name="lbl_Overview_Savedatatextssettings_Hints" IsHitTestVisible="False" IsReadOnly="True" Focusable="False" Padding="3" Margin="40,5,0,10" VerticalAlignment="Top" FontSize="12" Foreground="WhiteSmoke" Background="#549FD3F1" BorderBrush="#FF9FB9F1" BorderThickness="1,1,0,1" Visibility="Collapsed"
+                                Text="The savedatasettings.txt file could not be found. Without this file, the game will not output any in-game information, severely restricting the number of tasks the VI can fullfill.&#x0a;Please create a file called &quot;savedatasettings.txt&quot; in your installation folder with an integer value as it's content. The value represents the time in milliseconds in which the ingame data will be output.&#x0a;&#x0a;For this application a value between 100 to 1500  is recommended." TextWrapping="Wrap"
+                            />
+                            <CheckBox x:Name="chckBox_Overview_SpeechRecogEngine" Content="&lt; Speech Recognition language is supported &gt;"  HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="14" Background="White" Foreground="White" BorderThickness="2" Focusable="False" IsHitTestVisible="False" Margin="5,8,5,0"/>
+                            <TextBox x:Name="lbl_Overview_SpeechRecogEngine_Hints" IsHitTestVisible="False" IsReadOnly="True" Focusable="False" Padding="3" Margin="40,5,0,10" VerticalAlignment="Top" FontSize="12" Foreground="WhiteSmoke" Background="#549FD3F1" BorderBrush="#FF9FB9F1" BorderThickness="1,1,0,1" Visibility="Collapsed"
+                                 Text="The language you selected for the VI is not supported by your system.&#x0a;In this case, you either need to change the language or install the additional language pack for windows, containing the appropriate speech recognition language profile." TextWrapping="Wrap"
+                            />
+                            <CheckBox x:Name="chckBox_Overview_PluginsCompatible" Content="&lt; Plugins are compatible with the game &gt;"      HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="14" Background="White" Foreground="White" BorderThickness="2" Focusable="False" IsHitTestVisible="False" Margin="5,8,5,0"/>
+                            <TextBox x:Name="lbl_Overview_PluginsCompatible_Hints" IsHitTestVisible="False" IsReadOnly="True" Focusable="False" Padding="3" Margin="40,5,0,10" VerticalAlignment="Top" FontSize="12" Foreground="WhiteSmoke" Background="#549FD3F1" BorderBrush="#FF9FB9F1" BorderThickness="1,1,0,1" Visibility="Collapsed"
+                                 Text="One or more of the plugins you have chosen are not compatible with the currently set game.&#x0a;You can start the application anyway, but crashes and/or faulty behaviour might occurr.&#x0a;You can see which plugins are currently not supported by going through the list in the &quot;Plugins&quot; tab. A box on the right will read &quot;Not Compatible&quot; if the selected plugin is incompatible." TextWrapping="Wrap"
+                            />
+                        </StackPanel>
+                    </ScrollViewer>
                 </GroupBox>
-                <Image Margin="10"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="56.5*"/>
+                        <ColumnDefinition Width="512"/>
+                        <ColumnDefinition Width="56.5*"/>
+                    </Grid.ColumnDefinitions>
+                    <Image x:Name="img_currentGame" Margin="0,10" Source="Resources/Logo_VI.png" OpacityMask="#E5000000" Grid.Column="1" Height="150" Width="480"/>
+                    <Label Content="Evochron VI" Margin="120,82,10,10" Background="#0071FFF2" Foreground="#7FCBF3FF" FontSize="72" FontWeight="Bold" FontFamily="Segoe UI Black" VerticalContentAlignment="Center" Visibility="Hidden" Grid.Column="1" Grid.ColumnSpan="2"/>
+                    <Image Margin="10,30,5,10" Source="Resources/Logo_VI.png" OpacityMask="#E5000000" Height="130"/>
+                    <Image Margin="5,30,10,10" Source="Resources/Logo_VI.png" OpacityMask="#E5000000" Grid.Column="2"/>
+                </Grid>
                 <Button x:Name="btn_Close" Content="Close" Margin="10,0,0,10" BorderBrush="#FF8D3C3C" Background="#BFC80F00" Padding="0" FontWeight="Bold" Grid.Row="2" Foreground="White" Click="btn_Close_Click" HorizontalAlignment="Left" Width="120" Height="26" VerticalAlignment="Bottom"/>
             </Grid>
         </TabItem>
