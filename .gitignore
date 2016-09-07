@@ -25,4 +25,4 @@ obj/
 _ReSharper*/
 *.coverage
 TestResults/
-
+_[Dd]ebug*/
