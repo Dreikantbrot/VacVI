@@ -217,25 +217,19 @@ namespace EvoVIConfigurator
         private void setCheckboxColor(CheckBox chckBox, CheckBoxColorState state, CheckBoxColorState checkIfAtLeast = CheckBoxColorState.OKAY)
         {
             chckBox.Foreground = (
-                new System.Windows.Media.SolidColorBrush(
-                    (state == CheckBoxColorState.OKAY) ? Color.FromArgb(200, 0, 200, 0) :
-                    (state == CheckBoxColorState.WARNING) ? Color.FromArgb(200, 200, 180, 0) :
-                    Color.FromArgb(200, 250, 0, 0)
-                )
+                (state == CheckBoxColorState.OKAY) ? (SolidColorBrush)FindResource("SuccessForeColor") :
+                (state == CheckBoxColorState.WARNING) ? (SolidColorBrush)FindResource("WarningForeColor") :
+                (SolidColorBrush)FindResource("ErrorForeColor")
             );
             chckBox.BorderBrush = (
-                new System.Windows.Media.SolidColorBrush(
-                    (state == CheckBoxColorState.OKAY) ? Color.FromArgb(200, 0, 200, 0) :
-                    (state == CheckBoxColorState.WARNING) ? Color.FromArgb(200, 200, 180, 0) :
-                    Color.FromArgb(200, 250, 0, 0)
-                )
+                (state == CheckBoxColorState.OKAY) ? (SolidColorBrush)FindResource("SuccessBorderColor") :
+                (state == CheckBoxColorState.WARNING) ? (SolidColorBrush)FindResource("WarningBorderColor") :
+                (SolidColorBrush)FindResource("ErrorBorderColor")
             );
             chckBox.Background = (
-                new System.Windows.Media.SolidColorBrush(
-                    (state == CheckBoxColorState.OKAY) ? Color.FromArgb(128, 0, 200, 0) :
-                    (state == CheckBoxColorState.WARNING) ? Color.FromArgb(128, 200, 180, 0) :
-                    Color.FromArgb(128, 250, 0, 0)
-                )
+                (state == CheckBoxColorState.OKAY) ? (SolidColorBrush)FindResource("SuccessBackColor") :
+                (state == CheckBoxColorState.WARNING) ? (SolidColorBrush)FindResource("WarningBackColor") :
+                (SolidColorBrush)FindResource("ErrorBackColor")
             );
 
             chckBox.IsChecked = (state <= checkIfAtLeast);
@@ -252,13 +246,17 @@ namespace EvoVIConfigurator
         /// <param name="e">The routed event arguments.</param>
         private void tab_Overview_Label_GotFocus(object sender, RoutedEventArgs e)
         {
+            bool criticalError = false;
+
             // Install directory is valid?
             setCheckboxColor(
                 chckBox_Overview_InstallDirValid,
-                verifyInstallDir() ? CheckBoxColorState.OKAY : CheckBoxColorState.ERROR
+                verifyInstallDir() ? CheckBoxColorState.OKAY : CheckBoxColorState.WARNING
             );
             chckBox_Overview_InstallDirValid.Content = "Installation path valid";
-            lbl_Overview_InstallDirValid_Hints.Visibility = (chckBox_Overview_InstallDirValid.IsChecked == true) ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
+            lbl_Overview_InstallDirValid_Hints.Visibility = (chckBox_Overview_InstallDirValid.IsChecked == true) ? 
+                System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
+            criticalError = criticalError || false;
 
             // SW3DG directory is present?
             setCheckboxColor(
@@ -266,7 +264,9 @@ namespace EvoVIConfigurator
                 Directory.Exists(GameMeta.DefaultGameSettingsDirectoryPath) ? CheckBoxColorState.OKAY : CheckBoxColorState.ERROR
             );
             chckBox_Overview_SW3DGDir.Content = "SW3DG game directory (" + GameMeta.DefaultGameSettingsDirectoryPath + ") available";
-            lbl_Overview_SW3DGDir_Hints.Visibility = (chckBox_Overview_SW3DGDir.IsChecked == true) ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
+            lbl_Overview_SW3DGDir_Hints.Visibility = (chckBox_Overview_SW3DGDir.IsChecked == true) ? 
+                System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
+            criticalError = criticalError || (chckBox_Overview_SW3DGDir.IsChecked != true);
 
             // Savedatasettings.txt has been created?
             setCheckboxColor(
@@ -274,7 +274,9 @@ namespace EvoVIConfigurator
                 File.Exists(GameMeta.CurrentSaveDataSettingsTextFilePath) ? CheckBoxColorState.OKAY : CheckBoxColorState.WARNING
             );
             chckBox_Overview_Savedatatextssettings.Content = "\"SavedataSettings.txt\" found in \"" + GameMeta.CurrentGameDirectoryPath + "\"";
-            lbl_Overview_Savedatatextssettings_Hints.Visibility = (chckBox_Overview_Savedatatextssettings.IsChecked == true) ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
+            lbl_Overview_Savedatatextssettings_Hints.Visibility = (chckBox_Overview_Savedatatextssettings.IsChecked == true) ?
+                System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
+            criticalError = criticalError || (chckBox_Overview_Savedatatextssettings.IsChecked != true);
 
             // Speech recognition engine available?
             try
@@ -289,7 +291,9 @@ namespace EvoVIConfigurator
                 setCheckboxColor(chckBox_Overview_SpeechRecogEngine, CheckBoxColorState.ERROR);
             }
             chckBox_Overview_SpeechRecogEngine.Content = "Speech recognition language supported";
-            lbl_Overview_SpeechRecogEngine_Hints.Visibility = (chckBox_Overview_SpeechRecogEngine.IsChecked == true) ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
+            lbl_Overview_SpeechRecogEngine_Hints.Visibility = (chckBox_Overview_SpeechRecogEngine.IsChecked == true) ?
+                System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
+            criticalError = criticalError || (chckBox_Overview_SpeechRecogEngine.IsChecked != true);
 
             // All plugins are compatible?
             bool pluginsCompatible = true;
@@ -313,7 +317,11 @@ namespace EvoVIConfigurator
                 pluginsCompatible ? CheckBoxColorState.OKAY : CheckBoxColorState.WARNING
             );
             chckBox_Overview_PluginsCompatible.Content = "All plugins compatible with selected game";
-            lbl_Overview_PluginsCompatible_Hints.Visibility = (chckBox_Overview_PluginsCompatible.IsChecked == true) ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
+            lbl_Overview_PluginsCompatible_Hints.Visibility = (chckBox_Overview_PluginsCompatible.IsChecked == true) ?
+                System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
+            criticalError = criticalError || false;
+
+            btn_StartGame.IsEnabled = !criticalError;
         }
 
 
@@ -324,6 +332,20 @@ namespace EvoVIConfigurator
         private void btn_Close_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+        }
+
+
+        /// <summary> Hides the configurator and starts the overlay.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void btn_StartGame_Click(object sender, RoutedEventArgs e)
+        {
+            this.Hide();
+            EvoVIOverlay.OverlayWindow overlayWindow = new EvoVIOverlay.OverlayWindow();
+            overlayWindow.ShowDialog();
+            this.Show();
+            this.BringIntoView();
         }
         #endregion
 
@@ -808,6 +830,53 @@ namespace EvoVIConfigurator
         #endregion
 
 
+        #region Extras
+        /// <summary> Fires when the "Extras"-tab is being focused.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void tab_Extras_GotFocus(object sender, RoutedEventArgs e)
+        {
+            bool installDirValid = verifyInstallDir();
+            //btn_Extras_GenerateAudioFiles.IsEnabled = installDirValid;
+            txt_Extras_TargetAudioFilepath.Text = (installDirValid) ?
+                "Target path: " + GameMeta.CurrentGameDirectoryPath + "\\alerts" : "The current installation directory is invalid!";
+            txt_Extras_TargetAudioFilepath.Foreground = (installDirValid) ?
+                (SolidColorBrush)FindResource("NormalForeColor") : (SolidColorBrush)FindResource("ErrorForeColor");
+        }
+
+
+        /// <summary> Fires when the "Generate Audio Files"-button within "Extras" is being clicked.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void btn_Extras_GenerateAudioFiles_Click(object sender, RoutedEventArgs e)
+        {
+            #region Description from the ModdingKit
+            /* For the female vocal alert, use a directory named \alerts and the following filenames:
+
+                bb-tractordis.wav = Docking tractor beam disengaged
+                bb-lowfuel.wav = Caution: Fuel level low
+                bb-lowalt.wav = Warning: low altitude
+                bb-contracta.wav = Contract objectives accomplished
+                bb-contractf.wav = Contract objectives failed
+                bb-inbound.wav = Alert: Missile inbound
+                bb-gravity = Caution: Entering high level gravity field
+                bb-avioplanet.wav = Avionincs switched to planetary mode
+                bb-aviospace.wav = Avionics switched to space mode
+                bb-nebula.wav = Caution: Entering dense nebula cloud zone
+                bb-radiation.wav = Caution: Entering high level radiation zone
+                bb-tractor.wav = Docking tractor beam engaged (4 second delay recommended)
+             */
+            #endregion
+
+            // Generate the audio files
+            EvoVI.Classes.Dialog.DialogVI test = new EvoVI.Classes.Dialog.DialogVI("Hello World");
+            SpeechEngine.Say(test, false, SpeechEngine.VoiceModulation, @"C:\Users\KevinLap\Desktop\test.wav");
+        }
+        #endregion
+
+
         #region About Events
         /// <summary> Fires when a Hyperlink has been clicked.
         /// </summary>
@@ -819,6 +888,7 @@ namespace EvoVIConfigurator
             e.Handled = true;
         }
         #endregion
+
 
         #endregion
     }

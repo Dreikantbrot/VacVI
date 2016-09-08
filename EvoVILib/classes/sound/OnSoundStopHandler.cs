@@ -12,7 +12,7 @@ namespace EvoVI.Classes.Sound
 
         /// <summary> The kind of sound that has been stopped
         /// </summary>
-        public enum SoundType { MUSIC, SPEECH };
+        public enum SoundType { MUSIC, SPEECH, RECORDING };
         #endregion
 
 

@@ -63,9 +63,9 @@ namespace EvoVI.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Logo {
+        internal static System.Drawing.Bitmap DirectoryClosed_12x12 {
             get {
-                object obj = ResourceManager.GetObject("Logo", resourceCulture);
+                object obj = ResourceManager.GetObject("DirectoryClosed_12x12", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,9 +73,69 @@ namespace EvoVI.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap LogoVI {
+        internal static System.Drawing.Bitmap DirectoryOpened_12x12 {
             get {
-                object obj = ResourceManager.GetObject("LogoVI", resourceCulture);
+                object obj = ResourceManager.GetObject("DirectoryOpened_12x12", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap EvochronLegacy {
+            get {
+                object obj = ResourceManager.GetObject("EvochronLegacy", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap EvochronMercenary {
+            get {
+                object obj = ResourceManager.GetObject("EvochronMercenary", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap EvoVIConfigurator_Background {
+            get {
+                object obj = ResourceManager.GetObject("EvoVIConfigurator_Background", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Icon ähnlich wie (Symbol).
+        /// </summary>
+        internal static System.Drawing.Icon Icon {
+            get {
+                object obj = ResourceManager.GetObject("Icon", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap LoadingAnimation {
+            get {
+                object obj = ResourceManager.GetObject("LoadingAnimation", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Logo_VI {
+            get {
+                object obj = ResourceManager.GetObject("Logo_VI", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
