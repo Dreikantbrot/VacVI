@@ -98,6 +98,9 @@ namespace EvoVIConfigurator
         private Label lbl_noParamsToConfigure;
         private List<Key> keyDowns = new List<Key>();
 
+        private SolidColorBrush _brightThemeBrush = new SolidColorBrush(Color.FromArgb(50, 255, 255,255));
+        private SolidColorBrush _darkThemeBrush = new SolidColorBrush(Color.FromArgb(50, 0, 0, 0));
+
         private System.Windows.Media.Imaging.BitmapImage _imgEvochronMercenary = new System.Windows.Media.Imaging.BitmapImage(new Uri(@"Resources/EvochronMercenary.png", UriKind.RelativeOrAbsolute));
         private System.Windows.Media.Imaging.BitmapImage _imgEvochronLegacy = new System.Windows.Media.Imaging.BitmapImage(new Uri(@"Resources/EvochronLegacy.png", UriKind.RelativeOrAbsolute));
         private System.Windows.Media.Imaging.BitmapImage _imgLogo_VI = new System.Windows.Media.Imaging.BitmapImage(new Uri(@"Resources/Logo_VI.png", UriKind.RelativeOrAbsolute));
@@ -500,7 +503,7 @@ namespace EvoVIConfigurator
             btn_Config_VINameTest.IsEnabled = false;
             btn_Config_PlayerNameTest.IsEnabled = false;
 
-            SpeechEngine.Say(testText, false);
+            SpeechEngine.Say(testText);
 
             btn_Config_VINameTest.IsEnabled = true;
             btn_Config_PlayerNameTest.IsEnabled = true;
@@ -861,8 +864,8 @@ namespace EvoVIConfigurator
                 bb-contracta.wav = Contract objectives accomplished
                 bb-contractf.wav = Contract objectives failed
                 bb-inbound.wav = Alert: Missile inbound
-                bb-gravity = Caution: Entering high level gravity field
-                bb-avioplanet.wav = Avionincs switched to planetary mode
+                bb-gravity = Caution: Entering high level gravity field     <-- Be wary of missing file extension
+                bb-avioplanet.wav = Avionincs switched to planetary mode    <-- Be wary of typo
                 bb-aviospace.wav = Avionics switched to space mode
                 bb-nebula.wav = Caution: Entering dense nebula cloud zone
                 bb-radiation.wav = Caution: Entering high level radiation zone
@@ -870,9 +873,48 @@ namespace EvoVIConfigurator
              */
             #endregion
 
-            // Generate the audio files
-            EvoVI.Classes.Dialog.DialogVI test = new EvoVI.Classes.Dialog.DialogVI("Hello World");
-            SpeechEngine.Say(test, false, SpeechEngine.VoiceModulation, @"C:\Users\KevinLap\Desktop\test.wav");
+            Dictionary<string, string> fileData = new Dictionary<string, string>();
+            fileData.Add("bb-tractordis.wav", "Docking tractor beam disengaged");
+            fileData.Add("bb-lowfuel.wav", "Caution: Fuel level low");
+            fileData.Add("bb-lowalt.wav", "Warning: low altitude");
+            fileData.Add("bb-contracta.wav", "Contract objectives accomplished");
+            fileData.Add("bb-contractf.wav", "Contract objectives failed");
+            fileData.Add("bb-inbound.wav", "Alert: Missile inbound");
+            fileData.Add("bb-gravity.wav", "Caution: Entering high level gravity field");
+            fileData.Add("bb-avioplanet.wav", "Avionics switched to planetary mode");
+            fileData.Add("bb-aviospace.wav", "Avionics switched to space mode");
+            fileData.Add("bb-nebula.wav", "Caution: Entering dense nebula cloud zone");
+            fileData.Add("bb-radiation.wav", "Caution: Entering high level radiation zone");
+            fileData.Add("bb-tractor.wav", "Docking tractor beam engaged");
+
+            foreach (KeyValuePair<string, string> keyVal in fileData)
+            {
+                // Generate the audio files
+                SpeechEngine.Say(
+                    new EvoVI.Classes.Dialog.DialogVI(keyVal.Value), 
+                    false, 
+                    SpeechEngine.VoiceModulation, 
+                    GameMeta.CurrentGameDirectoryPath + "\\alerts\\" + keyVal.Key
+                );
+            }
+        }
+
+
+        /// <summary> Fires when the Theme within "Extras" has been changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The selection changed event arguments.</param>
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox themeBox = (ComboBox)sender;
+
+            switch (themeBox.SelectedIndex)
+            {
+                case 0: this.Resources["BackgroundBrush"] = _brightThemeBrush; break;
+                case 1: this.Resources["BackgroundBrush"] = _darkThemeBrush; break;
+
+                default: themeBox.SelectedIndex = 0; break;
+            }
         }
         #endregion
 

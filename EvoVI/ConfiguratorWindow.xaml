@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Evo VI Configurator" Height="550" Width="750" ResizeMode="CanResizeWithGrip" MaxWidth="850" MaxHeight="650" MinWidth="750" MinHeight="550" Icon="Resources/Icon.ico" SnapsToDevicePixels="True">
     <Window.Resources>
-        <SolidColorBrush x:Key="BackgroundBrush" Color="#33ffffff"/>
-
+        <SolidColorBrush x:Key="BackgroundBrush" Color="#33ffffff" />
+        
         <SolidColorBrush x:Key="NormalForeColor" Color="#ffffffff"/>
         <SolidColorBrush x:Key="SuccessForeColor" Color="#c800c800"/>
         <SolidColorBrush x:Key="WarningForeColor" Color="#c8c8b400"/>
@@ -44,7 +44,7 @@
                         </EventTrigger>
                     </Button.Triggers>
                 </Button>
-                <GroupBox Header="Checklist" Margin="10,20" Background="{Binding Mode=OneWay, Source={StaticResource BackgroundBrush}}" Foreground="White" FontWeight="Bold" Grid.Row="1">
+                <GroupBox Header="Checklist" Margin="10,20" Background="{DynamicResource BackgroundBrush}" Foreground="White" FontWeight="Bold" Grid.Row="1">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="8,5,3,3">
                         <StackPanel Margin="0" VerticalAlignment="Center">
                             <CheckBox x:Name="chckBox_Overview_InstallDirValid" Content="&lt; Install Directory is valid &gt;"                  HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="14" Background="White" Foreground="White" BorderThickness="2" Focusable="False" IsHitTestVisible="False" Margin="5,8,5,0"/>
@@ -102,10 +102,10 @@
                 </ComboBox>
                 <Label x:Name="lbl_GameSelection" Content="Select a Game:" Margin="10,10,10,0" FontWeight="Bold" Foreground="White" Height="26" VerticalAlignment="Top"/>
                 <Label x:Name="lbl_InstallDir" Content="Installation Directory:" Margin="10,45,10,0" FontWeight="Bold" Foreground="White" Height="26" VerticalAlignment="Top"/>
-                <TextBox x:Name="txt_InstallDir" Height="26" Margin="10,45,10,0" TextWrapping="Wrap" VerticalAlignment="Top" Background="{Binding Mode=OneWay, Source={StaticResource BackgroundBrush}}" Foreground="White" Padding="0" VerticalContentAlignment="Center" Grid.Column="1" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" TextChanged="txt_InstallDir_TextChanged"/>
+                <TextBox x:Name="txt_InstallDir" Height="26" Margin="10,45,10,0" TextWrapping="Wrap" VerticalAlignment="Top" Background="{DynamicResource BackgroundBrush}" Foreground="White" Padding="0" VerticalContentAlignment="Center" Grid.Column="1" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" TextChanged="txt_InstallDir_TextChanged"/>
                 <Button x:Name="btn_InstallDir_Browse" Content="Browse" Margin="10,45,10,0" VerticalAlignment="Top" BorderBrush="#FF6086A0" Background="#BFDBF4FF" Foreground="Black" Height="26" Padding="0" Grid.Column="2" Click="btn_InstallDir_Browse_Click" FontWeight="Bold"/>
-                <TextBox x:Name="txtBox_StatusText" Height="45" Margin="10,0,10,10" TextWrapping="Wrap" Background="{Binding Mode=OneWay, Source={StaticResource BackgroundBrush}}" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" TextChanged="txt_InstallDir_TextChanged" Grid.ColumnSpan="3" HorizontalContentAlignment="Center" FontWeight="Bold" VerticalAlignment="Bottom" FontSize="14" Focusable="False"/>
-                <GroupBox Header="General Configuration" Margin="10,90,10,80" Grid.ColumnSpan="3" Foreground="White" FontWeight="Bold" Background="{Binding Mode=OneWay, Source={StaticResource BackgroundBrush}}">
+                <TextBox x:Name="txtBox_StatusText" Height="45" Margin="10,0,10,10" TextWrapping="Wrap" Background="{DynamicResource BackgroundBrush}" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" TextChanged="txt_InstallDir_TextChanged" Grid.ColumnSpan="3" HorizontalContentAlignment="Center" FontWeight="Bold" VerticalAlignment="Bottom" FontSize="14" Focusable="False"/>
+                <GroupBox Header="General Configuration" Margin="10,90,10,80" Grid.ColumnSpan="3" Foreground="White" FontWeight="Bold" Background="{DynamicResource BackgroundBrush}">
                     <Grid Margin="0,5,0,0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="35*"/>
@@ -165,7 +165,7 @@
                     <RowDefinition/>
                     <RowDefinition Height="68"/>
                 </Grid.RowDefinitions>
-                <GroupBox Header="Current Configuration" Margin="10" Background="{Binding Mode=OneWay, Source={StaticResource BackgroundBrush}}" BorderBrush="White" Foreground="White" FontWeight="Bold">
+                <GroupBox Header="Current Configuration" Margin="10" Background="{DynamicResource BackgroundBrush}" BorderBrush="White" Foreground="White" FontWeight="Bold">
                     <ScrollViewer VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalScrollBarVisibility="Auto">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -177,7 +177,7 @@
                         </Grid>
                     </ScrollViewer>
                 </GroupBox>
-                <TextBox Margin="10" TextWrapping="Wrap" Background="{Binding Mode=OneWay, Source={StaticResource BackgroundBrush}}" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" TextChanged="txt_InstallDir_TextChanged" HorizontalContentAlignment="Center" FontWeight="Bold" FontSize="14" Focusable="False" Grid.Row="1" Text="Note: These displayed controls have automatically been extracted from the current game profile."/>
+                <TextBox Margin="10" TextWrapping="Wrap" Background="{DynamicResource BackgroundBrush}" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" TextChanged="txt_InstallDir_TextChanged" HorizontalContentAlignment="Center" FontWeight="Bold" FontSize="14" Focusable="False" Grid.Row="1" Text="Note: These displayed controls have automatically been extracted from the current game profile."/>
             </Grid>
         </TabItem>
         <TabItem x:Name="tab_Plugins_Label" Header="Pugins" Background="{Binding Background, ElementName=tab_Config_Label}" Margin="2,0,0,0" HorizontalAlignment="Left" Width="100" Foreground="Black">
@@ -200,14 +200,14 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
                 <CheckBox x:Name="chck_PluginsEnabled" Content="Enabled?" Margin="99,11,0,0" FontSize="14" FontWeight="Bold" BorderThickness="2" BorderBrush="#FFACACAC" Foreground="White" Background="White" IsHitTestVisible="True" RenderTransformOrigin="0.5,0.5" Grid.Column="2" HorizontalAlignment="Left" Width="110" Height="24" VerticalAlignment="Top" Checked="chck_PluginsEnabled_CheckedUnchecked" Unchecked="chck_PluginsEnabled_CheckedUnchecked" VerticalContentAlignment="Center"/>
-                <TextBox x:Name="lbl_PluginName" Margin="10,10,10,0" TextWrapping="Wrap" Text="Plugin Name" Grid.Row="1" Background="{Binding Mode=OneWay, Source={StaticResource BackgroundBrush}}" Foreground="White" FontWeight="Normal" VerticalContentAlignment="Center" IsReadOnly="True" MaxLines="1" Focusable="False" Height="23" VerticalAlignment="Top"/>
-                <TextBox x:Name="lbl_PluginAuthor" Height="23" Margin="10,38,10,0" TextWrapping="Wrap" Text="Author" VerticalAlignment="Top" Grid.Row="1" Background="{Binding Mode=OneWay, Source={StaticResource BackgroundBrush}}" Foreground="White" FontWeight="Normal" VerticalContentAlignment="Center" IsReadOnly="True" MaxLines="1" Focusable="False"/>
-                <TextBox x:Name="lbl_PluginHomepage" Margin="10,66,10,0" TextWrapping="Wrap" Text="Homepage" Grid.Row="1" Background="{Binding Mode=OneWay, Source={StaticResource BackgroundBrush}}" Foreground="White" FontWeight="Normal" VerticalContentAlignment="Center" IsReadOnly="True" MaxLines="1" Focusable="False" Height="23" VerticalAlignment="Top"/>
+                <TextBox x:Name="lbl_PluginName" Margin="10,10,10,0" TextWrapping="Wrap" Text="Plugin Name" Grid.Row="1" Background="{DynamicResource BackgroundBrush}" Foreground="White" FontWeight="Normal" VerticalContentAlignment="Center" IsReadOnly="True" MaxLines="1" Focusable="False" Height="23" VerticalAlignment="Top"/>
+                <TextBox x:Name="lbl_PluginAuthor" Height="23" Margin="10,38,10,0" TextWrapping="Wrap" Text="Author" VerticalAlignment="Top" Grid.Row="1" Background="{DynamicResource BackgroundBrush}" Foreground="White" FontWeight="Normal" VerticalContentAlignment="Center" IsReadOnly="True" MaxLines="1" Focusable="False"/>
+                <TextBox x:Name="lbl_PluginHomepage" Margin="10,66,10,0" TextWrapping="Wrap" Text="Homepage" Grid.Row="1" Background="{DynamicResource BackgroundBrush}" Foreground="White" FontWeight="Normal" VerticalContentAlignment="Center" IsReadOnly="True" MaxLines="1" Focusable="False" Height="23" VerticalAlignment="Top"/>
                 <TextBox x:Name="lbl_PluginSupportedGames" Height="60" Margin="10,38,10,0" TextWrapping="Wrap" Text="Supported Games" VerticalAlignment="Top" Grid.Row="1" Background="#33FFFFFF" Foreground="White" FontWeight="Normal" IsReadOnly="True" MaxLines="1" IsEnabled="False" Visibility="Hidden"/>
                 <Image Height="88" Margin="10,10,10,0" VerticalAlignment="Top" Grid.Row="1" RenderTransformOrigin="0.18,-1" Grid.Column="1"/>
-                <TextBox x:Name="lbl_PluginDescription" Margin="10,103,10,38" TextWrapping="Wrap" Text="Plugin Description" Grid.Row="1" Background="{Binding Mode=OneWay, Source={StaticResource BackgroundBrush}}" Foreground="White" IsReadOnly="True" Grid.ColumnSpan="2" Focusable="False"/>
-                <TextBox x:Name="lbl_PluginVersion" Margin="10,0,10,10" TextWrapping="Wrap" Text="Version" Grid.Row="1" Background="{Binding Mode=OneWay, Source={StaticResource BackgroundBrush}}" Foreground="White" FontWeight="Normal" VerticalContentAlignment="Center" IsReadOnly="True" MaxLines="1" Grid.ColumnSpan="2" Focusable="False" Height="23" VerticalAlignment="Bottom"/>
-                <GroupBox x:Name="grpBox_PluginsConfigWndow" Grid.Column="2" Header="Plugin Configuration" Margin="10,5,10,10" Grid.Row="1" Foreground="White" BorderBrush="White" Background="{Binding Mode=OneWay, Source={StaticResource BackgroundBrush}}" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" FontWeight="Bold">
+                <TextBox x:Name="lbl_PluginDescription" Margin="10,103,10,38" TextWrapping="Wrap" Text="Plugin Description" Grid.Row="1" Background="{DynamicResource BackgroundBrush}" Foreground="White" IsReadOnly="True" Grid.ColumnSpan="2" Focusable="False"/>
+                <TextBox x:Name="lbl_PluginVersion" Margin="10,0,10,10" TextWrapping="Wrap" Text="Version" Grid.Row="1" Background="{DynamicResource BackgroundBrush}" Foreground="White" FontWeight="Normal" VerticalContentAlignment="Center" IsReadOnly="True" MaxLines="1" Grid.ColumnSpan="2" Focusable="False" Height="23" VerticalAlignment="Bottom"/>
+                <GroupBox x:Name="grpBox_PluginsConfigWndow" Grid.Column="2" Header="Plugin Configuration" Margin="10,5,10,10" Grid.Row="1" Foreground="White" BorderBrush="White" Background="{DynamicResource BackgroundBrush}" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" FontWeight="Bold">
                     <StackPanel x:Name="stck_PluginsParameters" Margin="5,10,5,5"/>
                 </GroupBox>
                 <TextBox x:Name="txt_PluginCompatibility" Grid.Column="2" HorizontalAlignment="Left" Height="26" Margin="214,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="150" Background="#7F00C800" CaretBrush="{Binding SelectionBrush, ElementName=txt_PluginCompatibility}" VerticalContentAlignment="Center" Foreground="White" HorizontalContentAlignment="Center" IsReadOnly="True" FontWeight="Bold" BorderThickness="0" FontSize="14" Text="Compatible"/>
@@ -216,7 +216,7 @@
 
         <TabItem x:Name="tab_Extras" Header="Extras" Background="{Binding Background, ElementName=tab_Config_Label}" Margin="2,0,0,0" Foreground="Black" HorizontalAlignment="Left" Width="100" GotFocus="tab_Extras_GotFocus">
             <Grid>
-                <GroupBox Header="Extras" Margin="10" Foreground="White" FontWeight="Bold" Background="{Binding Mode=OneWay, Source={StaticResource BackgroundBrush}}" Padding="5,10" Grid.ColumnSpan="2">
+                <GroupBox Header="Extras" Margin="10" Foreground="White" FontWeight="Bold" Background="{DynamicResource BackgroundBrush}" Padding="5,10" Grid.ColumnSpan="2">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="80"/>
@@ -228,10 +228,13 @@
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
                         <Label Content="Color Theme:" Margin="10,10,10,0" VerticalAlignment="Top" Foreground="White" Height="26"/>
-                        <ComboBox Grid.Column="1" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="249" Height="26"/>
-                        <TextBlock Grid.ColumnSpan="2" Margin="10,10,10,41" Grid.Row="1" Text="This option creates audio fles that replace the default board computer voice files with ones that have been spoken by the VI as it is configured right now." TextWrapping="Wrap" Background="{Binding Mode=OneWay, Source={StaticResource BackgroundBrush}}" Padding="8" VerticalAlignment="Top" />
+                        <ComboBox Grid.Column="1" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="249" Height="26" SelectionChanged="ComboBox_SelectionChanged" SelectedIndex="0">
+                            <ComboBoxItem Content="Bright Theme"/>
+                            <ComboBoxItem Content="Dark Theme"/>
+                        </ComboBox>
+                        <TextBlock Grid.ColumnSpan="2" Margin="10,10,10,41" Grid.Row="1" Text="This option creates audio fles that replace the default board computer voice files with ones that have been spoken by the VI as it is configured right now." TextWrapping="Wrap" Background="{DynamicResource BackgroundBrush}" Padding="8" VerticalAlignment="Top" />
                         <Button x:Name="btn_Extras_GenerateAudioFiles" Content="Generate Audio Files" Margin="10,0,10,10" Grid.Row="1" Height="26" VerticalAlignment="Bottom" Background="#BFDBF4FF" BorderBrush="#FF6086A0" FontWeight="Bold" Click="btn_Extras_GenerateAudioFiles_Click"/>
-                        <TextBox x:Name="txt_Extras_TargetAudioFilepath" Height="26" Margin="10,0,10,10" TextWrapping="Wrap" Text="Target path: " VerticalAlignment="Bottom" Grid.Column="1" Grid.Row="1" Background="{Binding Mode=OneWay, Source={StaticResource BackgroundBrush}}" BorderBrush="{x:Null}" Foreground="White" BorderThickness="0" VerticalContentAlignment="Center" Padding="5,0" Focusable="False" IsHitTestVisible="False" IsReadOnly="True"/>
+                        <TextBox x:Name="txt_Extras_TargetAudioFilepath" Height="26" Margin="10,0,10,10" TextWrapping="Wrap" Text="Target path: " VerticalAlignment="Bottom" Grid.Column="1" Grid.Row="1" Background="{DynamicResource BackgroundBrush}" BorderBrush="{x:Null}" Foreground="White" BorderThickness="0" VerticalContentAlignment="Center" Padding="5,0" Focusable="False" IsHitTestVisible="False" IsReadOnly="True"/>
                     </Grid>
                 </GroupBox>
             </Grid>
@@ -248,7 +251,7 @@
                     <RowDefinition Height="32*"/>
                 </Grid.RowDefinitions>
                 <Image Margin="10" Source="_Rsc/Logo VI.png" Opacity="0.9"/>
-                <TextBlock Background="{Binding Mode=OneWay, Source={StaticResource BackgroundBrush}}" Foreground="White" Padding="5,5,5,5" TextWrapping="Wrap" FontWeight="Bold" Margin="10" Grid.Row="1" TextAlignment="Center" Focusable="False" LineHeight="18">
+                <TextBlock Background="{DynamicResource BackgroundBrush}" Foreground="White" Padding="5,5,5,5" TextWrapping="Wrap" FontWeight="Bold" Margin="10" Grid.Row="1" TextAlignment="Center" Focusable="False" LineHeight="18">
                     <Run Text="&#x0a;Disclaimer"/>
                     <Run Text="&#x0a;-------------------------------------------"/>
                     <Run Text="&#x0a;"/>
@@ -258,7 +261,7 @@
                     <Run Text="&#x0a;Visit "/><Hyperlink NavigateUri="http://www.starwraith.com/" RequestNavigate="OnNavigateURL" Foreground="SkyBlue"><Run Text="SarWraith3D Games"/></Hyperlink><Run Text=" for more information!"/>
                 </TextBlock>
                 <ScrollViewer Margin="10" Grid.Column="1" Grid.RowSpan="2" VerticalScrollBarVisibility="Auto">
-                    <TextBlock Background="{Binding Mode=OneWay, Source={StaticResource BackgroundBrush}}" Foreground="White" Padding="5,5,5,5" TextWrapping="Wrap" FontWeight="Bold" TextAlignment="Center" TextTrimming="CharacterEllipsis" IsHitTestVisible="True">
+                    <TextBlock Background="{DynamicResource BackgroundBrush}" Foreground="White" Padding="5,5,5,5" TextWrapping="Wrap" FontWeight="Bold" TextAlignment="Center" TextTrimming="CharacterEllipsis" IsHitTestVisible="True">
                         <Run Text="&#x0a;EvoVI:"/>
                         <Run Text="&#x0a;-----------------------"/>
                         <Run Text="&#x0a;"/>
