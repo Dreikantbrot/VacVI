@@ -136,6 +136,21 @@ namespace EvoVI
         }
 
 
+        /// <summary> Updates the currently saved configuration file only changing the given value, without changing the current configuration.
+        /// </summary>
+        /// <param name="section">The section in which the value is located.</param>
+        /// <param name="key">The key to the value.</param>
+        /// <param name="value">The new value.</param>
+        /// <param name="filepath">The destination filepath.</param>
+        public void SaveValue(string section, string key, string value, string filepath = null)
+        {
+            IniFile currFile = new IniFile(_filepath);
+            currFile.Read();
+            currFile.SetValue(section, key, value);
+            currFile.Write((filepath == null) ? _filepath : filepath);
+        }
+
+
         /// <summary> Checks whether the specified parameter is defined within the given section.
         /// </summary>
         /// <param name="section">The section in which the value is located.</param>

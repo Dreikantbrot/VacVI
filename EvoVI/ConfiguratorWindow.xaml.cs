@@ -205,6 +205,16 @@ namespace EvoVIConfigurator
             if (PluginManager.Plugins.Count > 0) { comBox_PluginSelection.SelectedIndex = 0; }
 
 
+            /* Configurator Settings */
+            // Set the Theme
+            for (int i = 0; i < comBox_ExtrasTheme.Items.Count; i++)
+            {
+                ComboBoxItem item = (ComboBoxItem)comBox_ExtrasTheme.Items[i];
+                if (item.Content.ToString() == ConfigurationManager.ConfigurationFile.GetValue("Configurator", "Theme")) { comBox_ExtrasTheme.SelectedIndex = i; break; }
+            }
+            if (comBox_ExtrasTheme.SelectedItem == null) { comBox_ExtrasTheme.SelectedIndex = 0; }
+            
+            
             /* Update Overview tab */
             tab_Overview_Label_GotFocus(null, null);
         }
@@ -276,7 +286,11 @@ namespace EvoVIConfigurator
                 chckBox_Overview_Savedatatextssettings,
                 File.Exists(GameMeta.CurrentSaveDataSettingsTextFilePath) ? CheckBoxColorState.OKAY : CheckBoxColorState.WARNING
             );
-            chckBox_Overview_Savedatatextssettings.Content = "\"SavedataSettings.txt\" found in \"" + GameMeta.CurrentGameDirectoryPath + "\"";
+            chckBox_Overview_Savedatatextssettings.Content = (
+                verifyInstallDir() ? 
+                "\"SavedataSettings.txt\" found in \"" + GameMeta.CurrentGameDirectoryPath + "\"" :
+                "Install directory is not valid - \"SavedataSettings.txt\" could not be found."
+            );
             lbl_Overview_Savedatatextssettings_Hints.Visibility = (chckBox_Overview_Savedatatextssettings.IsChecked == true) ?
                 System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
             criticalError = criticalError || (chckBox_Overview_Savedatatextssettings.IsChecked != true);
@@ -551,6 +565,7 @@ namespace EvoVIConfigurator
 
                 // Save the game path within the configuration file
                 ConfigurationManager.ConfigurationFile.SetValue("Filepaths", GameMeta.CurrentGame.ToString(), txt_InstallDir.Text);
+                GameMeta.GameDetails[GameMeta.CurrentGame].UserInstallDirectory = txt_InstallDir.Text;
 
                 return true;
             }
@@ -915,6 +930,8 @@ namespace EvoVIConfigurator
 
                 default: themeBox.SelectedIndex = 0; break;
             }
+
+            ConfigurationManager.ConfigurationFile.SaveValue("Configurator", "Theme", ((ComboBoxItem)themeBox.SelectedValue).Content.ToString());
         }
         #endregion
 

@@ -4,12 +4,12 @@
         Title="Evo VI Configurator" Height="550" Width="750" ResizeMode="CanResizeWithGrip" MaxWidth="850" MaxHeight="650" MinWidth="750" MinHeight="550" Icon="Resources/Icon.ico" SnapsToDevicePixels="True">
     <Window.Resources>
         <SolidColorBrush x:Key="BackgroundBrush" Color="#33ffffff" />
-        
+
         <SolidColorBrush x:Key="NormalForeColor" Color="#ffffffff"/>
         <SolidColorBrush x:Key="SuccessForeColor" Color="#c800c800"/>
         <SolidColorBrush x:Key="WarningForeColor" Color="#c8c8b400"/>
         <SolidColorBrush x:Key="ErrorForeColor" Color="#c8fa0000"/>
-        
+
         <SolidColorBrush x:Key="SuccessBorderColor" Color="#c800c800"/>
         <SolidColorBrush x:Key="WarningBorderColor" Color="#c8c8b400"/>
         <SolidColorBrush x:Key="ErrorBorderColor" Color="#c8fa0000"/>
@@ -86,6 +86,7 @@
                 <Button x:Name="btn_Close" Content="Close" Margin="10,0,0,10" BorderBrush="#FF8D3C3C" Background="#BFC80F00" Padding="0" FontWeight="Bold" Grid.Row="2" Foreground="White" Click="btn_Close_Click" HorizontalAlignment="Left" Width="120" Height="26" VerticalAlignment="Bottom"/>
             </Grid>
         </TabItem>
+
         <TabItem x:Name="tab_Config_Label" Header="Configuration" Background="#7FFFFFFF" Margin="2,0,0,0" HorizontalAlignment="Left" Width="100">
             <Grid x:Name="tab_Main_Config" Background="#00E5E5E5" Margin="0,-5,0,5">
                 <Grid.ColumnDefinitions>
@@ -159,6 +160,7 @@
                 </GroupBox>
             </Grid>
         </TabItem>
+
         <TabItem x:Name="tab_Controls_Label" Header="Controls" Background="{Binding Background, ElementName=tab_Config_Label}" Margin="2,0,0,0" Width="100" Foreground="Black" ScrollViewer.CanContentScroll="True" GotFocus="tab_Controls_Label_GotFocus">
             <Grid>
                 <Grid.RowDefinitions>
@@ -180,6 +182,7 @@
                 <TextBox Margin="10" TextWrapping="Wrap" Background="{DynamicResource BackgroundBrush}" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" TextChanged="txt_InstallDir_TextChanged" HorizontalContentAlignment="Center" FontWeight="Bold" FontSize="14" Focusable="False" Grid.Row="1" Text="Note: These displayed controls have automatically been extracted from the current game profile."/>
             </Grid>
         </TabItem>
+
         <TabItem x:Name="tab_Plugins_Label" Header="Pugins" Background="{Binding Background, ElementName=tab_Config_Label}" Margin="2,0,0,0" HorizontalAlignment="Left" Width="100" Foreground="Black">
             <Grid x:Name="tab_Main_Plugins" Background="#00E5E5E5">
                 <Grid.ColumnDefinitions>
@@ -228,7 +231,7 @@
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
                         <Label Content="Color Theme:" Margin="10,10,10,0" VerticalAlignment="Top" Foreground="White" Height="26"/>
-                        <ComboBox Grid.Column="1" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="249" Height="26" SelectionChanged="ComboBox_SelectionChanged" SelectedIndex="0">
+                        <ComboBox x:Name="comBox_ExtrasTheme" Grid.Column="1" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="249" Height="26" SelectionChanged="ComboBox_SelectionChanged" SelectedIndex="0">
                             <ComboBoxItem Content="Bright Theme"/>
                             <ComboBoxItem Content="Dark Theme"/>
                         </ComboBox>
