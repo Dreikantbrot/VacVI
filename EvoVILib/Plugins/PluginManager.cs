@@ -184,6 +184,14 @@ namespace EvoVI
         {
             for (int i = 0; i < Plugins.Count; i++) { Plugins[i].Initialize(); }
         }
+
+
+        /// <summary> Calls OnProgramShutdown on each plugin.
+        /// </summary>
+        public static void ShutdownPlugins()
+        {
+            for (int i = 0; i < Plugins.Count; i++) { Plugins[i].OnProgramShutdown(); }
+        }
         #endregion
     }
 }

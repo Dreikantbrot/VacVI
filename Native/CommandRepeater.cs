@@ -58,7 +58,7 @@ namespace Native
         #endregion
 
 
-        #region Functions
+        #region Interface Functions
         public void Initialize()
         {
             DialogTreeBranch[] standardDialogs = new DialogTreeBranch[] {
@@ -111,6 +111,11 @@ namespace Native
         public List<PluginParameterDefault> GetDefaultPluginParameters()
         {
             return new List<PluginParameterDefault>();
+        }
+
+        public void OnProgramShutdown()
+        {
+
         }
         #endregion
     }

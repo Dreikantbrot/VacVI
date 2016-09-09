@@ -229,6 +229,16 @@ namespace EvoVIOverlay
         {
             KeyboardControls.LoadKeymap();
         }
+
+
+        /// <summary> Fires each time, the overlay has been closed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The event arguments.</param>
+        private void window_Closed(object sender, EventArgs e)
+        {
+            PluginManager.ShutdownPlugins();
+        }
         #endregion
 
 
@@ -478,5 +488,6 @@ namespace EvoVIOverlay
             return dialogInfo;
         }
         #endregion
+
     }
 }

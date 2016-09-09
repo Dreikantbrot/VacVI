@@ -70,6 +70,11 @@ namespace EvoVI.PluginContracts
         /// This function is being called by the PluginLoader before plugin initialization.
         /// </summary>
         List<PluginParameterDefault> GetDefaultPluginParameters();
+
+
+        /// <summary> Gets called each time, the main application has been.
+        /// </summary>
+        void OnProgramShutdown();
         #endregion
     }
 }

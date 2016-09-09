@@ -763,6 +763,11 @@ namespace Native
         {
             return new List<PluginParameterDefault>();
         }
+
+        public void OnProgramShutdown()
+        {
+
+        }
         #endregion
 
 
