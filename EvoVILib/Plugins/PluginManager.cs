@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 
 namespace EvoVI
 {
@@ -19,6 +20,7 @@ namespace EvoVI
         private static IniFile _pluginFile;
         private static Dictionary<string, Dictionary<string, PluginParameterDefault>> _pluginDefaults = new Dictionary<string, Dictionary<string, PluginParameterDefault>>();
         private static Dictionary<string, List<IPlugin>> _dllDictionary = new Dictionary<string, List<IPlugin>>();
+        private static Dictionary<IPlugin, Thread> _pluginThreads = new Dictionary<IPlugin, Thread>();
         #endregion
 
 
@@ -136,10 +138,14 @@ namespace EvoVI
                     )
                     { continue; }
                     
+                    // Add the DLL file name to the dll dictionary
                     string dllFileName = Path.GetFileName(plugin.GetType().Assembly.CodeBase);
                     if (!_dllDictionary.ContainsKey(dllFileName)) { _dllDictionary.Add(dllFileName, new List<IPlugin>()); }
-                    
                     _dllDictionary[dllFileName].Add(plugin);
+
+                    // Create an execution thread entry for the plugin
+                    if (!_pluginThreads.ContainsKey(plugin)) { _pluginThreads.Add(plugin, new Thread(plugin.OnGameDataUpdate)); }
+
                     Plugins.Add(plugin);
                 }
             }
@@ -186,11 +192,42 @@ namespace EvoVI
         }
 
 
-        /// <summary> Calls OnProgramShutdown on each plugin.
+        /// <summary> Calls OnProgramShutdown on each plugin (sequentially, non-threaded).
         /// </summary>
         public static void ShutdownPlugins()
         {
-            for (int i = 0; i < Plugins.Count; i++) { Plugins[i].OnProgramShutdown(); }
+            // Check for running threads and wait for their completion before shutdown
+            foreach (KeyValuePair<IPlugin, Thread> pluginThread in _pluginThreads)
+            {
+                if (pluginThread.Value.IsAlive) { pluginThread.Value.Abort(); }
+
+                // Wait for... an abortion O.o
+                while (pluginThread.Value.IsAlive) { Thread.Sleep(100); }
+
+                // Tell the plugin to shut down
+                pluginThread.Key.OnProgramShutdown();
+            }
+        }
+
+
+        /// <summary> Calls OnGameDataUpdate on each plugin (parallel, threaded).
+        /// </summary>
+        public static void CallGameDataUpdateOnPlugins()
+        {
+            for (int i = 0; i < Plugins.Count; i++)
+            {
+                IPlugin currPlugin = Plugins[i];
+                if (!_pluginThreads.ContainsKey(currPlugin)) { continue; }
+
+                // Check the state of the thread
+                if (
+                    (!_pluginThreads[currPlugin].IsAlive)
+                )
+                {
+                    _pluginThreads[currPlugin] = (new Thread(currPlugin.OnGameDataUpdate));
+                    _pluginThreads[currPlugin].Start();
+                }
+            }
         }
         #endregion
     }

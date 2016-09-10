@@ -282,7 +282,7 @@ namespace EvoVI.Database
             EnvironmentalData.Update();
 
             // Call IPlugin.OnGameDataUpdate on all plugins
-            for (int i = 0; i < PluginManager.Plugins.Count; i++) { PluginManager.Plugins[i].OnGameDataUpdate(); }
+            PluginManager.CallGameDataUpdateOnPlugins();
             return true;
         }
 
