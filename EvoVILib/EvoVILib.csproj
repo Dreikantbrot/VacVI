@@ -51,14 +51,14 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\Dialog\DialogBase.cs" />
-    <Compile Include="Classes\Dialog\DialogCommand.cs" />
-    <Compile Include="Classes\Dialog\DialogPlayer.cs" />
-    <Compile Include="Classes\Dialog\DialogVI.cs" />
-    <Compile Include="Classes\Dialog\DialogTreeBuilder.cs" />
-    <Compile Include="Classes\Math\Vector3D.cs" />
-    <Compile Include="Database\KeyboardControls.cs" />
-    <Compile Include="Plugins\IniFile.cs" />
+    <Compile Include="VI\Dialog\DialogBase.cs" />
+    <Compile Include="VI\Dialog\DialogCommand.cs" />
+    <Compile Include="VI\Dialog\DialogPlayer.cs" />
+    <Compile Include="VI\Dialog\DialogVI.cs" />
+    <Compile Include="VI\Dialog\DialogTreeBuilder.cs" />
+    <Compile Include="Misc\Vector3D.cs" />
+    <Compile Include="VI\Input\KeyboardControls.cs" />
+    <Compile Include="Misc\IniFile.cs" />
     <Compile Include="Database\GameMeta.cs" />
     <Compile Include="Database\LoreData.cs" />
     <Compile Include="Database\SaveDataReader.cs" />
@@ -69,11 +69,11 @@
     <Compile Include="Database\TargetShipData.cs" />
     <Compile Include="Plugins\PluginParameterDefault.cs" />
     <Compile Include="VI\ConfigurationManager.cs" />
-    <Compile Include="VI\DIKCodes.cs" />
-    <Compile Include="VI\Interactor.cs" />
+    <Compile Include="VI\Input\DIKCodes.cs" />
+    <Compile Include="VI\Input\Interactor.cs" />
     <Compile Include="Plugins\IPlugin.cs" />
-    <Compile Include="VI\VKCodes.cs" />
-    <Compile Include="VI\SpeechEngine.cs" />
+    <Compile Include="VI\Input\VKCodes.cs" />
+    <Compile Include="VI\Dialog\SpeechEngine.cs" />
     <Compile Include="VI\VI.cs" />
     <Compile Include="Plugins\PluginManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -107,7 +107,6 @@
     <Content Include="_devRsc\sw_cfg_explanation.txt" />
     <Content Include="_devRsc\sw_modKit_savedatasettings.txt" />
     <Content Include="_devRsc\sw_savedata_exmpl.txt" />
-    <Content Include="_dll\irrKlang.NET4.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

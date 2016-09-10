@@ -257,6 +257,9 @@ namespace EvoVI.Engine
 
         static void _soundOutput_Stopped(object sender, PlaybackStoppedEventArgs e)
         {
+            // Get the dialog node that has just been played
+            DialogVI currNode = _queue[0];
+
             // Remove dialog nodes that are too old
             for (int i = _queue.Count - 1; i >= 0; i--)
             {
@@ -273,6 +276,10 @@ namespace EvoVI.Engine
 
             _soundSource.Dispose();
             _audioStream.Dispose();
+
+            // Start a new thread to prevent another VI or Command dialog to remove this 
+            // object while it's still in use
+            new Thread(n => { currNode.NextNode(); }).Start();
         }
         #endregion
     }
