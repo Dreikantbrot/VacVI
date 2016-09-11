@@ -111,7 +111,7 @@ namespace EvoVI.Classes.Dialog
 
         /// <summary> Returns or sets the delegate function that checks for the fullfillment of the dialog node's condition.
         /// </summary>
-        protected Func<bool> ConditionFunction
+        public Func<bool> ConditionFunction
         {
             get { return _conditionFunction; }
             set { _conditionFunction = value; }
@@ -183,7 +183,7 @@ namespace EvoVI.Classes.Dialog
 
         /// <summary> Returns the string to display on the GUI.
         /// </summary>
-        public virtual string GUIDisplayText
+        internal virtual string GUIDisplayText
         {
             get { return this._text; }
         }
@@ -339,7 +339,7 @@ namespace EvoVI.Classes.Dialog
                 else
                 {
                     // No "winner" phrase - back to root
-                    DialogTreeBuilder.RootDialogNode.SetActive();
+                    DialogTreeBuilder.DialogRoot.SetActive();
                 }
             }
         }

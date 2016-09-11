@@ -31,9 +31,19 @@ namespace EvoVI.Classes.Dialog
     public static class DialogTreeBuilder
     {
         #region Variables
-        public static DialogBase RootDialogNode = new DialogBase(" ", DialogBase.DialogPriority.VERY_LOW, null, null, null, (DialogBase.DialogFlags.IGNORE_VI_STATE | DialogBase.DialogFlags.INGORE_READY_STATE));
+        private static DialogBase _dialogRoot = new DialogBase(" ", DialogBase.DialogPriority.VERY_LOW, null, null, null, (DialogBase.DialogFlags.IGNORE_VI_STATE | DialogBase.DialogFlags.INGORE_READY_STATE));
         private static Dictionary<string, DialogPlayer> _grammarLookupTable = new Dictionary<string, DialogPlayer>();
         private static List<DialogBase> _dialogNodes = new List<DialogBase>();
+        #endregion
+
+
+        #region Properties
+        /// <summary> Returns the dialog tree's root.
+        /// </summary>
+        public static DialogBase DialogRoot
+        {
+            get { return DialogTreeBuilder._dialogRoot; }
+        }
         #endregion
 
 
@@ -50,7 +60,7 @@ namespace EvoVI.Classes.Dialog
 
                 if (currStruct._node == null) { continue; }
 
-                currStruct._node.RegisterTo((parentNode != null) ? parentNode : RootDialogNode);
+                currStruct._node.RegisterTo((parentNode != null) ? parentNode : _dialogRoot);
                 currStruct._node.UpdateState();
 
                 // Sort into lookup table
@@ -67,7 +77,9 @@ namespace EvoVI.Classes.Dialog
         }
 
 
-        public static void UpdateReadyNodes()
+        /// <summary> Updates all dialog nodes in a "ready" or "listening" state
+        /// </summary>
+        internal static void UpdateReadyNodes()
         {
             for (int i = 0; i < _dialogNodes.Count; i++)
             {

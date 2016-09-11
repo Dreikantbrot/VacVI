@@ -49,7 +49,7 @@ namespace EvoVI.Engine
         public static string Language
         {
             get { return SpeechEngine._language; }
-            set { SpeechEngine._language = value; }
+            internal set { SpeechEngine._language = value; }
         }
 
 
@@ -58,7 +58,7 @@ namespace EvoVI.Engine
         public static System.Globalization.CultureInfo Culture
         {
             get { return SpeechEngine._culture; }
-            set { SpeechEngine._culture = value; }
+            internal set { SpeechEngine._culture = value; }
         }
 
 
@@ -73,10 +73,10 @@ namespace EvoVI.Engine
 
         /// <summary> Returns or sets the time in milliseconds a VI dialog node will be held in the queue before deletion.
         /// </summary>
-        public static uint SpeechDone
+        public static uint MaxSpeechNodeAge
         {
             get { return SpeechEngine._maxSpeechNodeAge; }
-            set { SpeechEngine._maxSpeechNodeAge = value; }
+            internal set { SpeechEngine._maxSpeechNodeAge = value; }
         }
         #endregion
 
@@ -133,7 +133,7 @@ namespace EvoVI.Engine
         #region Functions
         /// <summary> Initializes the Speech Engine.
         /// </summary>
-        public static void Initialize()
+        internal static void Initialize()
         {
             _culture = new System.Globalization.CultureInfo(_language, false);
             try 
@@ -164,7 +164,7 @@ namespace EvoVI.Engine
         /// <summary> Registers a dialog node's answers to the speech recognition engine.
         /// </summary>
         /// <param name="node">The dialog node, which answers to add.</param>
-        public static void RegisterPlayerDialogNode(DialogPlayer node)
+        internal static void RegisterPlayerDialogNode(DialogPlayer node)
         {
             if (_recognizer == null) { return; }
 
@@ -255,7 +255,7 @@ namespace EvoVI.Engine
             if (!async) { _soundOutput.WaitForStopped(); }
         }
 
-        static void _soundOutput_Stopped(object sender, PlaybackStoppedEventArgs e)
+        private static void _soundOutput_Stopped(object sender, PlaybackStoppedEventArgs e)
         {
             // Get the dialog node that has just been played
             DialogVI currNode = _queue[0];

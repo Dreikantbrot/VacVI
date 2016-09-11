@@ -43,12 +43,12 @@ namespace EvoVI
 
         /// <summary> Returns the plugin configuration path.
         /// </summary>
-        public static string PluginConfigPath
+        internal static string PluginConfigPath
         {
             get { return PluginManager.GetPluginPath() + "\\" + "plugins.ini"; }
         }
 
-        public static Dictionary<string, List<IPlugin>> LoadedDLLs
+        internal static Dictionary<string, List<IPlugin>> LoadedDLLs
         {
             get { return PluginManager._dllDictionary; }
         }
@@ -81,7 +81,7 @@ namespace EvoVI
 
         /// <summary> Loads all plugins inside the [ApplicationPath]/Plugins folder.
         /// </summary>
-        public static void LoadPlugins(bool loadDisabledPlugins=false)
+        internal static void LoadPlugins(bool loadDisabledPlugins = false)
         {
             Plugins.Clear();
             _dllDictionary.Clear();
@@ -186,7 +186,7 @@ namespace EvoVI
 
         /// <summary> Initializes all loaded plugins.
         /// </summary>
-        public static void InitializePlugins()
+        internal static void InitializePlugins()
         {
             for (int i = 0; i < Plugins.Count; i++) { Plugins[i].Initialize(); }
         }
@@ -194,7 +194,7 @@ namespace EvoVI
 
         /// <summary> Calls OnProgramShutdown on each plugin (sequentially, non-threaded).
         /// </summary>
-        public static void ShutdownPlugins()
+        internal static void ShutdownPlugins()
         {
             // Check for running threads and wait for their completion before shutdown
             foreach (KeyValuePair<IPlugin, Thread> pluginThread in _pluginThreads)
@@ -212,7 +212,7 @@ namespace EvoVI
 
         /// <summary> Calls OnGameDataUpdate on each plugin (parallel, threaded).
         /// </summary>
-        public static void CallGameDataUpdateOnPlugins()
+        internal static void CallGameDataUpdateOnPlugins()
         {
             for (int i = 0; i < Plugins.Count; i++)
             {

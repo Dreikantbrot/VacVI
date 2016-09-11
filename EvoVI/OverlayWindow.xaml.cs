@@ -164,7 +164,7 @@ namespace EvoVIOverlay
 
             txtBlck_MainInfo.Text = "Current Node: " + ((VI.CurrentDialogNode == null) ? "N/A" : VI.CurrentDialogNode.GUIDisplayText) + "\n" +
                 "Active Nodes:\n" +
-                buildDialogInfo(DialogTreeBuilder.RootDialogNode);
+                buildDialogInfo(DialogTreeBuilder.DialogRoot);
 
             txtBlck_StatusInfo.Text = "Target Process: " + Interactor.TargetProcessName + "\n" +
                 PluginManager.Plugins.Count + " plugins loaded";

@@ -295,13 +295,13 @@ namespace EvoVI.Database
         #region Functions
         /// <summary> Creates a database with in-game actions for the currently set game.
         /// </summary>
-        public static void BuildDatabase()
+        internal static void BuildDatabase()
         {
             _gameActions.Clear();
 
             // Parse every line of the keymap8_Layout.txt resource template and generate the DB
             int currConfigLineNr = 0;
-            string[] keymapTemplate = Properties.Resources.Keymap8_Layout.Split('\n');
+            string[] keymapTemplate = EvoVILib.Properties.Resources.Keymap8_Layout.Split('\n');
 
             for (int i = 0; i < keymapTemplate.Length; i++)
             {
@@ -355,7 +355,7 @@ namespace EvoVI.Database
             
         /// <summary> Loads the key mapping file for the current game and assigns the scancode to all actions wthin the database.
         /// </summary>
-        public static void LoadKeymap()
+        internal static void LoadKeymap()
         {
             /* Assign the scancodes to each keymap */
             string[] configFile;

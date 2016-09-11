@@ -97,48 +97,6 @@ namespace EvoVI.Engine
         }
         #endregion
 
-        
-        #region Structs
-        public struct ControlMapping
-        {
-            private GameAction _control;
-            private List<int> _keyMap;
-            private List<KeyPressMode> _keyPressModes;
-
-            public List<int> KeyMap
-            {
-                get { return _keyMap; }
-                set { _keyMap = value; }
-            }
-
-            public ControlMapping(GameAction pControl)
-            {
-                this._control = pControl;
-                this._keyMap = new List<int>();
-                this._keyPressModes = new List<KeyPressMode>();
-            }
-
-
-            public void AddKeyPress(Key key, KeyPressMode pressMode)
-            {
-                AddKeyPress((uint)KeyInterop.VirtualKeyFromKey(key), pressMode);
-            }
-
-
-            public void AddKeyPress(uint vKeyCode, KeyPressMode pressMode)
-            {
-                AddKeyPress(MapVirtualKey(vKeyCode, 0), pressMode);
-            }
-
-
-            public void AddKeyPress(int keyCode, KeyPressMode pressMode)
-            {
-                _keyMap.Add((int)keyCode);
-                _keyPressModes.Add(pressMode);
-            }
-        }
-        #endregion
-
 
         #region Enums
         [Flags]
@@ -156,23 +114,13 @@ namespace EvoVI.Engine
         #region Variables
         private static Process _targetProcess = null;
         private static IntPtr _targetWindowHandle;
-        private static Dictionary<GameAction, ControlMapping> _gameControls = new Dictionary<GameAction, ControlMapping>();
         #endregion
 
 
         #region Properties
-        /// <summary> Returns the control map for the game.
-        /// </summary>
-        public static Dictionary<GameAction, ControlMapping> GameControls
-        {
-            get { return Interactor._gameControls; }
-            set { Interactor._gameControls = value; }
-        }
-
-
         /// <summary> Returns the name of the currently targeted process.
         /// </summary>
-        public static string TargetProcessName
+        internal static string TargetProcessName
         {
             get { return (Interactor._targetProcess == null) ? "<null>" : Interactor._targetProcess.ProcessName; }
         }
@@ -182,7 +130,7 @@ namespace EvoVI.Engine
         #region Functions
         /// <summary> Initializes the Interactor.
         /// </summary>
-        public static void Initialize()
+        internal static void Initialize()
         {
             getAllProcessesByName(GameMeta.GameDetails[GameMeta.CurrentGame].ProcessName);
         }
@@ -191,7 +139,7 @@ namespace EvoVI.Engine
         /// <summary> Gets a process by it's name and updates target process and window handle.
         /// </summary>
         /// <param name="process">The process name (without file extension).</param>
-        private static void getAllProcessesByName(string process)
+        internal static void getAllProcessesByName(string process)
         {
             _targetProcess = Process.GetProcessesByName(process).FirstOrDefault();
             if (_targetProcess != null) { _targetWindowHandle = _targetProcess.MainWindowHandle; }

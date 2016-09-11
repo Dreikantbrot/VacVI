@@ -24,7 +24,7 @@ namespace EvoVI.Classes.Dialog
 
         /// <summary> Returns the string to display on the GUI.
         /// </summary>
-        public override string GUIDisplayText
+        internal override string GUIDisplayText
         {
             get { return "<...>"; }
         }

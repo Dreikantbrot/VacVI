@@ -94,7 +94,7 @@ namespace Native
                     break;
 
                 case "jump_back":
-                    if (_jumpBackNode != null) { _jumpBackNode.SetActive(); } else { DialogTreeBuilder.RootDialogNode.SetActive(); }
+                    if (_jumpBackNode != null) { _jumpBackNode.SetActive(); } else { DialogTreeBuilder.DialogRoot.SetActive(); }
                     break;
 
                 default: return;

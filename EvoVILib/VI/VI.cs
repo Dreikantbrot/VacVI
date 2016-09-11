@@ -3,6 +3,8 @@ using EvoVI.PluginContracts;
 using System.Reflection;
 using System.Speech.Recognition;
 
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("EvoVI")]
+
 namespace EvoVI.Engine
 {
     public static class VI
@@ -81,55 +83,55 @@ namespace EvoVI.Engine
         public static DialogBase CurrentDialogNode
         {
             get { return VI._currentDialogNode; }
-            set { VI._currentDialogNode = value; }
+            internal set { VI._currentDialogNode = value; }
         }
 
         public static DialogBase PreviousDialogNode
         {
             get { return VI._previousDialogNode; }
-            set { VI._previousDialogNode = value; }
+            internal set { VI._previousDialogNode = value; }
         }
 
         public static IPlugin CurrCommand
         {
             get { return VI._currCommand; }
-            set { VI._currCommand = value; }
+            internal set { VI._currCommand = value; }
         }
 
         public static string CurrRecognizedPhrase
         {
             get { return VI._currRecognizedPhrase; }
-            set { VI._currRecognizedPhrase = value; }
+            internal set { VI._currRecognizedPhrase = value; }
         }
 
         public static Grammar CurrRecognizedGrammar
         {
             get { return VI._currRecognizedGrammar; }
-            set { VI._currRecognizedGrammar = value; }
+            internal set { VI._currRecognizedGrammar = value; }
         }
 
         public static IPlugin LastCommand
         {
             get { return VI._lastCommand; }
-            set { VI._lastCommand = value; }
+            internal set { VI._lastCommand = value; }
         }
 
         public static string LastRecognizedPhrase
         {
             get { return VI._lastRecognizedPhrase; }
-            set { VI._lastRecognizedPhrase = value; }
+            internal set { VI._lastRecognizedPhrase = value; }
         }
 
         public static Grammar LastRecognizedGrammar
         {
             get { return VI._lastRecognizedGrammar; }
-            set { VI._lastRecognizedGrammar = value; }
+            internal set { VI._lastRecognizedGrammar = value; }
         }
 
         public static DialogPlayer LastMisunderstoodDialogNode
         {
             get { return VI._lastMisunderstoodDialogNode; }
-            set { VI._lastMisunderstoodDialogNode = value; }
+            internal set { VI._lastMisunderstoodDialogNode = value; }
         }
         #endregion
 
@@ -137,9 +139,9 @@ namespace EvoVI.Engine
         #region Functions
         /// <summary> Initializes the VI.
         /// </summary>
-        public static void Initialize()
+        internal static void Initialize()
         {
-            _currentDialogNode = DialogTreeBuilder.RootDialogNode;
+            _currentDialogNode = DialogTreeBuilder.DialogRoot;
         }
         #endregion
     }

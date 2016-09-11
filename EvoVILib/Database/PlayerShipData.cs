@@ -403,7 +403,7 @@ namespace EvoVI.Database
         #region Functions
         /// <summary> Converts some data into a more convenient form.
         /// </summary>
-        public static void Update()
+        internal static void Update()
         {
             int maxCount;
 

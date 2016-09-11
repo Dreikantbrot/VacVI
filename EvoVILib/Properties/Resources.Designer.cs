@@ -8,7 +8,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace EvoVI.Properties {
+namespace EvoVILib.Properties
+{
     using System;
     
     

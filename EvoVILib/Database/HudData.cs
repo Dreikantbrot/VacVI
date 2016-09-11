@@ -79,7 +79,7 @@ namespace EvoVI.Database
         #region Functions
         /// <summary> Converts some data into a more convenient form.
         /// </summary>
-        public static void Update()
+        internal static void Update()
         {
             // Convert navigation console status
             SaveDataReader.ConvertOnOffState((int)SaveDataReader.GetEntry(PARAM_NAVIGATION_CONSOLE_STATUS).Value, out _navigationConsole);

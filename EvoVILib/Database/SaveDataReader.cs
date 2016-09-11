@@ -105,7 +105,7 @@ namespace EvoVI.Database
 
             #region Constructor
             /// <summary> Creates a data entry instance holding a single entry from the savedata.txt file.
-            /// <para>See: <see cref="Properties.Resources.Savedata_Layout"/></para>
+            /// <para>See: <see cref="EvoVILib.sProperties.Resources.Savedata_Layout"/></para>
             /// </summary>
             /// <param name="pName">The parameter name.</param>
             /// <param name="pType">The parameter's data type.</param>
@@ -179,13 +179,13 @@ namespace EvoVI.Database
         #region Functions
         /// <summary> Initializes the savedata database.
         /// </summary>
-        public static void BuildDatabase()
+        internal static void BuildDatabase()
         {
             _saveData.Clear();
             _indexTable.Clear();
 
             /* Read savedata template and parse parameters; Template is based upon Evochron Legacy as it's just an expansion on all the others */
-            string[] savedataTemplate = EvoVI.Properties.Resources.Savedata_Layout.Split('\n');
+            string[] savedataTemplate = EvoVILib.Properties.Resources.Savedata_Layout.Split('\n');
 
             // Build the database
             int currDbIndex = 0;
@@ -222,7 +222,7 @@ namespace EvoVI.Database
         /// </summary>
         /// <param name="val">The variables current integer state.</param>
         /// <param name="var">The variable which to assing the on/off state to.</param>
-        public static void ConvertOnOffState(int val, out OnOffState var)
+        internal static void ConvertOnOffState(int val, out OnOffState var)
         {
             var = (val == 1) ? OnOffState.ON : OnOffState.OFF;
         }
@@ -231,7 +231,7 @@ namespace EvoVI.Database
         /// <summary> Reads and stores the contents of the savedata.txt file.
         /// </summary>
         /// <returns>Whether information has been retrieved successfully.</returns>
-        public static bool ReadGameData()
+        internal static bool ReadGameData()
         {
             string[] fileContent;
             string filepath = GameMeta.DefaultSavedataPath;

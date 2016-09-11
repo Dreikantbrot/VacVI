@@ -93,7 +93,7 @@ namespace EvoVI.Database
 
 
             #region Functions
-            public static void BuildItemDatabase()
+            internal static void BuildItemDatabase()
             {
                 string filePath = GameMeta.CurrentGameDirectoryPath + "\\" + "itemdata.dat";
                 _itemDatabase.Clear();
@@ -242,7 +242,7 @@ namespace EvoVI.Database
 
 
             #region Functions
-            public static void BuildSystemDatabase()
+            internal static void BuildSystemDatabase()
             {
                 _systemDatabase.Clear();
 
@@ -381,7 +381,7 @@ namespace EvoVI.Database
 
 
             #region Functions
-            public static void BuildTechDatabase()
+            internal static void BuildTechDatabase()
             {
                 string filePath = GameMeta.CurrentGameDirectoryPath + "\\" + "techdata.dat";
                 _techDatabase.Clear();

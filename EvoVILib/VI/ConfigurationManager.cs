@@ -38,7 +38,7 @@ namespace EvoVI
         public static IniFile ConfigurationFile
         {
             get { return _configurationFile; }
-            set { _configurationFile = value; }
+            internal set { _configurationFile = value; }
         }
         #endregion
 
@@ -47,7 +47,7 @@ namespace EvoVI
         /// <summary> Returns the directory path to the configuration file.
         /// </summary>
         /// <returns>The directory path.</returns>
-        public static string GetConfigurationPath()
+        internal static string GetConfigurationPath()
         {
             string appPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase).Replace("file:\\", "");
             return appPath;
@@ -56,7 +56,7 @@ namespace EvoVI
 
         /// <summary> Reads the configuration file and assigns all values defined in it.
         /// </summary>
-        public static void LoadConfiguration()
+        internal static void LoadConfiguration()
         {
             string section = "";
             _configurationFile.Read();

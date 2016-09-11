@@ -125,9 +125,12 @@ namespace EvoVI.Database
         public static SupportedGame CurrentGame
         {
             get { return _currentGame; }
-            set { _currentGame = value; }
+            internal set { _currentGame = value; }
         }
+        
 
+        /// <summary> Returns the database containing detailed information about the supported games.
+        /// </summary>
         public static Dictionary<SupportedGame, GameInfo> GameDetails
         {
             get { return GameMeta._gameDetails; }
