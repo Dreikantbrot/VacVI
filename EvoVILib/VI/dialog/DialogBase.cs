@@ -199,7 +199,7 @@ namespace EvoVI.Classes.Dialog
         /// <param name="pPluginToStart">The name of the plugin to start, when triggered.</param>
         /// <param name="pData">An object containing custom, user-defined data.</param>
         /// <param name="pFlags">The behaviour-flags, modifying the node's behaviour.</param>
-        public DialogBase(
+        internal DialogBase(
             string pText = " ",
             DialogPriority pPriority = DialogPriority.NORMAL,
             Func<bool> pConditionFunction = null,
