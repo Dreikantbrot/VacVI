@@ -71,6 +71,7 @@ namespace EvoVIOverlay
             /* Load the main configuration */
             ConfigurationManager.LoadConfiguration();
 
+
             /* Play loading animation */
             _playLoadingAnimation = ConfigurationManager.ConfigurationFile.ValueIsBoolAndTrue("Overlay", "Play_Intro");
             if (_playLoadingAnimation)
@@ -89,12 +90,16 @@ namespace EvoVIOverlay
             /* Initialize all components */
             VI.Initialize();
             SpeechEngine.Initialize();
-            Interactor.Initialize();
             SaveDataReader.BuildDatabase();
             KeyboardControls.BuildDatabase();
             LoreData.Items.BuildItemDatabase();
             LoreData.Systems.BuildSystemDatabase();
             LoreData.Tech.BuildTechDatabase();
+
+            
+            /* Wait for the game process to start */
+            GameMeta.GameProcess.EnableRaisingEvents = true;
+            GameMeta.GameProcess.Exited += GameProcess_Exited;
 
             
             /* Load Plugins */
@@ -152,6 +157,24 @@ namespace EvoVIOverlay
 
 
         #region Events
+        /// <summary> Fires, when the game process has ended.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The event arguments.</param>
+        void GameProcess_Exited(object sender, EventArgs e)
+        {
+            // Close the overlay together with the game.
+            if (this.Dispatcher.CheckAccess())
+            {
+                this.Close();
+            }
+            else
+            {
+                this.Dispatcher.Invoke(new ThreadStart(this.Close));
+            }
+        }
+
+
         /// <summary> Fires each time, the update timer is being triggered (~500ms).
         /// </summary>
         /// <param name="sender">The sender object.</param>
@@ -237,6 +260,7 @@ namespace EvoVIOverlay
         /// <param name="e">The event arguments.</param>
         private void window_Closed(object sender, EventArgs e)
         {
+            GameMeta.StopGameProcessSearch();
             PluginManager.ShutdownPlugins();
         }
         #endregion

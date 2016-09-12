@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace EvoVI.Database
@@ -103,6 +104,19 @@ namespace EvoVI.Database
         #endregion
 
 
+        #region Events
+        internal static event EventHandler OnGameProcessStarted;
+
+        private static void OnGameProcessStartedFnc(EventArgs e)
+        {
+            if (OnGameProcessStarted != null)
+            {
+                OnGameProcessStarted(null, EventArgs.Empty);
+            }
+        }
+        #endregion
+
+
         #region Constants
         public const string DEFAULT_GAME_PATH = @"C:\sw3dg";
         public const string DEFAULT_SAVEDATA_PATH = @"C:\sw3dg";
@@ -115,6 +129,8 @@ namespace EvoVI.Database
 
         #region Variables
         private static SupportedGame _currentGame = SupportedGame.NONE;
+        private static System.Diagnostics.Process _gameProcess;
+        private static Thread _gameProcessCheckThread;
         private static Dictionary<SupportedGame, GameInfo> _gameDetails = new Dictionary<SupportedGame, GameInfo>();
         #endregion
 
@@ -128,6 +144,14 @@ namespace EvoVI.Database
             internal set { _currentGame = value; }
         }
         
+
+        /// <summary> Returns the current game's process.
+        /// </summary>
+        public static System.Diagnostics.Process GameProcess
+        {
+            get { return _gameProcess; }
+        }
+
 
         /// <summary> Returns the database containing detailed information about the supported games.
         /// </summary>
@@ -212,6 +236,49 @@ namespace EvoVI.Database
 
 
         #region Functions
+        /// <summary> Checks for the game's process to start.
+        /// </summary>
+        internal static void CheckForGameProcess()
+        {
+            StopGameProcessSearch();
+
+            _gameProcessCheckThread = new Thread(waitForGameProcess);
+            _gameProcessCheckThread.Start();
+        }
+
+
+        /// <summary> Aborts the search for the game process start.
+        /// </summary>
+        internal static void StopGameProcessSearch()
+        {
+            if (
+                (_gameProcessCheckThread != null) &&
+                (_gameProcessCheckThread.IsAlive)
+            )
+            {
+                _gameProcessCheckThread.Abort();
+                while (_gameProcessCheckThread.IsAlive) { Thread.Sleep(100); }
+            }
+        }
+
+
+        /// <summary> Waits for the game's process to start.
+        /// </summary>
+        private static void waitForGameProcess()
+        {
+            do
+            {
+                Thread.Sleep(250);
+
+                string processName = _gameDetails.ContainsKey(_currentGame) ? _gameDetails[_currentGame].ProcessName : null;
+                _gameProcess = System.Diagnostics.Process.GetProcessesByName(processName).FirstOrDefault();
+            }
+            while (_gameProcess == null && Thread.CurrentThread.ThreadState != ThreadState.AbortRequested);
+
+            OnGameProcessStartedFnc(EventArgs.Empty);
+        }
+
+
         /// <summary> Gets the description tag entry from the SupportedGame enum.
         /// </summary>
         /// <param name="game">The enum flag for which to get the description.</param>

@@ -98,6 +98,7 @@ namespace EvoVIConfigurator
         private Label lbl_noParamsToConfigure;
         private List<Key> keyDowns = new List<Key>();
 
+        private bool _isWaitingForGameStart = false;
         private SolidColorBrush _brightThemeBrush = new SolidColorBrush(Color.FromArgb(50, 255, 255,255));
         private SolidColorBrush _darkThemeBrush = new SolidColorBrush(Color.FromArgb(50, 0, 0, 0));
 
@@ -217,6 +218,11 @@ namespace EvoVIConfigurator
             
             /* Update Overview tab */
             tab_Overview_Label_GotFocus(null, null);
+
+
+            SpeechEngine.Initialize();
+            PluginManager.InitializePlugins();
+            GameMeta.OnGameProcessStarted += GameMeta_OnGameProcessStarted;
         }
         #endregion
 
@@ -247,11 +253,66 @@ namespace EvoVIConfigurator
 
             chckBox.IsChecked = (state <= checkIfAtLeast);
         }
+
+
+        /// <summary> Verifies whether the path in the textbox is a valid installation directory.
+        /// </summary>
+        private bool verifyInstallDir()
+        {
+            txtBox_StatusText.Visibility = System.Windows.Visibility.Visible;
+
+            if (String.IsNullOrWhiteSpace(txt_InstallDir.Text))
+            {
+                // No path entered
+                txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Colors.White);
+                txtBox_StatusText.Text = "Please enter the installation path for " + GameMeta.GetDescription(GameMeta.CurrentGame) + "!";
+
+                return false;
+            }
+
+
+            /* Check whether the entered path is a valid installation directory */
+            bool pathIsValid = (
+                (Directory.Exists(txt_InstallDir.Text)) &&
+                (Directory.GetFiles(txt_InstallDir.Text, GameMeta.GetDescription(GameMeta.CurrentGame).Replace(' ', '*') + ".exe").Length > 0) &&
+                (Directory.GetFiles(txt_InstallDir.Text, "EvochronData.evo").Length > 0)
+            );
+
+            if (pathIsValid)
+            {
+                // Path exists
+                txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Color.FromRgb(0, 240, 0));
+                txtBox_StatusText.Text = "Your installation path for " + GameMeta.GetDescription(GameMeta.CurrentGame) + " is valid!";
+
+                // Save the game path within the configuration file
+                ConfigurationManager.ConfigurationFile.SetValue("Filepaths", GameMeta.CurrentGame.ToString(), txt_InstallDir.Text);
+                GameMeta.GameDetails[GameMeta.CurrentGame].UserInstallDirectory = txt_InstallDir.Text;
+
+                return true;
+            }
+            else
+            {
+                // Entered path does not exist
+                txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Color.FromRgb(220, 0, 0));
+                txtBox_StatusText.Text = "Error: The path given is not a valid " + GameMeta.GetDescription(GameMeta.CurrentGame) + " installation directory!";
+
+                return false;
+            }
+        }
         #endregion
 
 
         #region Events
+        /// <summary> Fires, when the configurator is closing.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The cancel event arguments.</param>
+        private void Configurator_Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            GameMeta.StopGameProcessSearch();
+        }
         
+
         #region Overview Events
         /// <summary> Fires when the "Overview"-tab is being focused.
         /// </summary>
@@ -259,6 +320,8 @@ namespace EvoVIConfigurator
         /// <param name="e">The routed event arguments.</param>
         private void tab_Overview_Label_GotFocus(object sender, RoutedEventArgs e)
         {
+            if (_isWaitingForGameStart) { return; }
+
             bool criticalError = false;
 
             // Install directory is valid?
@@ -352,17 +415,46 @@ namespace EvoVIConfigurator
         }
 
 
-        /// <summary> Hides the configurator and starts the overlay.
+        /// <summary> Locks the configurator UI and waits for the game process to start.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The routed event arguments.</param>
         private void btn_StartGame_Click(object sender, RoutedEventArgs e)
         {
-            this.Hide();
-            EvoVIOverlay.OverlayWindow overlayWindow = new EvoVIOverlay.OverlayWindow();
-            overlayWindow.ShowDialog();
-            this.Show();
-            this.BringIntoView();
+            btn_StartGame.Tag = btn_StartGame.Content;
+            btn_StartGame.Content = "Please start the Game!";
+            
+            for (int i = 0; i < tab_Main.Items.Count; i++) { ((TabItem)tab_Main.Items[i]).IsEnabled = false; }
+
+            btn_StartGame.IsEnabled = false;
+            _isWaitingForGameStart = true;
+            GameMeta.CheckForGameProcess();
+        }
+
+
+        /// <summary> Hides the configurator and starts the overlay.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        void GameMeta_OnGameProcessStarted(object sender, EventArgs e)
+        {
+            Dispatcher.BeginInvoke(
+                System.Windows.Threading.DispatcherPriority.Background,
+                new Action(() =>
+                {
+                    this.Hide();
+                    btn_StartGame.Content = btn_StartGame.Tag;
+                    tab_Main.IsEnabled = true;
+                    btn_StartGame.IsEnabled = true;
+                    for (int i = 0; i < tab_Main.Items.Count; i++) { ((TabItem)tab_Main.Items[i]).IsEnabled = true; }
+
+                    // Start the Overlay
+                    EvoVIOverlay.OverlayWindow overlayWindow = new EvoVIOverlay.OverlayWindow();
+                    overlayWindow.ShowDialog();
+                    this.Show();
+                    this.BringIntoView();
+                })
+            );
         }
         #endregion
 
@@ -531,52 +623,6 @@ namespace EvoVIConfigurator
         private void btn_SaveConfig_Click(object sender, RoutedEventArgs e)
         {
             ConfigurationManager.ConfigurationFile.Write(ConfigurationManager.ConfigurationFilepath);
-        }
-
-
-        /// <summary> Verifies whether the path in the textbox is a valid installation directory.
-        /// </summary>
-        private bool verifyInstallDir()
-        {
-            txtBox_StatusText.Visibility = System.Windows.Visibility.Visible;
-
-            if (String.IsNullOrWhiteSpace(txt_InstallDir.Text))
-            {
-                // No path entered
-                txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Colors.White);
-                txtBox_StatusText.Text = "Please enter the installation path for " + GameMeta.GetDescription(GameMeta.CurrentGame) + "!";
-
-                return false;
-            }
-
-
-            /* Check whether the entered path is a valid installation directory */
-            bool pathIsValid = (
-                (Directory.Exists(txt_InstallDir.Text)) &&
-                (Directory.GetFiles(txt_InstallDir.Text, GameMeta.GetDescription(GameMeta.CurrentGame).Replace(' ', '*') + ".exe").Length > 0) &&
-                (Directory.GetFiles(txt_InstallDir.Text, "EvochronData.evo").Length > 0)
-            );
-
-            if (pathIsValid)
-            {
-                // Path exists
-                txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Color.FromRgb(0, 240, 0));
-                txtBox_StatusText.Text = "Your installation path for " + GameMeta.GetDescription(GameMeta.CurrentGame) + " is valid!";
-
-                // Save the game path within the configuration file
-                ConfigurationManager.ConfigurationFile.SetValue("Filepaths", GameMeta.CurrentGame.ToString(), txt_InstallDir.Text);
-                GameMeta.GameDetails[GameMeta.CurrentGame].UserInstallDirectory = txt_InstallDir.Text;
-
-                return true;
-            }
-            else
-            {
-                // Entered path does not exist
-                txtBox_StatusText.Foreground = new System.Windows.Media.SolidColorBrush(Color.FromRgb(220, 0, 0));
-                txtBox_StatusText.Text = "Error: The path given is not a valid " + GameMeta.GetDescription(GameMeta.CurrentGame) + " installation directory!";
-
-                return false;
-            }
         }
         #endregion
 

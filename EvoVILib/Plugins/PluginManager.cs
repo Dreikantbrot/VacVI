@@ -86,6 +86,9 @@ namespace EvoVI
             Plugins.Clear();
             _dllDictionary.Clear();
 
+            ShutdownPlugins();
+            _pluginThreads.Clear();
+
             /* Load plugin files */
             string[] dllFileNames = null;
             string pluginPath = GetPluginPath();
@@ -199,6 +202,8 @@ namespace EvoVI
             // Check for running threads and wait for their completion before shutdown
             foreach (KeyValuePair<IPlugin, Thread> pluginThread in _pluginThreads)
             {
+                if (pluginThread.Value == null) { continue; }
+
                 if (pluginThread.Value.IsAlive) { pluginThread.Value.Abort(); }
 
                 // Wait for... an abortion O.o
@@ -217,7 +222,11 @@ namespace EvoVI
             for (int i = 0; i < Plugins.Count; i++)
             {
                 IPlugin currPlugin = Plugins[i];
-                if (!_pluginThreads.ContainsKey(currPlugin)) { continue; }
+                if (
+                    (!_pluginThreads.ContainsKey(currPlugin)) ||
+                    (_pluginThreads[currPlugin] == null)
+                )
+                { continue; }
 
                 // Check the state of the thread
                 if (

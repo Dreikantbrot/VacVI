@@ -111,41 +111,17 @@ namespace EvoVI.Engine
         #endregion
 
 
-        #region Variables
-        private static Process _targetProcess = null;
-        private static IntPtr _targetWindowHandle;
-        #endregion
-
-
         #region Properties
         /// <summary> Returns the name of the currently targeted process.
         /// </summary>
         internal static string TargetProcessName
         {
-            get { return (Interactor._targetProcess == null) ? "<null>" : Interactor._targetProcess.ProcessName; }
+            get { return (GameMeta.GameProcess == null) ? "<null>" : GameMeta.GameProcess.ProcessName; }
         }
         #endregion
 
 
         #region Functions
-        /// <summary> Initializes the Interactor.
-        /// </summary>
-        internal static void Initialize()
-        {
-            getAllProcessesByName(GameMeta.GameDetails[GameMeta.CurrentGame].ProcessName);
-        }
-
-
-        /// <summary> Gets a process by it's name and updates target process and window handle.
-        /// </summary>
-        /// <param name="process">The process name (without file extension).</param>
-        internal static void getAllProcessesByName(string process)
-        {
-            _targetProcess = Process.GetProcessesByName(process).FirstOrDefault();
-            if (_targetProcess != null) { _targetWindowHandle = _targetProcess.MainWindowHandle; }
-        }
-
-
         /// <summary> Executes a game action via simulated keypresses.
         /// </summary>
         /// <param name="action">The action to simulate.</param>
@@ -173,7 +149,7 @@ namespace EvoVI.Engine
         {
             if (
                 (VI.State <= VI.VIState.SLEEPING) ||
-                (_targetWindowHandle != GetForegroundWindow())
+                (GameMeta.GameProcess.MainWindowHandle != GetForegroundWindow())
             )
             { return; }
 
