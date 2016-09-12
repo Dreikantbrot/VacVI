@@ -112,7 +112,7 @@ namespace EvoVI.Classes.Dialog
         /// <summary> Generates an HTML file with all registered dialog nodes and every phrase composition for each dialog node.
         /// </summary>
         /// <param name="targetFilePath">The target filepath.</param>
-        internal static void GenerateHtmlOverview(string targetFilePath)
+        internal static void GenerateHtmlOverview(string targetFilePath, bool playerCommandsOnly = false)
         {
             StringBuilder htmlFileBuilder = new StringBuilder();
             htmlFileBuilder.AppendLine("");
@@ -127,7 +127,7 @@ namespace EvoVI.Classes.Dialog
 
             for (int i = 0; i < _dialogRoot.ChildNodes.Count; i++)
             {
-                htmlFileBuilder.Append(getDialogPhrasesHTML(_dialogRoot.ChildNodes[i]));
+                htmlFileBuilder.Append(getDialogPhrasesHTML(_dialogRoot.ChildNodes[i], true));
             }
 
             using(System.IO.StreamWriter file = new System.IO.StreamWriter(targetFilePath))
@@ -137,9 +137,12 @@ namespace EvoVI.Classes.Dialog
             }
         }
 
-        private static StringBuilder getDialogPhrasesHTML(DialogBase node, int level = 0)
+        private static StringBuilder getDialogPhrasesHTML(DialogBase node, bool playerCommandsOnly = false, int level = 0)
         {
             StringBuilder htmlFileBuilder = new StringBuilder();
+
+            if (playerCommandsOnly && (node.Speaker != DialogBase.DialogSpeaker.PLAYER)) { return htmlFileBuilder; }
+
             htmlFileBuilder.Append('\t', level + 1);
             htmlFileBuilder.AppendLine("<div class='" + node.Speaker.ToString() + "' style='margin-left: " + (level * 40) + "px !important;'>");
 
@@ -221,7 +224,7 @@ namespace EvoVI.Classes.Dialog
 
             for (int i = 0; i < node.ChildNodes.Count; i++)
             {
-                htmlFileBuilder.Append(getDialogPhrasesHTML(node.ChildNodes[i], level + 1));
+                htmlFileBuilder.Append(getDialogPhrasesHTML(node.ChildNodes[i], playerCommandsOnly, level + 1));
             }
             htmlFileBuilder.Append('\t', level + 1);
             htmlFileBuilder.AppendLine("</div>");

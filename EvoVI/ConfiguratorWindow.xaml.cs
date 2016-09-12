@@ -1044,7 +1044,10 @@ namespace EvoVIConfigurator
             string appPath = Path.GetDirectoryName(
                 System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase
             ).Replace("file:\\", "");
-            EvoVI.Classes.Dialog.DialogTreeBuilder.GenerateHtmlOverview(appPath + "\\Dialog Tree.html");
+            EvoVI.Classes.Dialog.DialogTreeBuilder.GenerateHtmlOverview(
+                appPath + "\\Dialog Tree.html",
+                (chck_Extras_PrintPlayerCommandsOnly.IsChecked == true)
+            );
 
             if (chck_Extras_AutoOpenHtml.IsChecked == true) { System.Diagnostics.Process.Start(appPath + "\\Dialog Tree.html"); }
         }
