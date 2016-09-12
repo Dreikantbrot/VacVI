@@ -98,7 +98,7 @@ namespace EvoVIConfigurator
         private Label lbl_noParamsToConfigure;
         private List<Key> keyDowns = new List<Key>();
 
-        private bool _isWaitingForGameStart = false;
+        private bool _uiLocked = false;
         private SolidColorBrush _brightThemeBrush = new SolidColorBrush(Color.FromArgb(50, 255, 255,255));
         private SolidColorBrush _darkThemeBrush = new SolidColorBrush(Color.FromArgb(50, 0, 0, 0));
 
@@ -166,6 +166,8 @@ namespace EvoVIConfigurator
 
             // "Overlay" section
             chckBox_Config_LoadingAnimation.IsChecked = ConfigurationManager.ConfigurationFile.ValueIsBoolAndTrue(ConfigurationManager.SECTION_OVERLAY, "Play_Intro");
+            txt_Config_OverlayPosX.Text = ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_OVERLAY, "X");
+            txt_Config_OverlayPosY.Text = ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_OVERLAY, "Y");
 
             // "VI" section
             txt_Config_VIName.Text = VI.Name;
@@ -299,6 +301,38 @@ namespace EvoVIConfigurator
                 return false;
             }
         }
+
+
+        /// <summary> Toggles the UI lock state on or off.
+        /// <para>Only the overview page will be locked completely.
+        /// If the user is on a different tab when disables, all functions in that tab will still be available.
+        /// Only tab-switching will not be possible on those pages.
+        /// </para>
+        /// </summary>
+        /// <param name="lockUI">If true, locks the UI and unlocks it, if false.</param>
+        private void ToggleUILock(bool lockUI)
+        {
+            if (lockUI)
+            {
+                txt_GameReadyOverlay.Visibility = System.Windows.Visibility.Visible;
+                btn_Close.Tag = btn_Close.Content;
+                btn_Close.Content = "Cancel";
+
+                for (int i = 0; i < tab_Main.Items.Count; i++) { ((TabItem)tab_Main.Items[i]).IsEnabled = false; }
+
+                btn_StartGame.IsEnabled = false;
+            }
+            else
+            {
+                btn_Close.Content = btn_Close.Tag;
+                tab_Main.IsEnabled = true;
+                btn_StartGame.IsEnabled = true;
+                txt_GameReadyOverlay.Visibility = System.Windows.Visibility.Hidden;
+                for (int i = 0; i < tab_Main.Items.Count; i++) { ((TabItem)tab_Main.Items[i]).IsEnabled = true; }
+            }
+
+            _uiLocked = lockUI;
+        }
         #endregion
 
 
@@ -320,7 +354,7 @@ namespace EvoVIConfigurator
         /// <param name="e">The routed event arguments.</param>
         private void tab_Overview_Label_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (_isWaitingForGameStart) { return; }
+            if (_uiLocked) { return; }
 
             bool criticalError = false;
 
@@ -411,7 +445,7 @@ namespace EvoVIConfigurator
         /// <param name="e">The routed event arguments.</param>
         private void btn_Close_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            if (_uiLocked) { GameMeta.StopGameProcessSearch(); ToggleUILock(false); } else { this.Close(); }
         }
 
 
@@ -421,13 +455,7 @@ namespace EvoVIConfigurator
         /// <param name="e">The routed event arguments.</param>
         private void btn_StartGame_Click(object sender, RoutedEventArgs e)
         {
-            btn_StartGame.Tag = btn_StartGame.Content;
-            btn_StartGame.Content = "Please start the Game!";
-            
-            for (int i = 0; i < tab_Main.Items.Count; i++) { ((TabItem)tab_Main.Items[i]).IsEnabled = false; }
-
-            btn_StartGame.IsEnabled = false;
-            _isWaitingForGameStart = true;
+            ToggleUILock(true);
             GameMeta.CheckForGameProcess();
         }
 
@@ -436,21 +464,18 @@ namespace EvoVIConfigurator
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The routed event arguments.</param>
-        void GameMeta_OnGameProcessStarted(object sender, EventArgs e)
+        private void GameMeta_OnGameProcessStarted(object sender, EventArgs e)
         {
             Dispatcher.BeginInvoke(
                 System.Windows.Threading.DispatcherPriority.Background,
                 new Action(() =>
                 {
                     this.Hide();
-                    btn_StartGame.Content = btn_StartGame.Tag;
-                    tab_Main.IsEnabled = true;
-                    btn_StartGame.IsEnabled = true;
-                    for (int i = 0; i < tab_Main.Items.Count; i++) { ((TabItem)tab_Main.Items[i]).IsEnabled = true; }
 
                     // Start the Overlay
                     EvoVIOverlay.OverlayWindow overlayWindow = new EvoVIOverlay.OverlayWindow();
                     overlayWindow.ShowDialog();
+                    ToggleUILock(false);
                     this.Show();
                     this.BringIntoView();
                 })
@@ -503,6 +528,35 @@ namespace EvoVIConfigurator
         private void txt_InstallDir_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             verifyInstallDir();
+        }
+
+
+        /// <summary> Fires when the values wthin the textboxes for the overlay positon have changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The text composition event arguments.</param>
+        private void validateNumericInput(object sender, TextCompositionEventArgs e)
+        {
+            string coordinate = (
+                (sender == txt_Config_OverlayPosX) ? "X" : 
+                (sender == txt_Config_OverlayPosY) ? "Y" : 
+                "???"
+            );
+
+            // Check the validity of the currently added characters
+            bool isValid = (new System.Text.RegularExpressions.Regex(@"^\d+")).IsMatch(e.Text);
+
+            if (isValid)
+            {
+                // Save the entire value
+                ConfigurationManager.ConfigurationFile.SetValue(
+                    ConfigurationManager.SECTION_OVERLAY, 
+                    coordinate,
+                    ((TextBox)sender).Text + e.Text
+                );
+            }
+            
+            e.Handled = !isValid;
         }
 
 
@@ -1008,8 +1062,6 @@ namespace EvoVIConfigurator
             e.Handled = true;
         }
         #endregion
-
-
         #endregion
     }
 }

@@ -73,7 +73,10 @@ namespace EvoVIOverlay
 
 
             /* Play loading animation */
-            _playLoadingAnimation = ConfigurationManager.ConfigurationFile.ValueIsBoolAndTrue("Overlay", "Play_Intro");
+            _playLoadingAnimation = ConfigurationManager.ConfigurationFile.ValueIsBoolAndTrue(
+                ConfigurationManager.SECTION_OVERLAY, 
+                "Play_Intro"
+            );
             if (_playLoadingAnimation)
             {
                 VI.State = VI.VIState.OFFLINE;
@@ -85,6 +88,20 @@ namespace EvoVIOverlay
                 img_LogoBackground.Visibility = System.Windows.Visibility.Hidden;
                 XamlAnimatedGif.AnimationBehavior.SetRepeatBehavior(img_LogoBackground, new RepeatBehavior(0));
             }
+
+
+            /* Set window position */
+            int posX, posY;
+            Int32.TryParse(
+                ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_OVERLAY, "X"),
+                out posX
+            );
+            Int32.TryParse(
+                ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_OVERLAY, "Y"),
+                out posY
+            );
+            this.Left = -SystemParameters.VirtualScreenLeft + Math.Max(0, posX);
+            this.Top = -SystemParameters.VirtualScreenTop + Math.Max(0, posY);
 
 
             /* Initialize all components */
