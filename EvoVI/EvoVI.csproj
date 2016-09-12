@@ -90,20 +90,11 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -128,6 +119,11 @@
     <Resource Include="_Rsc\Logo VI.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="_devRsc\sw_cfg_explanation.txt" />
+    <Resource Include="_devRsc\sw_modKit_savedatasettings.txt" />
+    <Resource Include="_devRsc\sw_savedata_exmpl.txt" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Resources\Logo_VI.png" />
   </ItemGroup>
   <ItemGroup>
@@ -135,9 +131,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\DirectoryOpened_12x12.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Icon.ico" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\EvochronLegacy.png" />
@@ -149,12 +142,10 @@
     <Resource Include="Resources\EvoVIConfigurator_Background.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\LoadingAnimation.gif" />
+    <Resource Include="Resources\Icon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="_devRsc\sw_cfg_explanation.txt" />
-    <Resource Include="_devRsc\sw_modKit_savedatasettings.txt" />
-    <Resource Include="_devRsc\sw_savedata_exmpl.txt" />
+    <Resource Include="Resources\LoadingAnimation.gif" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

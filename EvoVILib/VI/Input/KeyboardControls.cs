@@ -301,7 +301,7 @@ namespace EvoVI.Database
 
             // Parse every line of the keymap8_Layout.txt resource template and generate the DB
             int currConfigLineNr = 0;
-            string[] keymapTemplate = EvoVILib.Properties.Resources.Keymap8_Layout.Split('\n');
+            string[] keymapTemplate = EvoVI.Properties.Resources.Keymap8_Layout.Split('\n');
 
             for (int i = 0; i < keymapTemplate.Length; i++)
             {

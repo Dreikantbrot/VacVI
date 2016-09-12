@@ -41,6 +41,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Speech" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
@@ -100,10 +101,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Resources\savedata_template.txt" />
+    <Resource Include="Resources\savedata_template.txt" />
     <Resource Include="_devRsc\sw_keymap8_EM_Layout.txt" />
     <Resource Include="_devRsc\sw_keymap8_EL_Layout.txt" />
     <Resource Include="Resources\Keymap8_Layout.txt" />
+    <Resource Include="Resources\DialogTreeHTML_Template.txt" />
+    <Resource Include="Resources\Icon.ico" />
     <Content Include="_devRsc\sw_cfg_explanation.txt" />
     <Content Include="_devRsc\sw_modKit_savedatasettings.txt" />
     <Content Include="_devRsc\sw_savedata_exmpl.txt" />

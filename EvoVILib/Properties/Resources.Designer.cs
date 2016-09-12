@@ -8,8 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace EvoVILib.Properties
-{
+namespace EvoVI.Properties {
     using System;
     
     
@@ -62,17 +61,63 @@ namespace EvoVILib.Properties
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die [ EM | EL ]	[ NULL ]	[ KEYBOARD ]	TURN_RIGHT
-        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	TURN_LEFT
-        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	PITCH_DOWN
-        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	PITCH_UP
-        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	ROLL_RIGHT
-        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	ROLL_LEFT
-        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	STRAFE_RIGHT
-        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	STRAFE_LEFT
-        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	AFTERBURNER
-        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	INERTIAL_SYSTEM_ON_OFF
-        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	MATCH_ [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die &lt;html&gt;
+        ///&lt;head&gt;
+        ///	&lt;style&gt;
+        ///		table.dialognode,
+        ///		td.dialognode &gt; div,
+        ///		td.dialognode.choice.mandatory &gt; div,
+        ///		td.dialognode.choice.optional &gt; div
+        ///		{
+        ///			border: 1px solid #555;
+        ///			border-radius: 5px;
+        ///			padding: 10px;
+        ///			text-align: center;
+        ///		}
+        ///
+        ///		td.dialognode.static
+        ///		{
+        ///			margin: 10px 0px;
+        ///		}
+        ///
+        ///		table.dialognode
+        ///		{
+        ///			margin: 10px 0px;
+        ///		}
+        ///
+        ///		td.dialognode.choice.mandatory &gt; div
+        ///		{
+        ///			background-color: #55CCFF;
+        ///		}
+        ///
+        ///		td.dialognode.choice.optional &gt; div
+        ///		{
+        ///			color: #AAA; [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        /// </summary>
+        internal static string DialogTreeHTML_Template {
+            get {
+                return ResourceManager.GetString("DialogTreeHTML_Template", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Icon ähnlich wie (Symbol).
+        /// </summary>
+        internal static System.Drawing.Icon Icon {
+            get {
+                object obj = ResourceManager.GetObject("Icon", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die [ EM | EL ]	[ NULL ]	[ KEYBOARD ]	TURN_RIGHT																	&apos;Turn Right&apos;
+        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	TURN_LEFT																	&apos;Turn Left&apos;
+        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	PITCH_DOWN																	&apos;Pitch Down&apos;
+        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	PITCH_UP																	&apos;Pitch Up&apos;
+        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	ROLL_RIGHT																	&apos;Roll  Right&apos;
+        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	ROLL_LEFT																	&apos;Roll Left&apos;
+        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	STRAFE_RIGHT																&apos;Strafe [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
         internal static string Keymap8_Layout {
             get {
@@ -81,14 +126,12 @@ namespace EvoVILib.Properties
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die [EM | EL]	[ PlayerData ]			&lt;string&gt;	Pilot Name 							(string)
-        ///[EM | EL]	[ PlayerShipData ]		&lt;integer&gt;	Fuel 								(integer)
-        ///[EM | EL]	[ PlayerData ]			&lt;string&gt;	Cash 								(string, includes commas)
-        ///[EM | EL]	[ PlayerShipData ]		&lt;string&gt;	Cargo Bay 1 						(string, cargo type and number, or will display &apos;Empty&apos; if nothing)
-        ///[EM | EL]	[ PlayerShipData ]		&lt;string&gt;	Cargo Bay 2
-        ///[EM | EL]	[ PlayerShipData ]		&lt;string&gt;	Cargo Bay 3
-        ///[EM | EL]	[ PlayerShipData ]		&lt;string&gt;	Cargo Bay 4
-        ///[EM | EL]	[ PlayerShipData [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die [ EM | EL ]		[ PlayerData ]			&lt;string&gt;	Pilot Name 							(string)
+        ///[ EM | EL ]		[ PlayerShipData ]		&lt;string&gt;	Fuel 								(integer, &lt;Read as string, as this values are two integers separated by an &quot;/&quot; ~Scavenger4711&gt;)
+        ///[ EM | EL ]		[ PlayerData ]			&lt;string&gt;	Cash 								(string, includes commas)
+        ///[ EM | EL ]		[ PlayerShipData ]		&lt;string&gt;	Cargo Bay 1 						(string, cargo type and number, or will display &apos;Empty&apos; if nothing)
+        ///[ EM | EL ]		[ PlayerShipData ]		&lt;string&gt;	Cargo Bay 2
+        ///[ EM | EL ]		[ PlayerShipData  [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
         internal static string Savedata_Layout {
             get {

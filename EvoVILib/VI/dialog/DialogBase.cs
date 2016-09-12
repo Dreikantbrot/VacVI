@@ -11,7 +11,7 @@ namespace EvoVI.Classes.Dialog
     {
         #region Regexes (readonly)
         protected readonly Regex VALIDATION_REGEX = new Regex(@"^(?:\s|\.|,|;|:)*$");
-        protected readonly Regex CHOICES_REGEX = new Regex(@"(?:\$\((?<Choice>.*?)\))|(?:\$\[(?<OptChoice>.*?)\])");
+        internal static readonly Regex CHOICES_REGEX = new Regex(@"(?:\$\((?<Choice>.*?)\))|(?:\$\[(?<OptChoice>.*?)\])");
         #endregion
 
 

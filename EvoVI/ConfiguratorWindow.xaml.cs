@@ -933,6 +933,21 @@ namespace EvoVIConfigurator
 
             ConfigurationManager.ConfigurationFile.SaveValue("Configurator", "Theme", ((ComboBoxItem)themeBox.SelectedValue).Content.ToString());
         }
+
+
+        /// <summary> Fires, when the "Generate HTML File" button has been clicked.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void btn_Extras_GenerateHtmlFile_Click(object sender, RoutedEventArgs e)
+        {
+            string appPath = Path.GetDirectoryName(
+                System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase
+            ).Replace("file:\\", "");
+            EvoVI.Classes.Dialog.DialogTreeBuilder.GenerateHtmlOverview(appPath + "\\Dialog Tree.html");
+
+            if (chck_Extras_AutoOpenHtml.IsChecked == true) { System.Diagnostics.Process.Start(appPath + "\\Dialog Tree.html"); }
+        }
         #endregion
 
 

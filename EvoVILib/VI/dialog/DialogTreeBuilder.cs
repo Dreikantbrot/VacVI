@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Speech.Recognition;
 using System.Speech.Synthesis;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace EvoVI.Classes.Dialog
 {
@@ -77,17 +80,6 @@ namespace EvoVI.Classes.Dialog
         }
 
 
-        /// <summary> Updates all dialog nodes in a "ready" or "listening" state
-        /// </summary>
-        internal static void UpdateReadyNodes()
-        {
-            for (int i = 0; i < _dialogNodes.Count; i++)
-            {
-                if (_dialogNodes[i].IsReady) { _dialogNodes[i].UpdateState(); }
-            }
-        }
-
-
         /// <summary> Gets the player dialog to which the given grammar rule belongs to.
         /// </summary>
         /// <param name="grammar">The grammar object of which to search for the player dialog node.</param>
@@ -103,6 +95,138 @@ namespace EvoVI.Classes.Dialog
             { return _grammarLookupTable[grammarNameHash]; }
 
             return null;
+        }
+
+
+        /// <summary> Updates all dialog nodes in a "ready" or "listening" state.
+        /// </summary>
+        internal static void UpdateReadyNodes()
+        {
+            for (int i = 0; i < _dialogNodes.Count; i++)
+            {
+                if (_dialogNodes[i].IsReady) { _dialogNodes[i].UpdateState(); }
+            }
+        }
+
+
+        /// <summary> Generates an HTML file with all registered dialog nodes and every phrase composition for each dialog node.
+        /// </summary>
+        /// <param name="targetFilePath">The target filepath.</param>
+        internal static void GenerateHtmlOverview(string targetFilePath)
+        {
+            StringBuilder htmlFileBuilder = new StringBuilder();
+            htmlFileBuilder.AppendLine("");
+            htmlFileBuilder.AppendLine("\t<div style='border: 2px solid #555; padding: 15px; margin: 5px 5px 25px 5px;'>");
+            htmlFileBuilder.AppendLine("\t\t<div class='PLAYER'>Player Nodes</div>");
+            htmlFileBuilder.AppendLine("\t\t<div class='VI'>VI Nodes</div>");
+            htmlFileBuilder.AppendLine("\t\t<div class='COMMAND'>Command Nodes</div>");
+            htmlFileBuilder.AppendLine("\t</div>");
+            htmlFileBuilder.AppendLine("\t<!-- ---------------------- -->");
+            htmlFileBuilder.AppendLine("");
+
+
+            for (int i = 0; i < _dialogRoot.ChildNodes.Count; i++)
+            {
+                htmlFileBuilder.Append(getDialogPhrasesHTML(_dialogRoot.ChildNodes[i]));
+            }
+
+            using(System.IO.StreamWriter file = new System.IO.StreamWriter(targetFilePath))
+            {
+                string template = EvoVI.Properties.Resources.DialogTreeHTML_Template;
+                file.WriteLine(template.Replace("</body>", htmlFileBuilder + "</body>"));
+            }
+        }
+
+        private static StringBuilder getDialogPhrasesHTML(DialogBase node, int level = 0)
+        {
+            StringBuilder htmlFileBuilder = new StringBuilder();
+            htmlFileBuilder.Append('\t', level + 1);
+            htmlFileBuilder.AppendLine("<div class='" + node.Speaker.ToString() + "' style='margin-left: " + (level * 40) + "px !important;'>");
+
+            // Check each single sentence in the syntax individually
+            string[] sentences = node.RawText.Split(';');
+            for (int u = 0; u < sentences.Length; u++)
+            {
+                htmlFileBuilder.Append('\t', level + 2);
+                htmlFileBuilder.AppendLine("<div>");
+                htmlFileBuilder.Append('\t', level + 3);
+                htmlFileBuilder.AppendLine("<table class='sentenceCompositions'><tr>");
+
+                string currSentence = sentences[u].Replace("<", "&lt;").Replace(">", "&gt;");
+                int currIndex = 0;
+                MatchCollection matches = DialogBase.CHOICES_REGEX.Matches(currSentence);
+
+                if (String.IsNullOrWhiteSpace(currSentence)) { continue; }
+
+                if (matches.Count > 0)
+                {
+                    for (int j = 0; j < matches.Count; j++)
+                    {
+                        Match currMatch = matches[j];
+
+                        // Append "fixed" text
+                        string leadingText = currSentence;
+                        leadingText = leadingText.Substring(currIndex, matches[j].Index - currIndex).Trim().Replace(" ", "&nbsp;");
+                        if (!String.IsNullOrWhiteSpace(leadingText))
+                        {
+                            htmlFileBuilder.Append('\t', level + 4);
+                            htmlFileBuilder.Append("<td class='static'>");
+                            htmlFileBuilder.Append(leadingText);
+                            htmlFileBuilder.AppendLine("</td>");
+                        }
+
+                        string choiceType = (
+                            (currMatch.Groups["Choice"].Success) ? "Choice" : 
+                            (currMatch.Groups["OptChoice"].Success) ? "OptChoice" : 
+                            ""
+                        );
+
+
+                        // Append choices
+                        if (currMatch.Groups[choiceType].Success)
+                        {
+                            htmlFileBuilder.Append('\t', level + 4);
+                            htmlFileBuilder.Append("<td class='choice " + choiceType + "'>");
+                            
+                            string[] choices = matches[j].Groups[choiceType].Value.Split('|');
+                            for (int k = 0; k < choices.Length; k++)
+                            {
+                                string choice = choices[k].Trim().Replace(" ", "&nbsp;");
+                                if (String.IsNullOrWhiteSpace(choice)) { continue; }
+                                if (k > 0) { htmlFileBuilder.Append("<hr />"); }
+                                htmlFileBuilder.Append(choice);
+                            }
+
+                            htmlFileBuilder.AppendLine("</td>");
+                        }
+
+                        currIndex = matches[j].Index + currMatch.Length;
+                    }
+                }
+
+                if (!String.IsNullOrWhiteSpace(currSentence.Substring(currIndex)))
+                {
+                    htmlFileBuilder.Append('\t', level + 4);
+                    htmlFileBuilder.Append("<td class='static'>");
+                    htmlFileBuilder.Append(currSentence.Substring(currIndex).Trim().Replace(" ", "&nbsp;"));
+                    htmlFileBuilder.AppendLine("</td>");
+                }
+
+                htmlFileBuilder.Append('\t', level + 3);
+                htmlFileBuilder.AppendLine("</tr></table>");
+
+                htmlFileBuilder.Append('\t', level + 2);
+                htmlFileBuilder.AppendLine("</div>");
+            }
+
+            for (int i = 0; i < node.ChildNodes.Count; i++)
+            {
+                htmlFileBuilder.Append(getDialogPhrasesHTML(node.ChildNodes[i], level + 1));
+            }
+            htmlFileBuilder.Append('\t', level + 1);
+            htmlFileBuilder.AppendLine("</div>");
+
+            return htmlFileBuilder;
         }
         #endregion
     }

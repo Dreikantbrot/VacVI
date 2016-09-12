@@ -105,7 +105,7 @@ namespace EvoVI.Database
 
             #region Constructor
             /// <summary> Creates a data entry instance holding a single entry from the savedata.txt file.
-            /// <para>See: <see cref="EvoVILib.sProperties.Resources.Savedata_Layout"/></para>
+            /// <para>See: <see cref="EvoVI.Properties.Resources.Savedata_Layout"/></para>
             /// </summary>
             /// <param name="pName">The parameter name.</param>
             /// <param name="pType">The parameter's data type.</param>
@@ -185,7 +185,7 @@ namespace EvoVI.Database
             _indexTable.Clear();
 
             /* Read savedata template and parse parameters; Template is based upon Evochron Legacy as it's just an expansion on all the others */
-            string[] savedataTemplate = EvoVILib.Properties.Resources.Savedata_Layout.Split('\n');
+            string[] savedataTemplate = EvoVI.Properties.Resources.Savedata_Layout.Split('\n');
 
             // Build the database
             int currDbIndex = 0;
