@@ -242,20 +242,25 @@ namespace EvoVI.Engine
 
             if (outputFilepath == null)
             {
-                _soundOutput.Stopped += _soundOutput_Stopped;
+                _soundOutput.Stopped += soundOutput_Stopped;
                 _soundOutput.Play();
             }
             else
             {
                 if (!Directory.Exists(Path.GetDirectoryName(outputFilepath))) { Directory.CreateDirectory(Path.GetDirectoryName(outputFilepath)); }
                 _soundOutput.WaveSource.WriteToFile(outputFilepath);
-                _soundOutput_Stopped(null, null);
+                soundOutput_Stopped(null, null);
             }
             
             if (!async) { _soundOutput.WaitForStopped(); }
         }
 
-        private static void _soundOutput_Stopped(object sender, PlaybackStoppedEventArgs e)
+
+        /// <summary> Fires when the speech audio playback has been stopped.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The playback stopped event arguments.</param>
+        private static void soundOutput_Stopped(object sender, PlaybackStoppedEventArgs e)
         {
             // Get the dialog node that has just been played
             DialogVI currNode = _queue[0];

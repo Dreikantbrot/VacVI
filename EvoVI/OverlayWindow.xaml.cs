@@ -60,6 +60,7 @@ namespace EvoVIOverlay
         private FileSystemWatcher _gameConfigWatcher;
         private FileSystemWatcher _keymapConfigWatcher;
         private bool _playLoadingAnimation;
+        private bool _debugMode = true;
         #endregion
 
 
@@ -115,8 +116,11 @@ namespace EvoVIOverlay
 
             
             /* Wait for the game process to start */
-            GameMeta.GameProcess.EnableRaisingEvents = true;
-            GameMeta.GameProcess.Exited += GameProcess_Exited;
+            if (GameMeta.GameProcess != null)
+            {
+                GameMeta.GameProcess.EnableRaisingEvents = true;
+                GameMeta.GameProcess.Exited += GameProcess_Exited;
+            }
 
             
             /* Load Plugins */
@@ -198,16 +202,7 @@ namespace EvoVIOverlay
         /// <param name="e">The event arguments.</param>
         private void OnUpdateTimerTick(object sender, EventArgs e)
         {
-            // Title + date and time
-            txtBox_TitleInfo.Text = this.Title;
-            txtBlck_Time.Text = DateTime.UtcNow.ToLongDateString() + "\n" + DateTime.Now.ToLongTimeString();
-
-            txtBlck_MainInfo.Text = "Current Node: " + ((VI.CurrentDialogNode == null) ? "N/A" : VI.CurrentDialogNode.GUIDisplayText) + "\n" +
-                "Active Nodes:\n" +
-                buildDialogInfo(DialogTreeBuilder.DialogRoot);
-
-            txtBlck_StatusInfo.Text = "Target Process: " + Interactor.TargetProcessName + "\n" +
-                PluginManager.Plugins.Count + " plugins loaded";
+            updateDisplay();
         }
 
 
@@ -284,6 +279,25 @@ namespace EvoVIOverlay
 
 
         #region Functions
+        /// <summary> Updates the displayed information of the overlay.
+        /// </summary>
+        private void updateDisplay()
+        {
+            // Title + date and time
+            txtBox_TitleInfo.Text = this.Title;
+            txtBlck_Time.Text = DateTime.UtcNow.ToLongDateString() + "\n" + DateTime.Now.ToLongTimeString();
+
+            if (_debugMode)
+            {
+                txtBlck_MainInfo.Text = "Current Node: " + ((VI.CurrentDialogNode == null) ? "N/A" : VI.CurrentDialogNode.GUIDisplayText) + "\n" +
+                    "Active Nodes:\n" +
+                    buildDialogInfo(DialogTreeBuilder.DialogRoot);
+
+                txtBlck_StatusInfo.Text = "Target Process: " + Interactor.TargetProcessName + "\n" +
+                    PluginManager.Plugins.Count + " plugins loaded";
+            }
+        }
+
         /// <summary> Adjusts the overlay's background and text color to match the HUD.
         /// </summary>
         /// <param name="newR">The new red channel intensity.</param>
@@ -492,36 +506,56 @@ namespace EvoVIOverlay
             for (int i = 0; i < parentNode.ChildNodes.Count; i++)
             {
                 DialogBase currChild = parentNode.ChildNodes[i];
+                if (
+                    (!_debugMode) && 
+                    (
+                        (!currChild.IsReady) ||
+                        (currChild.Speaker != DialogBase.DialogSpeaker.PLAYER)
+                    )
+                )
+                { return String.Empty; }
 
-                // Is listening mark
-                string listeningMark = "[" + (
-                    currChild.Disabled ? "~" : 
-                    currChild.IsReady ? "!" : 
-                    " "
-                ) + "]";
-
-                // Prepare spacing
-                string arrow = (
-                    currChild.IsActive ? "====" :
-                    (parentNode.IsActive) ? "----" :
-                    "    "
-                );
-
-                string importanceMark = "[";
-                for (DialogBase.DialogPriority u = DialogBase.DialogPriority.VERY_LOW; u < currChild.Priority; u++) { importanceMark += "*"; }
-                for (DialogBase.DialogPriority u = currChild.Priority; u < DialogBase.DialogPriority.CRITICAL; u++) { importanceMark += " "; }
-                importanceMark += "]";
-
-                // Prepare "dock"
+                string listeningMark = String.Empty;
+                string arrow = String.Empty;
+                string importanceMark = String.Empty;
                 System.Text.StringBuilder dock = new System.Text.StringBuilder();
-                dock.Append("|");
-                dock.Append('-', level * 2);
+
+                if (_debugMode)
+                {
+                    // Is listening mark
+                    listeningMark = "[" + (
+                        currChild.Disabled ? "~" :
+                        currChild.IsReady ? "!" :
+                        " "
+                    ) + "]";
+
+                    // Prepare spacing
+                    arrow = (
+                        currChild.IsActive ? "====" :
+                        (parentNode.IsActive) ? "----" :
+                        "    "
+                    );
+
+                    importanceMark = "[";
+                    for (DialogBase.DialogPriority u = DialogBase.DialogPriority.VERY_LOW; u < currChild.Priority; u++) { importanceMark += "*"; }
+                    for (DialogBase.DialogPriority u = currChild.Priority; u < DialogBase.DialogPriority.CRITICAL; u++) { importanceMark += " "; }
+                    importanceMark += "]";
+
+                    // Prepare "dock"
+                    dock = new System.Text.StringBuilder();
+                    dock.Append("|");
+                    dock.Append('-', level * 2);
+                }
 
                 dialogInfo += "" +
-                    listeningMark + "" +
-                    importanceMark + "" +
-                    arrow + dock + " " +
-                    currChild.Speaker + ": " + currChild.GUIDisplayText + "\n";
+                    (_debugMode ? 
+                        (
+                            listeningMark + "" +
+                            importanceMark + "" +
+                            arrow + dock + " " +
+                            currChild.Speaker + ": "
+                        ) : 
+                    "") +  currChild.GUIDisplayText + "\n";
 
                 dialogInfo += buildDialogInfo(currChild, level + 1);
             }

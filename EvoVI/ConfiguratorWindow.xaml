@@ -116,7 +116,7 @@
                             <RowDefinition Height="142*"/>
                             <RowDefinition Height="106*"/>
                         </Grid.RowDefinitions>
-                        <CheckBox x:Name="chckBox_Config_LoadingAnimation" Content="Play loading animation on start" HorizontalAlignment="Left" Margin="13,10,0,0" VerticalAlignment="Top" Foreground="White" Background="#A8FFFFFF" BorderBrush="#FFC8C8C8" Checked="chckBox_Config_LoadingAnimation_Checked" Height="15" Width="198"/>
+                        <CheckBox x:Name="chckBox_Config_LoadingAnimation" Content="Play loading animation on start" HorizontalAlignment="Left" Margin="13,10,0,0" VerticalAlignment="Top" Foreground="White" Background="#A8FFFFFF" BorderBrush="#FFC8C8C8" Checked="chckBox_Config_LoadingAnimation_Checked" Height="15" Width="198" Unchecked="chckBox_Config_LoadingAnimation_Checked"/>
                         <Label Content="VI Name:" HorizontalAlignment="Left" Margin="10,10,0,0" Foreground="White" Width="141" VerticalContentAlignment="Center" Grid.Row="1" Height="26" VerticalAlignment="Top"/>
                         <Label Content="VI Phonetic Name:" HorizontalAlignment="Left" Margin="10,43,0,0" Foreground="White" Width="141" VerticalContentAlignment="Center" Grid.Row="1" Height="26" VerticalAlignment="Top"/>
                         <TextBox x:Name="txt_Config_VIName" Margin="156,12,0,0" TextWrapping="Wrap" Background="#33FFFFFF" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" HorizontalAlignment="Left" Width="270" Grid.Row="1" TextChanged="txt_Config_VIName_TextChanged" Height="26" VerticalAlignment="Top"/>
