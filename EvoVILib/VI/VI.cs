@@ -30,16 +30,6 @@ namespace EvoVI.Engine
         private static string _playerPhoneticName = "Pilot";
 
         private static DialogBase _currentDialogNode;
-        private static DialogBase _previousDialogNode;
-
-        private static IPlugin _currCommand;
-        private static string _currRecognizedPhrase;
-        private static Grammar _currRecognizedGrammar;
-
-        private static IPlugin _lastCommand;
-        private static string _lastRecognizedPhrase;
-        private static Grammar _lastRecognizedGrammar;
-        private static DialogPlayer _lastMisunderstoodDialogNode;
         #endregion
 
 
@@ -84,54 +74,6 @@ namespace EvoVI.Engine
         {
             get { return VI._currentDialogNode; }
             internal set { VI._currentDialogNode = value; }
-        }
-
-        public static DialogBase PreviousDialogNode
-        {
-            get { return VI._previousDialogNode; }
-            internal set { VI._previousDialogNode = value; }
-        }
-
-        public static IPlugin CurrCommand
-        {
-            get { return VI._currCommand; }
-            internal set { VI._currCommand = value; }
-        }
-
-        public static string CurrRecognizedPhrase
-        {
-            get { return VI._currRecognizedPhrase; }
-            internal set { VI._currRecognizedPhrase = value; }
-        }
-
-        public static Grammar CurrRecognizedGrammar
-        {
-            get { return VI._currRecognizedGrammar; }
-            internal set { VI._currRecognizedGrammar = value; }
-        }
-
-        public static IPlugin LastCommand
-        {
-            get { return VI._lastCommand; }
-            internal set { VI._lastCommand = value; }
-        }
-
-        public static string LastRecognizedPhrase
-        {
-            get { return VI._lastRecognizedPhrase; }
-            internal set { VI._lastRecognizedPhrase = value; }
-        }
-
-        public static Grammar LastRecognizedGrammar
-        {
-            get { return VI._lastRecognizedGrammar; }
-            internal set { VI._lastRecognizedGrammar = value; }
-        }
-
-        public static DialogPlayer LastMisunderstoodDialogNode
-        {
-            get { return VI._lastMisunderstoodDialogNode; }
-            internal set { VI._lastMisunderstoodDialogNode = value; }
         }
         #endregion
 

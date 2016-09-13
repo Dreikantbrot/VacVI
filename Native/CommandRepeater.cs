@@ -10,9 +10,17 @@ namespace Native
 {
     public class CommandRepeater : IPlugin
     {
+        #region Constants
+        private const string I_DID_NOT_UNDERSTAND_YOU = "I did not understand that. Did you mean {0}?";
+        #endregion
+
+
         #region Variables
         private Guid _guid = new Guid();
         private DialogBase _jumpBackNode;
+
+        private DialogPlayer _lastMisunderstoodDialog;
+        private DialogBase _previousDialogNode;
         #endregion
 
 
@@ -62,18 +70,21 @@ namespace Native
         public void Initialize()
         {
             DialogTreeBranch[] standardDialogs = new DialogTreeBranch[] {
+                new DialogTreeBranch(
+                    new DialogPlayer("Yes", DialogBase.DialogPriority.CRITICAL, () => { return (_lastMisunderstoodDialog != null); }, this.Name, "yes")
+                ),
+                new DialogTreeBranch(
+                    new DialogPlayer("No", DialogBase.DialogPriority.CRITICAL, () => { return (_lastMisunderstoodDialog != null); }, this.Name, "no"),
                     new DialogTreeBranch(
-                        new DialogPlayer("Yes", DialogBase.DialogPriority.CRITICAL, () => { return (VI.LastMisunderstoodDialogNode != null); }, this.Name, "yes")
-                    ),
-                    new DialogTreeBranch(
-                        new DialogPlayer("No", DialogBase.DialogPriority.CRITICAL, () => { return (VI.LastMisunderstoodDialogNode != null); }, this.Name, "no"),
-                        new DialogTreeBranch(
-                            new DialogVI("$[Oh - I see.] What $[did you need|was it] then?", DialogBase.DialogPriority.NORMAL, null, this.Name, "jump_back")
-                        )
+                        new DialogVI("$[Oh - I see.] What $[did you need|was it] then?", DialogBase.DialogPriority.NORMAL, null, this.Name, "jump_back")
                     )
-                };
+                )
+            };
 
             DialogTreeBuilder.BuildDialogTree(null, standardDialogs);
+
+            SpeechEngine.OnVISpeechRejected +=SpeechEngine_OnVISpeechRejected;
+            DialogBase.OnDialogNodeChanged += DialogBase_OnDialogNodeChanged;
         }
 
         public void OnDialogAction(EvoVI.Classes.Dialog.DialogBase originNode)
@@ -81,26 +92,31 @@ namespace Native
             switch (originNode.Data.ToString())
             {
                 case "yes":
-                    if (VI.LastMisunderstoodDialogNode != null)
+                    // Set the last dialog as active
+                    if (_lastMisunderstoodDialog != null)
                     {
-                        VI.LastMisunderstoodDialogNode.SetActive();
-                        VI.LastMisunderstoodDialogNode.Trigger();
-                        VI.LastMisunderstoodDialogNode.NextNode();
+                        _lastMisunderstoodDialog.SetActive();
+                        _lastMisunderstoodDialog.Trigger();
+                        _lastMisunderstoodDialog.NextNode();
+
+                        _lastMisunderstoodDialog = null;
                     }
                     break;
 
                 case "no":
-                    _jumpBackNode = (VI.PreviousDialogNode != null) ? (DialogBase)VI.PreviousDialogNode : null;
+                    // Prepare jump-back node
+                    _jumpBackNode = (_previousDialogNode != null) ? _previousDialogNode : null;
                     break;
 
                 case "jump_back":
+                    // Jumps back to the jumpback node
                     if (_jumpBackNode != null) { _jumpBackNode.SetActive(); } else { DialogTreeBuilder.DialogRoot.SetActive(); }
+
+                    _lastMisunderstoodDialog = null;
                     break;
 
                 default: return;
             }
-
-            // VI.Last<***> property reset and dialog disabling is done automatically by the SpeechEngine.onSpeechRecognized-event afterward
         }
 
         public void OnGameDataUpdate()
@@ -116,6 +132,21 @@ namespace Native
         public void OnProgramShutdown()
         {
 
+        }
+        #endregion
+
+
+        #region Events
+        void SpeechEngine_OnVISpeechRejected(SpeechEngine.VISpeechRejectedEventArgs obj)
+        {
+            _lastMisunderstoodDialog = obj.RejectedDialog;
+            SpeechEngine.Say(String.Format(I_DID_NOT_UNDERSTAND_YOU, obj.BestAlternative));
+        }
+
+
+        void DialogBase_OnDialogNodeChanged(DialogBase.DialogChangedEventArgs obj)
+        {
+            _previousDialogNode = obj.PreviousDialog;
         }
         #endregion
     }

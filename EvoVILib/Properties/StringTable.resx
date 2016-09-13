@@ -125,11 +125,6 @@
     <value>Error - Could not acquire ship sensor data!</value>
     <comment>The "savedata.txt" file could not be read.</comment>
   </data>
-  <data name="DID_NOT_UNDERSTAND_DID_YOU_MEAN" xml:space="preserve">
-    <value>I did not understand that. Did you mean {0}?</value>
-    <comment>Speech has been detected as such, but the system is unsure what the user meant exactly.
-This phrase is being used by the internal plugin "Command Repeater".</comment>
-  </data>
   <data name="SAVEDATASETTINGS_FILE_NOT_FOUND" xml:space="preserve">
     <value>Error - Ship sensor data interface not available!</value>
     <comment>The "savedatasettings.txt" within the game's installation directory could not be found. Therefore, no in-game data can be retrieved.</comment>

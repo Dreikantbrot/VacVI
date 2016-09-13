@@ -120,24 +120,6 @@ namespace EvoVI.Classes.Dialog
         #endregion
 
 
-        #region Events
-        /// <summary> Fires each time an answer within this dialog node has been recognized.
-        /// Fires the bound command, if available.
-        /// </summary>
-        /// <param name="sender">The event sender object.</param>
-        /// <param name="e">The speech recognized event arguments.</param>
-        private void onDialogDone(object sender, SpeechRecognizedEventArgs e)
-        {
-            VI.CurrRecognizedGrammar = e.Result.Grammar;
-            VI.CurrRecognizedPhrase = e.Result.Text;
-
-            SetActive();
-            Trigger();
-            NextNode();
-        }
-        #endregion
-
-
         #region Functions
         /// <summary> Deactivates all voice recognition rules, saving their current status in advance.
         /// </summary>
@@ -232,7 +214,6 @@ namespace EvoVI.Classes.Dialog
                 if (!VALIDATION_REGEX.Match(trailingText).Success) { builder.Append(trailingText); }
 
                 Grammar resultGrammar = new Grammar(builder);
-                resultGrammar.SpeechRecognized += onDialogDone;
                 resultGrammar.Name = this.GetHashCode().ToString();
                 _grammarList.Add(resultGrammar);
                 _grammarStatusList.Add(new GrammarStatus(resultGrammar));
@@ -274,6 +255,17 @@ namespace EvoVI.Classes.Dialog
 
 
         #region Override Functions
+        /// <summary> Sets the dialog node as active and triggers it.
+        /// </summary>
+        public override void SetActive()
+        {
+            base.SetActive();
+
+            Trigger();
+            NextNode();
+        }
+
+
         /// <summary> Updates the dialog node's status.
         /// </summary>
         public override void UpdateState()

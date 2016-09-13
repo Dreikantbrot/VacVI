@@ -15,6 +15,42 @@ namespace EvoVI.Engine
 {
     public static class SpeechEngine
     {
+        #region Custom Actions
+        public static event Action<VISpeechRecognizedEventArgs> OnVISpeechRecognized = null;
+        public class VISpeechRecognizedEventArgs
+        {
+            public DialogPlayer RecognizedDialog { get; private set; }
+            public Grammar RecognizedGrammar { get; private set; }
+            public string RecognizedPhrase { get; private set; }
+
+            public VISpeechRecognizedEventArgs(DialogPlayer pRecognizedDialog, Grammar pRecognizedGrammar, string pRecognizedPhrase)
+            {
+                this.RecognizedDialog = pRecognizedDialog;
+                this.RecognizedGrammar = pRecognizedGrammar;
+                this.RecognizedPhrase = pRecognizedPhrase;
+            }
+        }
+
+
+        public static event Action<VISpeechRejectedEventArgs> OnVISpeechRejected = null;
+        public class VISpeechRejectedEventArgs
+        {
+            public DialogPlayer RejectedDialog { get; private set; }
+            public Grammar RejectedGrammar { get; private set; }
+            public string RejectedPhrase { get; private set; }
+            public string BestAlternative { get; private set; }
+
+            public VISpeechRejectedEventArgs(DialogPlayer pRejectedDialog, Grammar pRejectedGrammar, string pRejectedPhrase, string pBestAlternative)
+            {
+                this.RejectedDialog = pRejectedDialog;
+                this.RejectedGrammar = pRejectedGrammar;
+                this.RejectedPhrase = pRejectedPhrase;
+                this.BestAlternative = pBestAlternative;
+            }
+        }
+        #endregion
+
+
         #region Enums
         /// <summary> Supported voice modulation modes.
         /// Determines how the VI's voice sound when speaking.
@@ -83,7 +119,7 @@ namespace EvoVI.Engine
 
         #region Event Handlers
         /// <summary> Fires, when a voice command has been recognized.
-        /// <para>This is called after the plugin functions and player dialog node recognition.</para>
+        /// <para>This is called before the player dialog plugin functions.</para>
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The speech recognition engine's event arguments.</param>
@@ -91,13 +127,16 @@ namespace EvoVI.Engine
         {
             if (e.Result.Confidence >= _confidenceThreshold)
             {
-                VI.LastRecognizedPhrase = e.Result.Text;
-                VI.LastMisunderstoodDialogNode = null;
-                VI.LastRecognizedGrammar = null;
+                DialogPlayer recognizedNode = DialogTreeBuilder.GetPlayerDialog(e.Result.Grammar);
+                OnVISpeechRecognized(
+                    new VISpeechRecognizedEventArgs(
+                        recognizedNode,
+                        e.Result.Grammar,
+                        e.Result.Text
+                    )
+                );
 
-                // Update dialog states to disable Command Repeater plugin
-                if (PluginManager.GetPlugin("Command Repeater") != null) { DialogTreeBuilder.UpdateReadyNodes(); }
-
+                recognizedNode.SetActive();
                 // Say("I recognized you say: " + e.Result.Text + " - I am to " + Math.Floor(e.Result.Confidence * 100) + "% certain of that.");
             }
         }
@@ -114,15 +153,15 @@ namespace EvoVI.Engine
                 RecognizedPhrase currAlternative = e.Result.Alternates[i];
                 if (currAlternative.Confidence >= 0.15f)
                 {
-                    VI.LastRecognizedGrammar = e.Result.Grammar;
-                    VI.LastMisunderstoodDialogNode = DialogTreeBuilder.GetPlayerDialog(e.Result.Grammar);
+                    OnVISpeechRejected(
+                        new VISpeechRejectedEventArgs(
+                            DialogTreeBuilder.GetPlayerDialog(e.Result.Grammar),
+                            e.Result.Grammar,
+                            e.Result.Text,
+                            e.Result.Alternates[i].Text
+                        )
+                    );
 
-                    // Update dialog states to enable Command Repeater plugin
-                    if (PluginManager.GetPlugin("Command Repeater") != null)
-                    {
-                        Say(String.Format(EvoVI.Properties.StringTable.DID_NOT_UNDERSTAND_DID_YOU_MEAN, e.Result.Alternates[i].Text));
-                        DialogTreeBuilder.UpdateReadyNodes();
-                    }
                     break;
                 }
             }

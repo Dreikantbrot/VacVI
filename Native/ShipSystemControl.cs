@@ -40,6 +40,7 @@ namespace Native
         private int _targetIdsMultiplier = -1;
         private int _targetHudMode = -1;
         private int _targetAutopilotState = -1;
+        private string _currRecognizedPhrase;
 
         private DialogVI _dialg_Jump = new DialogVI("Initiating $[fulcrum ]jump;Jumping...");
         private DialogVI _dialg_EmergencyJump = new DialogVI("I'm getting us out of here!;Let's get out of here!");
@@ -636,6 +637,8 @@ namespace Native
             };
 
             DialogTreeBuilder.BuildDialogTree(null, dialogOptions);
+
+            SpeechEngine.OnVISpeechRecognized += SpeechEngine_OnVISpeechRecognized;
         }
 
         public void OnDialogAction(DialogBase originNode)
@@ -694,7 +697,7 @@ namespace Native
                     Interactor.ExecuteAction(GameAction.ZERO_THROTTLE);
                     break;
                 case "set_ids_multiplier":
-                    Int32.TryParse(VI.CurrRecognizedPhrase.Substring(VI.CurrRecognizedPhrase.Length - 1), out _targetIdsMultiplier);
+                    Int32.TryParse(_currRecognizedPhrase.Substring(_currRecognizedPhrase.Length - 1), out _targetIdsMultiplier);
                     updateIDSMultiplier();
                     break;
                 #endregion
@@ -717,8 +720,8 @@ namespace Native
                 #region HUD
                 case "toggle_HUD":
                     _targetHudMode = (
-                        VI.CurrRecognizedPhrase.Contains("full") ? (int)HudData.HudStatus.FULL :
-                        VI.CurrRecognizedPhrase.Contains("partial") ? (int)HudData.HudStatus.PARTIAL :
+                        _currRecognizedPhrase.Contains("full") ? (int)HudData.HudStatus.FULL :
+                        _currRecognizedPhrase.Contains("partial") ? (int)HudData.HudStatus.PARTIAL :
                         -1
                     );
                     updateHUDMode();
@@ -923,6 +926,14 @@ namespace Native
                     "High"
                 )
             );
+        }
+        #endregion
+
+
+        #region Events
+        void SpeechEngine_OnVISpeechRecognized(SpeechEngine.VISpeechRecognizedEventArgs obj)
+        {
+            _currRecognizedPhrase = obj.RecognizedPhrase;
         }
         #endregion
     }

@@ -15,8 +15,20 @@ namespace EvoVI.Classes.Dialog
         #endregion
 
 
-        #region Delegates
-        public delegate bool DialogConditionFnc();
+        #region Custom Actions
+        public static event Action<DialogChangedEventArgs> OnDialogNodeChanged = null;
+        
+        public class DialogChangedEventArgs
+        {
+            public DialogBase PreviousDialog { get; private set; }
+            public DialogBase CurrentDialog { get; private set; }
+
+            public DialogChangedEventArgs(DialogBase pPrevDialog, DialogBase pCurrentDialog)
+            {
+                this.PreviousDialog = pPrevDialog;
+                this.CurrentDialog = pCurrentDialog;
+            }
+        }
         #endregion
 
 
@@ -353,7 +365,7 @@ namespace EvoVI.Classes.Dialog
         {
             if (!IsReady) { return; }
 
-            VI.PreviousDialogNode = VI.CurrentDialogNode;
+            OnDialogNodeChanged(new DialogChangedEventArgs(VI.CurrentDialogNode, this));
             VI.CurrentDialogNode = this;
 
             DialogTreeBuilder.UpdateReadyNodes();
@@ -367,7 +379,6 @@ namespace EvoVI.Classes.Dialog
             if (!IsReady) { return; }
 
             IPlugin plugin = PluginManager.GetPlugin(_pluginToStart);
-            VI.CurrCommand = plugin;
             if (plugin != null) { plugin.OnDialogAction(this); }
         }
 

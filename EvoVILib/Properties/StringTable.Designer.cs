@@ -79,15 +79,6 @@ namespace EvoVI.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die I did not understand that. Did you mean {0}? ähnelt.
-        /// </summary>
-        public static string DID_NOT_UNDERSTAND_DID_YOU_MEAN {
-            get {
-                return ResourceManager.GetString("DID_NOT_UNDERSTAND_DID_YOU_MEAN", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Error - Ship sensor data interface not available! ähnelt.
         /// </summary>
         public static string SAVEDATASETTINGS_FILE_NOT_FOUND {

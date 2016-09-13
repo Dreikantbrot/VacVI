@@ -149,6 +149,7 @@ namespace EvoVI.Engine
         {
             if (
                 (VI.State <= VI.VIState.SLEEPING) ||
+                (GameMeta.GameProcess == null) ||
                 (GameMeta.GameProcess.MainWindowHandle != GetForegroundWindow())
             )
             { return; }
