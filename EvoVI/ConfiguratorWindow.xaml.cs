@@ -223,7 +223,7 @@ namespace EvoVIConfigurator
 
 
             SpeechEngine.Initialize();
-            GameMeta.OnGameProcessStarted += GameMeta_OnGameProcessStarted;
+            //GameMeta.OnGameProcessStarted += GameMeta_OnGameProcessStarted;
         }
         #endregion
 
@@ -455,7 +455,8 @@ namespace EvoVIConfigurator
         private void btn_StartGame_Click(object sender, RoutedEventArgs e)
         {
             ToggleUILock(true);
-            GameMeta.CheckForGameProcess();
+            //GameMeta.CheckForGameProcess();
+            GameMeta_OnGameProcessStarted(null, null);
         }
 
 

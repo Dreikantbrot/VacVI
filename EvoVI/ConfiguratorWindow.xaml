@@ -23,8 +23,8 @@
     <Window.Background>
         <ImageBrush ImageSource="Resources/EvoVIConfigurator_Background.png" Stretch="UniformToFill"/>
     </Window.Background>
-    <TabControl x:Name="tab_Main" Margin="0" RenderTransformOrigin="0.4,-0.1" Background="Transparent" BorderThickness="0,1,0,0" Grid.RowSpan="2">
-        <TabItem x:Name="tab_Overview_Label" Header="Overview" Background="{Binding Background, ElementName=tab_Config_Label}" Margin="0" HorizontalAlignment="Left" Width="100" Foreground="Black" GotFocus="tab_Overview_Label_GotFocus">
+    <TabControl x:Name="tab_Main" Margin="0,4,0,0" RenderTransformOrigin="0.4,-0.1" Background="Transparent" BorderThickness="0,1,0,0" Grid.RowSpan="2">
+        <TabItem x:Name="tab_Overview_Label" Header="Overview" Background="#54FFFFFF" Margin="0,-4,0,0" HorizontalAlignment="Left" Width="100" Foreground="Black" GotFocus="tab_Overview_Label_GotFocus" BorderBrush="#00ACACAC">
             <Grid x:Name="tab_Overview" Background="#00E5E5E5" Margin="0,5">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="170"/>
@@ -90,8 +90,12 @@
             </Grid>
         </TabItem>
 
-        <TabItem x:Name="tab_Config_Label" Header="Configuration" Background="#7FFFFFFF" Margin="2,0,0,0" HorizontalAlignment="Left" Width="100">
+        <TabItem x:Name="tab_Config_Label" Header="Configuration" Background="#54FFFFFF" Margin="2,-4,0,0" HorizontalAlignment="Left" Width="100" BorderBrush="#00ACACAC">
             <Grid x:Name="tab_Main_Config" Background="#00E5E5E5" Margin="0,-5,0,5">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="115"/>
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="160"/>
                     <ColumnDefinition Width="293*"/>
@@ -108,69 +112,96 @@
                 <Label x:Name="lbl_InstallDir" Content="Installation Directory:" Margin="10,45,10,0" FontWeight="Bold" Foreground="White" Height="26" VerticalAlignment="Top"/>
                 <TextBox x:Name="txt_InstallDir" Height="26" Margin="10,45,10,0" TextWrapping="Wrap" VerticalAlignment="Top" Background="{DynamicResource BackgroundBrush}" Foreground="White" Padding="0" VerticalContentAlignment="Center" Grid.Column="1" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" TextChanged="txt_InstallDir_TextChanged"/>
                 <Button x:Name="btn_InstallDir_Browse" Content="Browse" Margin="10,45,10,0" VerticalAlignment="Top" BorderBrush="#FF6086A0" Background="#BFDBF4FF" Foreground="Black" Height="26" Padding="0" Grid.Column="2" Click="btn_InstallDir_Browse_Click" FontWeight="Bold"/>
-                <TextBox x:Name="txtBox_StatusText" Height="45" Margin="10,0,10,10" TextWrapping="Wrap" Background="{DynamicResource BackgroundBrush}" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" TextChanged="txt_InstallDir_TextChanged" Grid.ColumnSpan="3" HorizontalContentAlignment="Center" FontWeight="Bold" VerticalAlignment="Bottom" FontSize="14" Focusable="False"/>
-                <GroupBox Header="General Configuration" Margin="10,90,10,80" Grid.ColumnSpan="3" Foreground="White" FontWeight="Bold" Background="{DynamicResource BackgroundBrush}">
-                    <Grid Margin="0,5,0,0">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="97*"/>
-                            <RowDefinition Height="142*"/>
-                            <RowDefinition Height="106*"/>
-                        </Grid.RowDefinitions>
-                        <CheckBox x:Name="chckBox_Config_LoadingAnimation" Content="Play loading animation on start" HorizontalAlignment="Left" Margin="13,10,0,0" VerticalAlignment="Top" Foreground="White" Background="#A8FFFFFF" BorderBrush="#FFC8C8C8" Checked="chckBox_Config_LoadingAnimation_Checked" Height="15" Width="198" Unchecked="chckBox_Config_LoadingAnimation_Checked"/>
-                        <Label Content="VI Name:" HorizontalAlignment="Left" Margin="10,10,0,0" Foreground="White" Width="141" VerticalContentAlignment="Center" Grid.Row="1" Height="26" VerticalAlignment="Top"/>
-                        <Label Content="VI Phonetic Name:" HorizontalAlignment="Left" Margin="10,43,0,0" Foreground="White" Width="141" VerticalContentAlignment="Center" Grid.Row="1" Height="26" VerticalAlignment="Top"/>
-                        <TextBox x:Name="txt_Config_VIName" Margin="156,12,0,0" TextWrapping="Wrap" Background="#33FFFFFF" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" HorizontalAlignment="Left" Width="270" Grid.Row="1" TextChanged="txt_Config_VIName_TextChanged" Height="26" VerticalAlignment="Top"/>
-                        <TextBox x:Name="txt_Config_VIPhoneticName" Margin="156,43,0,0" TextWrapping="Wrap" Background="#33FFFFFF" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" HorizontalAlignment="Left" Width="270" Grid.Row="1" TextChanged="txt_Config_VIPhoneticName_TextChanged" Height="26" VerticalAlignment="Top"/>
-                        <Label Content="Pilot Name:" HorizontalAlignment="Left" Margin="10,11,0,0" VerticalAlignment="Top" Foreground="White" Width="141" VerticalContentAlignment="Center" Grid.Row="2" Height="26"/>
-                        <TextBox x:Name="txt_Config_PlayerName" Height="26" Margin="156,11,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Background="#33FFFFFF" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" HorizontalAlignment="Left" Width="270" Grid.Row="2" TextChanged="txt_Config_PlayerName_TextChanged"/>
-                        <Label Content="Pilot Phonetic Name:" HorizontalAlignment="Left" Margin="10,42,0,0" VerticalAlignment="Top" Foreground="White" Width="141" VerticalContentAlignment="Center" Grid.Row="2" Height="26"/>
-                        <TextBox x:Name="txt_Config_PlayerPhoneticName" Height="26" Margin="156,42,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Background="#33FFFFFF" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" HorizontalAlignment="Left" Width="270" Grid.Row="2" TextChanged="txt_Config_PlayerPhoneticName_TextChanged"/>
-                        <Button x:Name="btn_Config_VINameTest" Content="Play" Margin="431,43,0,0" BorderBrush="#FF6086A0" Background="#BFDBF4FF" Foreground="Black" Padding="0" Click="btn_Config_VINameTest_Click" FontWeight="Bold" HorizontalAlignment="Left" Width="100" Grid.Row="1" Height="26" VerticalAlignment="Top"/>
-                        <Button x:Name="btn_Config_PlayerNameTest" Content="Play" Margin="431,42,0,0" VerticalAlignment="Top" BorderBrush="#FF6086A0" Background="#BFDBF4FF" Foreground="Black" Height="26" Padding="0" Click="btn_Config_PlayerNameTest_Click" FontWeight="Bold" HorizontalAlignment="Left" Width="100" Grid.Row="2"/>
-                        <Label Content="VI Voice:" HorizontalAlignment="Left" Margin="10,74,0,0" Foreground="White" Width="141" VerticalContentAlignment="Center" Grid.Row="1" Height="26" VerticalAlignment="Top"/>
-                        <ComboBox x:Name="comBox_Config_VIVoice" HorizontalAlignment="Left" Margin="156,74,0,0" Width="270" Foreground="#FF323232" MaxDropDownHeight="120" Background="#7F000000" BorderBrush="#FFABADB3" Grid.Row="1" SelectionChanged="comBox_Config_VIVoice_SelectionChanged" Height="26" VerticalAlignment="Top">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Margin="2" Text="{Binding DisplayValue}"/>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                        <Button x:Name="btn_SaveConfig" Content="Save Settings" Margin="0,0,10,10" BorderBrush="#FF269735" Background="#BF38C55F" Foreground="White" Padding="0" FontWeight="Bold" Height="26" VerticalAlignment="Bottom" Click="btn_SaveConfig_Click" Grid.Row="2" HorizontalAlignment="Right" Width="120">
-                            <Button.Triggers>
-                                <EventTrigger RoutedEvent="Button.Click" >
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <ColorAnimation To="DarkGreen" Storyboard.TargetProperty="(Button.Foreground).(SolidColorBrush.Color)" Duration="0:0:0.5"/>
-                                            <ColorAnimation To="{x:Null}" Storyboard.TargetProperty="(Button.Foreground).(SolidColorBrush.Color)" BeginTime="0:0:1.0" Duration="0:0:0.5"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </EventTrigger>
-                            </Button.Triggers>
-                        </Button>
-                        <Label Content="Speech Rec. Language:" HorizontalAlignment="Left" Margin="10,105,0,0" Foreground="White" Width="141" VerticalContentAlignment="Center" Grid.Row="1" Height="26" VerticalAlignment="Top"/>
-                        <ComboBox x:Name="comBox_Config_SpeechRecLang" HorizontalAlignment="Left" Margin="156,105,0,0" Width="270" Foreground="#FF323232" MaxDropDownHeight="120" Background="#7F000000" BorderBrush="#FFABADB3" Grid.Row="1" SelectionChanged="comBox_Config_SpeechRecLang_SelectionChanged" Height="26" VerticalAlignment="Top">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Margin="2" Text="{Binding DisplayValue}"/>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                            <ComboBoxItem Content="de-DE"/>
-                            <ComboBoxItem Content="en-US"/>
-                            <ComboBoxItem Content="en-GB"/>
-                            <ComboBoxItem Content="es-ES"/>
-                        </ComboBox>
-                        <Label Content="Overlay Position:" HorizontalAlignment="Left" Margin="13,30,0,0" VerticalAlignment="Top" Foreground="White" Width="141" VerticalContentAlignment="Center" Height="26"/>
-                        <TextBox x:Name="txt_Config_OverlayPosX" Height="26" Margin="185,30,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Background="#33FFFFFF" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" HorizontalAlignment="Left" Width="97" PreviewTextInput="validateNumericInput" RenderTransformOrigin="0.458,0.602"/>
-                        <TextBox x:Name="txt_Config_OverlayPosY" Height="26" Margin="328,30,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Background="#33FFFFFF" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" HorizontalAlignment="Left" Width="98" PreviewTextInput="validateNumericInput"/>
-                        <TextBox x:Name="txt_Config_OverlayPosY_Copy" Height="26" Margin="13,61,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Foreground="WhiteSmoke" Background="#549FD3F1" BorderBrush="#FF9FB9F1" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" HorizontalAlignment="Left" Width="413" Text="Note: These coordinates are going over all monitors available!" HorizontalContentAlignment="Center" IsHitTestVisible="False" Focusable="False" IsReadOnly="True"/>
-                        <Label Content="X:" HorizontalAlignment="Left" Margin="159,30,0,0" VerticalAlignment="Top" Foreground="White" VerticalContentAlignment="Center" Height="26" RenderTransformOrigin="1.359,0.514" Width="21"/>
-                        <Label Content="Y:" HorizontalAlignment="Left" Margin="302,30,0,0" VerticalAlignment="Top" Foreground="White" VerticalContentAlignment="Center" Height="26" RenderTransformOrigin="1.359,0.514" Width="21"/>
-                    </Grid>
-                </GroupBox>
+                <TextBox x:Name="txtBox_StatusText" Height="45" Margin="10,0,10,10" TextWrapping="Wrap" Background="{DynamicResource BackgroundBrush}" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" TextChanged="txt_InstallDir_TextChanged" Grid.ColumnSpan="3" HorizontalContentAlignment="Center" FontWeight="Bold" VerticalAlignment="Bottom" FontSize="14" Focusable="False" Grid.Row="1"/>
+                <TabControl Margin="10,95,10,10" Grid.ColumnSpan="3" TabStripPlacement="Left" Background="{DynamicResource BackgroundBrush}" BorderThickness="1" Padding="0">
+                    <TabItem Header="VI Settings" BorderBrush="{Binding BorderBrush, ElementName=tab_Overview_Label}" Margin="-3,-3,0,3" VerticalAlignment="Top" Padding="6" Background="#54FFFFFF" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <Grid Margin="10">
+                            <Label Content="VI Name:" HorizontalAlignment="Left" Margin="10,10,0,0" Foreground="White" Width="141" VerticalContentAlignment="Center" Height="26" VerticalAlignment="Top" FontWeight="Bold"/>
+                            <Label Content="VI Phonetic Name:" HorizontalAlignment="Left" Margin="10,41,0,0" Foreground="White" Width="141" VerticalContentAlignment="Center" Height="26" VerticalAlignment="Top" FontWeight="Bold"/>
+                            <TextBox x:Name="txt_Config_VIName" Margin="156,10,0,0" TextWrapping="Wrap" Background="#33FFFFFF" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" HorizontalAlignment="Left" Width="270" TextChanged="txt_Config_VIName_TextChanged" Height="26" VerticalAlignment="Top" FontWeight="Bold"/>
+                            <TextBox x:Name="txt_Config_VIPhoneticName" Margin="156,41,0,0" TextWrapping="Wrap" Background="#33FFFFFF" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" HorizontalAlignment="Left" Width="270" TextChanged="txt_Config_VIPhoneticName_TextChanged" Height="26" VerticalAlignment="Top" FontWeight="Bold"/>
+                            <Label Content="Pilot Name:" HorizontalAlignment="Left" Margin="10,165,0,0" VerticalAlignment="Top" Foreground="White" Width="141" VerticalContentAlignment="Center" Height="26" FontWeight="Bold"/>
+                            <TextBox x:Name="txt_Config_PlayerName" Height="26" Margin="156,165,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Background="#33FFFFFF" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" HorizontalAlignment="Left" Width="270" TextChanged="txt_Config_PlayerName_TextChanged" FontWeight="Bold"/>
+                            <Label Content="Pilot Phonetic Name:" HorizontalAlignment="Left" Margin="10,196,0,0" VerticalAlignment="Top" Foreground="White" Width="141" VerticalContentAlignment="Center" Height="26" FontWeight="Bold"/>
+                            <TextBox x:Name="txt_Config_PlayerPhoneticName" Height="26" Margin="156,196,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Background="#33FFFFFF" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" HorizontalAlignment="Left" Width="270" TextChanged="txt_Config_PlayerPhoneticName_TextChanged" FontWeight="Bold"/>
+                            <Button x:Name="btn_Config_VINameTest" Content="Play" Margin="431,72,0,0" BorderBrush="#FF6086A0" Background="#BFDBF4FF" Foreground="Black" Padding="0" Click="btn_Config_VINameTest_Click" FontWeight="Bold" HorizontalAlignment="Left" Width="100" Height="26" VerticalAlignment="Top"/>
+                            <Button x:Name="btn_Config_PlayerNameTest" Content="Play" Margin="431,196,0,0" VerticalAlignment="Top" BorderBrush="#FF6086A0" Background="#BFDBF4FF" Foreground="Black" Height="26" Padding="0" Click="btn_Config_PlayerNameTest_Click" FontWeight="Bold" HorizontalAlignment="Left" Width="100"/>
+                            <Label Content="VI Voice:" HorizontalAlignment="Left" Margin="10,72,0,0" Foreground="White" Width="141" VerticalContentAlignment="Center" Height="26" VerticalAlignment="Top" FontWeight="Bold"/>
+                            <ComboBox x:Name="comBox_Config_VIVoice" HorizontalAlignment="Left" Margin="156,72,0,0" Width="270" Foreground="#FF323232" MaxDropDownHeight="120" Background="#7F000000" BorderBrush="#FFABADB3" SelectionChanged="comBox_Config_VIVoice_SelectionChanged" Height="26" VerticalAlignment="Top" FontWeight="Bold">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Margin="2" Text="{Binding DisplayValue}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Label Content="Speech Rec. Language:" HorizontalAlignment="Left" Margin="10,103,0,0" Foreground="White" Width="141" VerticalContentAlignment="Center" Height="26" VerticalAlignment="Top" FontWeight="Bold"/>
+                            <ComboBox x:Name="comBox_Config_SpeechRecLang" HorizontalAlignment="Left" Margin="156,103,0,0" Width="270" Foreground="#FF323232" MaxDropDownHeight="120" Background="#7F000000" BorderBrush="#FFABADB3" SelectionChanged="comBox_Config_SpeechRecLang_SelectionChanged" Height="26" VerticalAlignment="Top" FontWeight="Bold">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Margin="2" Text="{Binding DisplayValue}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                                <ComboBoxItem Content="de-DE"/>
+                                <ComboBoxItem Content="en-US"/>
+                                <ComboBoxItem Content="en-GB"/>
+                                <ComboBoxItem Content="es-ES"/>
+                            </ComboBox>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="Overlay Settings" BorderBrush="{Binding BorderBrush, ElementName=tab_Overview_Label}" Margin="-3,-3,0,3" VerticalAlignment="Top" Padding="6" Background="#54FFFFFF" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <Grid Margin="10">
+                            <CheckBox x:Name="chckBox_Config_LoadingAnimation" Content="Play loading animation on start" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Foreground="White" Background="#A8FFFFFF" BorderBrush="#FFC8C8C8" Checked="chckBox_Config_LoadingAnimation_Checked" Height="15" Width="198" Unchecked="chckBox_Config_LoadingAnimation_Checked" FontWeight="Bold"/>
+                            <Label Content="Overlay Position:" HorizontalAlignment="Left" Margin="10,47,0,0" VerticalAlignment="Top" Foreground="White" Width="141" VerticalContentAlignment="Center" Height="26" FontWeight="Bold"/>
+                            <TextBox x:Name="txt_Config_OverlayPosX" Height="26" Margin="182,47,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Background="#33FFFFFF" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" HorizontalAlignment="Left" Width="97" PreviewTextInput="validateNumericInput" RenderTransformOrigin="0.458,0.602" FontWeight="Bold"/>
+                            <TextBox x:Name="txt_Config_OverlayPosY" Height="26" Margin="323,47,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Background="#33FFFFFF" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" HorizontalAlignment="Left" Width="98" PreviewTextInput="validateNumericInput" FontWeight="Bold"/>
+                            <TextBox x:Name="txt_Config_OverlayPosY_Copy" Height="26" Margin="10,78,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Foreground="WhiteSmoke" Background="#549FD3F1" BorderBrush="#FF9FB9F1" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" HorizontalAlignment="Left" Width="413" Text="Note: These coordinates are going over all monitors available!" HorizontalContentAlignment="Center" IsHitTestVisible="False" Focusable="False" IsReadOnly="True" FontWeight="Bold"/>
+                            <Label Content="X:" HorizontalAlignment="Left" Margin="156,47,0,0" VerticalAlignment="Top" Foreground="White" VerticalContentAlignment="Center" Height="26" RenderTransformOrigin="1.359,0.514" Width="21" FontWeight="Bold"/>
+                            <Label Content="Y:" HorizontalAlignment="Left" Margin="297,47,0,0" VerticalAlignment="Top" Foreground="White" VerticalContentAlignment="Center" Height="26" RenderTransformOrigin="1.359,0.514" Width="21" FontWeight="Bold"/>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="Extras" BorderBrush="{Binding BorderBrush, ElementName=tab_Overview_Label}" Margin="-3,-3,0,3" VerticalAlignment="Top" Padding="6" Background="#54FFFFFF" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="110"/>
+                                <RowDefinition Height="100"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="174"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Label Content="Color Theme:" Margin="10,10,10,0" VerticalAlignment="Top" Foreground="White" Height="26" FontWeight="Bold"/>
+                            <ComboBox x:Name="comBox_ExtrasTheme" Grid.Column="1" HorizontalAlignment="Left" Margin="10,12,0,0" VerticalAlignment="Top" Width="249" Height="26" SelectionChanged="ComboBox_SelectionChanged" SelectedIndex="0" FontWeight="Bold">
+                                <ComboBoxItem Content="Bright Theme"/>
+                                <ComboBoxItem Content="Dark Theme"/>
+                            </ComboBox>
+                            <TextBlock Grid.ColumnSpan="2" Margin="10,10,10,0" Grid.Row="1" Text="This option creates audio fles that replace the default board computer voice files with ones that have been spoken by the VI (as it is configured right now)." TextWrapping="Wrap" Background="{DynamicResource BackgroundBrush}" Padding="8" VerticalAlignment="Top" Height="48" FontWeight="Bold" Foreground="White" />
+                            <Button x:Name="btn_Extras_GenerateAudioFiles" Content="Generate Audio Files" Margin="10,63,10,0" Grid.Row="1" Height="26" VerticalAlignment="Top" Background="#BFDBF4FF" BorderBrush="#FF6086A0" FontWeight="Bold" Click="btn_Extras_GenerateAudioFiles_Click"/>
+                            <TextBox x:Name="txt_Extras_TargetAudioFilepath" Margin="10,63,10,0" TextWrapping="Wrap" Text="Target path: " Grid.Column="1" Grid.Row="1" Background="{DynamicResource BackgroundBrush}" BorderBrush="{x:Null}" Foreground="White" BorderThickness="0" VerticalContentAlignment="Center" Padding="5,0" Focusable="False" IsHitTestVisible="False" IsReadOnly="True" FontWeight="Bold" Height="26" VerticalAlignment="Top"/>
+                            <TextBlock Grid.ColumnSpan="2" Margin="10,10,10,0" Grid.Row="2" Text="This option generates an HTML file, which contains the entire dialog tree with all possible phrase compositions for each dialog. - Useful for checking on the structure of custom dialog trees." TextWrapping="Wrap" Background="{DynamicResource BackgroundBrush}" Padding="8" VerticalAlignment="Top" Height="48" FontWeight="Bold" Foreground="White" />
+                            <Button x:Name="btn_Extras_GenerateHtmlFile" Content="Generate HTML File" Margin="10,63,10,0" Grid.Row="2" Height="26" VerticalAlignment="Top" Background="#BFDBF4FF" BorderBrush="#FF6086A0" FontWeight="Bold" Click="btn_Extras_GenerateHtmlFile_Click"/>
+                            <CheckBox x:Name="chck_Extras_AutoOpenHtml" Content="Open afterwards" Margin="10,63,0,0" Grid.Column="1" Grid.Row="2" Height="26" BorderThickness="2" VerticalAlignment="Top" VerticalContentAlignment="Center" Foreground="White" IsChecked="True" Background="{Binding Mode=OneWay, Source={StaticResource NormalBackColor}}" BorderBrush="{Binding Mode=OneWay, Source={StaticResource NormalBorderColor}}" HorizontalAlignment="Left" FontWeight="Bold" Width="117"/>
+                            <CheckBox x:Name="chck_Extras_PrintPlayerCommandsOnly" Content="Print Player Commands Only" Margin="168,63,0,0" Grid.Column="1" Grid.Row="2" Height="26" BorderThickness="2" VerticalAlignment="Top" VerticalContentAlignment="Center" Foreground="White" IsChecked="True" Background="{Binding Mode=OneWay, Source={StaticResource NormalBackColor}}" BorderBrush="{Binding Mode=OneWay, Source={StaticResource NormalBorderColor}}" HorizontalAlignment="Left" FontWeight="Bold" Width="184"/>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+                <Button x:Name="btn_SaveConfig" Content="Save Settings" BorderBrush="#FF269735" Background="#BF38C55F" Foreground="White" Padding="0" FontWeight="Bold" Click="btn_SaveConfig_Click" HorizontalAlignment="Right" Width="120" Grid.Column="2" Margin="0,10,10,80" Grid.Row="1">
+                    <Button.Triggers>
+                        <EventTrigger RoutedEvent="Button.Click" >
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <ColorAnimation To="DarkGreen" Storyboard.TargetProperty="(Button.Foreground).(SolidColorBrush.Color)" Duration="0:0:0.5"/>
+                                    <ColorAnimation To="{x:Null}" Storyboard.TargetProperty="(Button.Foreground).(SolidColorBrush.Color)" BeginTime="0:0:1.0" Duration="0:0:0.5"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </Button.Triggers>
+                </Button>
             </Grid>
         </TabItem>
 
-        <TabItem x:Name="tab_Controls_Label" Header="Controls" Background="{Binding Background, ElementName=tab_Config_Label}" Margin="2,0,0,0" Width="100" Foreground="Black" ScrollViewer.CanContentScroll="True" GotFocus="tab_Controls_Label_GotFocus">
+        <TabItem x:Name="tab_Controls_Label" Header="Controls" Background="#54FFFFFF" Margin="2,-4,0,0" Width="100" Foreground="Black" ScrollViewer.CanContentScroll="True" GotFocus="tab_Controls_Label_GotFocus" BorderBrush="#00ACACAC">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition/>
@@ -192,7 +223,7 @@
             </Grid>
         </TabItem>
 
-        <TabItem x:Name="tab_Plugins_Label" Header="Pugins" Background="{Binding Background, ElementName=tab_Config_Label}" Margin="2,0,0,0" HorizontalAlignment="Left" Width="100" Foreground="Black">
+        <TabItem x:Name="tab_Plugins_Label" Header="Pugins" Background="#54FFFFFF" Margin="2,-4,0,0" HorizontalAlignment="Left" Width="100" Foreground="Black" BorderBrush="#00ACACAC">
             <Grid x:Name="tab_Main_Plugins" Background="#00E5E5E5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="190"/>
@@ -226,38 +257,7 @@
             </Grid>
         </TabItem>
 
-        <TabItem x:Name="tab_Extras" Header="Extras" Background="{Binding Background, ElementName=tab_Config_Label}" Margin="2,0,0,0" Foreground="Black" HorizontalAlignment="Left" Width="100" GotFocus="tab_Extras_GotFocus">
-            <Grid>
-                <GroupBox Header="Extras" Margin="10" Foreground="White" FontWeight="Bold" Background="{DynamicResource BackgroundBrush}" Padding="5,10" Grid.ColumnSpan="2">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="80"/>
-                            <RowDefinition Height="99"/>
-                            <RowDefinition Height="99"/>
-                            <RowDefinition Height="21*"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="174"/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <Label Content="Color Theme:" Margin="10,26,10,0" VerticalAlignment="Top" Foreground="White" Height="26"/>
-                        <ComboBox x:Name="comBox_ExtrasTheme" Grid.Column="1" HorizontalAlignment="Left" Margin="10,26,0,0" VerticalAlignment="Top" Width="249" Height="26" SelectionChanged="ComboBox_SelectionChanged" SelectedIndex="0">
-                            <ComboBoxItem Content="Bright Theme"/>
-                            <ComboBoxItem Content="Dark Theme"/>
-                        </ComboBox>
-                        <TextBlock Grid.ColumnSpan="2" Margin="10,10,10,0" Grid.Row="1" Text="This option creates audio fles that replace the default board computer voice files with ones that have been spoken by the VI (as it is configured right now)." TextWrapping="Wrap" Background="{DynamicResource BackgroundBrush}" Padding="8" VerticalAlignment="Top" Height="48" />
-                        <Button x:Name="btn_Extras_GenerateAudioFiles" Content="Generate Audio Files" Margin="10,0,10,11" Grid.Row="1" Height="26" VerticalAlignment="Bottom" Background="#BFDBF4FF" BorderBrush="#FF6086A0" FontWeight="Bold" Click="btn_Extras_GenerateAudioFiles_Click"/>
-                        <TextBox x:Name="txt_Extras_TargetAudioFilepath" Height="26" Margin="10,0,10,11" TextWrapping="Wrap" Text="Target path: " VerticalAlignment="Bottom" Grid.Column="1" Grid.Row="1" Background="{DynamicResource BackgroundBrush}" BorderBrush="{x:Null}" Foreground="White" BorderThickness="0" VerticalContentAlignment="Center" Padding="5,0" Focusable="False" IsHitTestVisible="False" IsReadOnly="True"/>
-                        <TextBlock Grid.ColumnSpan="2" Margin="10,10,10,0" Grid.Row="2" Text="This option generates an HTML file, which contains the entire dialog tree with all possible phrase compositions for each dialog. - Useful for checking on the structure of custom dialog trees." TextWrapping="Wrap" Background="{DynamicResource BackgroundBrush}" Padding="8" VerticalAlignment="Top" Height="48" />
-                        <Button x:Name="btn_Extras_GenerateHtmlFile" Content="Generate HTML File" Margin="10,63,10,0" Grid.Row="2" Height="26" VerticalAlignment="Top" Background="#BFDBF4FF" BorderBrush="#FF6086A0" FontWeight="Bold" Click="btn_Extras_GenerateHtmlFile_Click"/>
-                        <CheckBox x:Name="chck_Extras_AutoOpenHtml" Content="Open afterwards" Margin="10,63,0,0" Grid.Column="1" Grid.Row="2" Height="26" BorderThickness="2" VerticalAlignment="Top" VerticalContentAlignment="Center" Foreground="White" IsChecked="True" Background="{Binding Mode=OneWay, Source={StaticResource NormalBackColor}}" BorderBrush="{Binding Mode=OneWay, Source={StaticResource NormalBorderColor}}" HorizontalAlignment="Left"/>
-                        <CheckBox x:Name="chck_Extras_PrintPlayerCommandsOnly" Content="Print Player Commands Only" Margin="168,63,0,0" Grid.Column="1" Grid.Row="2" Height="26" BorderThickness="2" VerticalAlignment="Top" VerticalContentAlignment="Center" Foreground="White" IsChecked="True" Background="{Binding Mode=OneWay, Source={StaticResource NormalBackColor}}" BorderBrush="{Binding Mode=OneWay, Source={StaticResource NormalBorderColor}}" HorizontalAlignment="Left"/>
-                    </Grid>
-                </GroupBox>
-            </Grid>
-        </TabItem>
-
-        <TabItem x:Name="tab_About" Header="About" Background="{Binding Background, ElementName=tab_Config_Label}" Margin="2,0,0,0" HorizontalAlignment="Left" Width="100" Foreground="Black">
+        <TabItem x:Name="tab_About" Header="About" Margin="2,-4,0,0" HorizontalAlignment="Left" Width="100" Foreground="Black" BorderBrush="#00ACACAC" Background="#54FFFFFF">
             <Grid x:Name="tab_Main_About" Margin="10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="401*"/>
