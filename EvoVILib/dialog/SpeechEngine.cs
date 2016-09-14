@@ -4,14 +4,13 @@ using System.Threading;
 using System.Speech.Synthesis;
 using System.Speech.Recognition;
 using System.IO;
-using EvoVI.Classes.Dialog;
 using CSCore;
 using System.Net;
 using CSCore.Codecs.WAV;
 using CSCore.SoundOut;
 using CSCore.Streams.Effects;
 
-namespace EvoVI.Engine
+namespace EvoVI.Dialog
 {
     public static class SpeechEngine
     {

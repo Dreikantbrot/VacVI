@@ -9,7 +9,7 @@ using System.Windows.Input;
 
 // TODO: Input will not be recognized, if the game is run as administrator
 
-namespace EvoVI.Engine
+namespace EvoVI.Input
 {
     public static class Interactor
     {

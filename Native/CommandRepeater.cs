@@ -1,7 +1,5 @@
-﻿using EvoVI.Classes.Dialog;
+﻿using EvoVI.Dialog;
 using EvoVI.Database;
-using EvoVI.Engine;
-using EvoVI.PluginContracts;
 using EvoVI.Plugins;
 using System;
 using System.Collections.Generic;
@@ -87,7 +85,7 @@ namespace Native
             DialogBase.OnDialogNodeChanged += DialogBase_OnDialogNodeChanged;
         }
 
-        public void OnDialogAction(EvoVI.Classes.Dialog.DialogBase originNode)
+        public void OnDialogAction(EvoVI.Dialog.DialogBase originNode)
         {
             switch (originNode.Data.ToString())
             {

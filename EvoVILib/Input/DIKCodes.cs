@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EvoVI.Engine
+namespace EvoVI.Input
 {
     /// <Summary> Contains DirectInput key codes.
     /// <para>Source: http://www.flint.jp/misc/?q=dik&lang=en

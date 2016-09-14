@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EvoVI.Database;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace EvoVI.Database
+namespace EvoVI.Input
 {
     #region Public Enums
     public enum GameAction

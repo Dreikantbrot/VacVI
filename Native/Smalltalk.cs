@@ -1,10 +1,9 @@
-﻿using EvoVI.Classes.Dialog;
+﻿using EvoVI.Dialog;
 using EvoVI.Database;
-using EvoVI.Engine;
-using EvoVI.PluginContracts;
 using EvoVI.Plugins;
 using System;
 using System.Collections.Generic;
+using EvoVI;
 
 namespace Native
 {
@@ -78,7 +77,7 @@ namespace Native
             DialogTreeBuilder.BuildDialogTree(null, dialogOptions);
         }
 
-        public void OnDialogAction(EvoVI.Classes.Dialog.DialogBase originNode)
+        public void OnDialogAction(EvoVI.Dialog.DialogBase originNode)
         {
 
         }

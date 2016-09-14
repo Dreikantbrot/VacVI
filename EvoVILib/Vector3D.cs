@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EvoVI.Classes.Math
+namespace EvoVI
 {
     public class Vector3D
     {

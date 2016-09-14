@@ -2,13 +2,14 @@
 using System.Windows;
 using System.IO;
 using EvoVI;
-using EvoVI.PluginContracts;
+using EvoVI.Plugins;
 using System.Windows.Controls;
 using System.Windows.Media;
 using EvoVI.Database;
 using System.Collections.Generic;
-using EvoVI.Engine;
+using EvoVI.Dialog;
 using System.Windows.Input;
+using EvoVI.Input;
 
 namespace EvoVIConfigurator
 {
@@ -1006,7 +1007,7 @@ namespace EvoVIConfigurator
             {
                 // Generate the audio files
                 SpeechEngine.Say(
-                    new EvoVI.Classes.Dialog.DialogVI(keyVal.Value), 
+                    new EvoVI.Dialog.DialogVI(keyVal.Value), 
                     false, 
                     SpeechEngine.VoiceModulation, 
                     GameMeta.CurrentGameDirectoryPath + "\\alerts\\" + keyVal.Key
@@ -1044,7 +1045,7 @@ namespace EvoVIConfigurator
             string appPath = Path.GetDirectoryName(
                 System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase
             ).Replace("file:\\", "");
-            EvoVI.Classes.Dialog.DialogTreeBuilder.GenerateHtmlOverview(
+            EvoVI.Dialog.DialogTreeBuilder.GenerateHtmlOverview(
                 appPath + "\\Dialog Tree.html",
                 (chck_Extras_PrintPlayerCommandsOnly.IsChecked == true)
             );

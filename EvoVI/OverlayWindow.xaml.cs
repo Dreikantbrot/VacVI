@@ -1,7 +1,7 @@
 ﻿using EvoVI;
-using EvoVI.Classes.Dialog;
+using EvoVI.Dialog;
 using EvoVI.Database;
-using EvoVI.Engine;
+using EvoVI.Input;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -11,6 +11,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
+using EvoVI.Plugins;
 
 namespace EvoVIOverlay
 {

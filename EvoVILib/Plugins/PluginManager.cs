@@ -1,12 +1,11 @@
-﻿using EvoVI.PluginContracts;
-using EvoVI.Plugins;
+﻿using EvoVI.Plugins;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading;
 
-namespace EvoVI
+namespace EvoVI.Plugins
 {
     public static class PluginManager
     {

@@ -1,11 +1,11 @@
-﻿using EvoVI.Classes.Dialog;
-using EvoVI.PluginContracts;
+﻿using EvoVI.Dialog;
+using EvoVI.Plugins;
 using System.Reflection;
 using System.Speech.Recognition;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("EvoVI")]
 
-namespace EvoVI.Engine
+namespace EvoVI
 {
     public static class VI
     {

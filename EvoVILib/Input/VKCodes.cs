@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EvoVI.Engine
+namespace EvoVI.Input
 {
     /// <Summary> Contains virtual key codes (Windows).
     /// <para>Source: http://www.kbdedit.com/manual/low_level_list.html

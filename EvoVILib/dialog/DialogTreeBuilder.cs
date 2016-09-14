@@ -6,7 +6,7 @@ using System.Speech.Synthesis;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace EvoVI.Classes.Dialog
+namespace EvoVI.Dialog
 {
     public struct DialogTreeBranch
     {

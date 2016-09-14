@@ -1,7 +1,7 @@
-﻿using EvoVI.Classes.Dialog;
+﻿using EvoVI;
+using EvoVI.Dialog;
 using EvoVI.Database;
-using EvoVI.Engine;
-using EvoVI.PluginContracts;
+using EvoVI.Input;
 using EvoVI.Plugins;
 using System;
 using System.Collections.Generic;

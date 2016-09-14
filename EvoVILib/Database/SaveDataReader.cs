@@ -1,4 +1,5 @@
-﻿using EvoVI.Engine;
+﻿using EvoVI.Dialog;
+using EvoVI.Plugins;
 using System;
 using System.Collections.Generic;
 using System.IO;

@@ -1,10 +1,9 @@
-﻿using EvoVI.Engine;
-using EvoVI.PluginContracts;
+﻿using EvoVI.Plugins;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace EvoVI.Classes.Dialog
+namespace EvoVI.Dialog
 {
     [System.Diagnostics.DebuggerDisplay("{Speaker}: {Text}")]
     public class DialogBase

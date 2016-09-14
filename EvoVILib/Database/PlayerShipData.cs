@@ -1,4 +1,4 @@
-﻿using EvoVI.Classes.Math;
+﻿using EvoVI;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;

@@ -1,4 +1,4 @@
-﻿using EvoVI.Classes.Math;
+﻿using EvoVI;
 using System;
 
 namespace EvoVI.Database

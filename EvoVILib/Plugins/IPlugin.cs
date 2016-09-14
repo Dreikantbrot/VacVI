@@ -1,10 +1,10 @@
-﻿using EvoVI.Classes.Dialog;
+﻿using EvoVI.Dialog;
 using EvoVI.Database;
 using EvoVI.Plugins;
 using System;
 using System.Collections.Generic;
 
-namespace EvoVI.PluginContracts 
+namespace EvoVI.Plugins 
 {
     public interface IPlugin
     {
