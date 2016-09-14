@@ -9,8 +9,7 @@ using System.Threading.Tasks;
 
 namespace EvoVI.Database
 {
-    /// <summary> Contains information about the game itself.
-    /// </summary>
+    /// <summary> Contains information about the game itself.</summary>
     public static class GameMeta
     {
         #region Structs

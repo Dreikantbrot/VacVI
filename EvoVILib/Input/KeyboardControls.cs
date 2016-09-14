@@ -2,10 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace EvoVI.Input
 {
@@ -158,6 +155,7 @@ namespace EvoVI.Input
 
 
     [System.Diagnostics.DebuggerDisplay("[{_inputType}, {_scancode}] {_action}")]
+    /// <summary> A class containing detailed informations about an in-game action.</summary>
     public class ActionDetail
     {
         #region Variables
@@ -264,9 +262,11 @@ namespace EvoVI.Input
     }
 
 
+    /// <summary> Class containing a database of in-game controls for the currently set game.</summary>
     public static class KeyboardControls
     {
         #region Regexes (readonly)
+        /// <summary> Regex that extracts necessary data out of the keymap8-template resource.</summary>
         private static readonly Regex KEYMAP_LAYOUT_REGEX = new Regex(
             @"\[\s*(?<Availability>.*?)\s*\]\s*" + 
             @"\[\s*(?<Category>.*?)\s*\]\s*" + 
@@ -310,8 +310,8 @@ namespace EvoVI.Input
                 Match match = KEYMAP_LAYOUT_REGEX.Match(currLine);
 
                 GameMeta.SupportedGame availabilityFlags = GameMeta.SupportedGame.NONE;
-                if (match.Groups["Availability"].Value.Contains("EM")) { availabilityFlags |= GameMeta.SupportedGame.EVOCHRON_MERCENARY; }
-                if (match.Groups["Availability"].Value.Contains("EL")) { availabilityFlags |= GameMeta.SupportedGame.EVOCHRON_LEGACY; }
+                if (match.Groups["Availability"].Value.Contains("EMERC")) { availabilityFlags |= GameMeta.SupportedGame.EVOCHRON_MERCENARY; }
+                if (match.Groups["Availability"].Value.Contains("ELGCY")) { availabilityFlags |= GameMeta.SupportedGame.EVOCHRON_LEGACY; }
 
                 // Is the action supported by the currently set game?
                 if ((availabilityFlags & GameMeta.CurrentGame) != GameMeta.CurrentGame) { continue; }

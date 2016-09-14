@@ -1,5 +1,4 @@
-﻿using EvoVI.Plugins;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -7,13 +6,9 @@ using System.Threading;
 
 namespace EvoVI.Plugins
 {
+    /// <summary> Loads, initializes, calls and manages plugins.</summary>
     public static class PluginManager
     {
-        #region Constants
-        public static readonly string[] GLOBAL_PLUGIN_PARAMETERS = new string[] { "enabled" };
-        #endregion
-
-
         #region Variables
         public static List<IPlugin> Plugins = new List<IPlugin>();
         private static IniFile _pluginFile;
@@ -47,6 +42,9 @@ namespace EvoVI.Plugins
             get { return PluginManager.GetPluginPath() + "\\" + "plugins.ini"; }
         }
 
+
+        /// <summary> Returns a dictionary mapping each plugin to it's origin DLL file.
+        /// </summary>
         internal static Dictionary<string, List<IPlugin>> LoadedDLLs
         {
             get { return PluginManager._dllDictionary; }

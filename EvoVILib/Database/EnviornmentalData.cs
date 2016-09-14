@@ -3,6 +3,7 @@ using System;
 
 namespace EvoVI.Database
 {
+    /// <summary> Contains informaion about the enviornment around the player.</summary>
     public static class EnvironmentalData
     {
         #region Constants (Parameter Names)
@@ -28,24 +29,28 @@ namespace EvoVI.Database
 
 
         #region Properties - Converted values
+        /// <summary> [EMERC+] Returns the state of the "inbound missile"-alert.</summary>
         public static OnOffState? InboundMissileAlert 
 		{
 			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (OnOffState?)EnvironmentalData._inboundMissileAlert : null; }
 		}
 
 
+        /// <summary> [ELGCY+] Returns the current waypoint's in-sector corrrdinates as a 3-dimensional vector.</summary>
         public static Vector3D WaypointCoordinates 
 		{
 			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? EnvironmentalData._waypointCoordinates : null; }
 		}
 
 
+        /// <summary> [ELGCY+] Returns the current waypoint's sector corrrdinates as a 3-dimensional vector.</summary>
         public static Vector3D WaypointSectorCoordinates 
 		{
 			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? EnvironmentalData._waypointSectorCoordinates : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns waypoint's distance from the player.</summary>
         public static int? NavPointDistance 
 		{
 			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)EnvironmentalData._navPointDistance : null; }
@@ -54,12 +59,14 @@ namespace EvoVI.Database
 
 
         #region Properties - Unconverted values
+        /// <summary> [EMERC+] Returns the local system's name.</summary>
         public static string LocalSystemName 
 		{
 			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (string)SaveDataReader.GetEntry(PARAM_LOCAL_SYSTEM_NAME).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the gravity level acting on the player ship that is influencing it's flight path.</summary>
         public static int? GravityLevel 
 		{
 			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_GRAVTY_LEVEL).Value : null; }

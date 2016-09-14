@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 
 namespace EvoVI.Database
 {
+    /// <summary> Contains information about the game's lore.</summary>
     public static class LoreData
     {
-        /// <summary> Contains information about items like commodities.
-        /// </summary>
+        /// <summary> Contains information about items like commodities.</summary>
         public static class Items
         {
             #region Regexes (readonly)
@@ -124,8 +124,7 @@ namespace EvoVI.Database
         }
 
         
-        /// <summary> Contains information about star systems.
-        /// </summary>
+        /// <summary> Contains information about star systems.</summary>
         public static class Systems
         {
             #region Regexes (readonly
@@ -287,8 +286,7 @@ namespace EvoVI.Database
         }
 
 
-        /// <summary> Contains information about tech, like ship frames and ship components.
-        /// </summary>
+        /// <summary> Contains information about tech, like ship frames and ship components.</summary>
         public static class Tech
         {
             #region Regexes (readonly)

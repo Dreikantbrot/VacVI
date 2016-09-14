@@ -1,6 +1,7 @@
 ﻿
 namespace EvoVI.Database
 {
+    /// <summary> Contains information about the HUD.</summary>
     public static class HudData
     {
         #region Constants (Parameter Names)
@@ -31,36 +32,42 @@ namespace EvoVI.Database
 
 
         #region Properties - Converted values
+        /// <summary> [EMERC+] Returns the state of the navigation console.</summary>
         public static OnOffState? NavigationConsole 
 		{
 			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (OnOffState?)HudData._navigationConsole : null; }
 		}
 
 
+        /// <summary> [ELGCY+] Returns the state of the build and deploy console.</summary>
         public static OnOffState? BuildConsole 
 		{
-            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (OnOffState?)HudData._buildConsole : null; }
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (OnOffState?)HudData._buildConsole : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the state of the inventory console.</summary>
         public static OnOffState? InventoryConsole 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (OnOffState?)HudData._inventoryConsole : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the state of the ship-to-ship trade console.</summary>
         public static OnOffState? TradeConsole 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (OnOffState?)HudData._tradeConsole : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the HUD display mode.</summary>
         public static HudStatus? Hud 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (HudStatus?)HudData._hud : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the target display mode.</summary>
         public static TargetDisplayStatus? TargetDisplay 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (TargetDisplayStatus?)HudData._targetDisplay : null; }
@@ -69,6 +76,7 @@ namespace EvoVI.Database
 
 
         #region Properties - Unconverted Values
+        /// <summary> [EMERC+] Returns the total number of hostiles on radar.</summary>
         public static int? TotalHostilesOnRadar 
 		{
 			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_TOTAL_HOSTILES_IN_RADAR_RANGE).Value : null; }

@@ -2,6 +2,7 @@
 
 namespace EvoVI.Database
 {
+    /// <summary> Contains information about the play him/herself.</summary>
     public static class PlayerData
     {
         #region Constants (Parameter Names)
@@ -20,6 +21,7 @@ namespace EvoVI.Database
 
 
         #region Properties (Converted Values)
+        /// <summary> [EMERC+] Returns the player's amount of cash.</summary>
         public static int? Cash 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)_cash : null; }
@@ -28,30 +30,35 @@ namespace EvoVI.Database
 
 
         #region Properties (Unconverted Values)
+        /// <summary> [EMERC+] Returns the player's profile name.</summary>
         public static string Name 
 		{
 			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (string)SaveDataReader.GetEntry(PARAM_PILOT_NAME).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the player's total number of kills.</summary>
         public static int? TotalKills 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_TOTAL_KILLS).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the player's total number of fulfilled contracts.</summary>
         public static int? TotalContracts 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_TOTAL_CONTRACTS).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the player's total skill and proficiency rating (civilian rating).</summary>
         public static int? SkillAndProficiencyRating 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_SKILL_AND_PROFICIENCY_RATING).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the player's total military rating.</summary>
         public static int? MilitaryRating 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_MILITARY_RANK).Value : null; }

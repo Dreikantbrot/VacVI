@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace EvoVI.Dialog
 {
+    /// <summary> A dialog node that is spoken by the VI.</summary>
     public class DialogVI : DialogBase
     {
         #region Variables

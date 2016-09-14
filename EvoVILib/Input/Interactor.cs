@@ -11,6 +11,7 @@ using System.Windows.Input;
 
 namespace EvoVI.Input
 {
+    /// <summary> Sends device input to the game, simulating key presses.</summary>
     public static class Interactor
     {
         #region DLL Imports

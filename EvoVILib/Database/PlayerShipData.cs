@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace EvoVI.Database
 {
+    /// <summary> Contains information about the player ship.</summary>
     public static class PlayerShipData
     {
         #region Constants (Parameter Names)
@@ -73,9 +74,16 @@ namespace EvoVI.Database
 
 
         #region Enums
+        /// <summary> Represents the state of the ship's emitted heat.</summary>
         public enum HeatState { LOW = 0, HIGH = 1 };
+
+        /// <summary> Represents the state of the MTDS (targeting) system.</summary>
         public enum MTDSState { OFF = 0, ON = 1, LOCKED = 2 };
+
+        /// <summary> Represents the missile lock-on state.</summary>
         public enum MissileState { NO_LOCK = 0, LOCKED = 1 };
+
+        /// <summary> Represents the autopilot's state.</summary>
         public enum AutopilotState { OFF = 0, FORM_ON_TARGET = 1, FLY_TO_NAV_POINT = 2 };
         #endregion
 
@@ -103,108 +111,132 @@ namespace EvoVI.Database
 
 
         #region Properties - Converted values
+        /// <summary> [EMERC+] Returns the amount of fuel remaining.</summary>
         public static int? FuelRemaining
         {
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)PlayerShipData._fuelRemaining : null; }
         }
 
 
+        /// <summary> [EMERC+] Returns the total amount of fuel the ship can hold.</summary>
         public static int? FuelTotal
         {
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)PlayerShipData._fuelTotal : null; }
         }
 
 
+        /// <summary> [EMERC+] Returns the percentage of fuel remaining.</summary>
         public static double? FuelPercentage
         {
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (double?)PlayerShipData._fuelPercentage : null; }
         }
 
 
+        /// <summary> [EMERC+] Returns the content of the player ship's cargo bay.
+        /// <para>The amount of maximum cargo slots differs per game - see <see cref="EvoVI.Database.ShipData.MaxCargoSlots"/>.
+        /// </para>
+        /// </summary>
         public static string[] CargoBay 
 		{
 			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? PlayerShipData._cargoBay : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the ship's in-sector position as a 3-dimensional vector.</summary>
         public static Vector3D Position 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? PlayerShipData._position : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the ship sector position as a 3-dimensional vector.</summary>
         public static Vector3D SectorPosition 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? PlayerShipData._sectorPosition : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the ship's shield states (0 to 100).</summary>
         public static Dictionary<ShieldLevelState, int> ShieldLevel 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? PlayerShipData._shieldLevel : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns an array of currently equipped secondary weapons.</summary>
         public static string[] SecWeapon 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? PlayerShipData._secWeapon : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the content of the player ship's equipment slots.
+        /// <para>The amount of maximum equipment slots differs per game - see <see cref="EvoVI.Database.ShipData.MaxEquipmentSlots"/>.
+        /// </para>
+        /// </summary>
         public static string[] EquipmentSlot 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? PlayerShipData._equipmentSlot : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the ship's current heat state.</summary>
         public static HeatState? Heat 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (HeatState?)PlayerShipData._heat : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the MTDS (targeting system) state.</summary>
         public static MTDSState? Mtds 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (MTDSState?)PlayerShipData._mtds : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the state of the missile lock.</summary>
         public static MissileState? MissileLock 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (MissileState?)PlayerShipData._missileLock : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the power transferred to shields (-5 to +5).</summary>
         public static int? ShieldBias 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)PlayerShipData._shieldBias : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the power transferred to the weapon systems (-5 to +5).</summary>
         public static int? WeaponBias 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)PlayerShipData._weaponBias : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the IDS (inertia dampening system) state.</summary>
         public static OnOffState? Ids 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (OnOffState?)PlayerShipData._ids : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the afterburner's state.</summary>
         public static OnOffState? Afterburner 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (OnOffState?)PlayerShipData._afterburner : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the autopilot's state.</summary>
         public static AutopilotState? Autopilot 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (AutopilotState?)PlayerShipData._autopilot : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the tractor beam's state.</summary>
         public static OnOffState? TractorBeam 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (OnOffState?)PlayerShipData._tractorBeam : null; }
@@ -213,174 +245,203 @@ namespace EvoVI.Database
 
 
         #region Properties - Unconverted Values
+        /// <summary> [EMERC+] Returns the ship's energy level (0 to 100).</summary>
         public static int? EnergyLevel 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_ENERGY_LEVEL).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the damage on the ship's engines (0-100).</summary>
         public static int? EngineDamage 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_ENGINE_DAMAGE).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the damage on the ship's weapon systems (0-100).</summary>
         public static int? WeaponDamage 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_WEAPON_DAMAGE).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the damage on the ship's nav-systems (0-100).</summary>
         public static int? NavDamage 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_NAV_DAMAGE).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the name of the currently equipped particle cannon.</summary>
         public static string ParticleCannon 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (string)SaveDataReader.GetEntry(PARAM_PARTICLE_CANNON).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the name of the currently equipped beam cannon.</summary>
         public static string BeamCannon 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (string)SaveDataReader.GetEntry(PARAM_BEAM_CANNON).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the name of the current ship model.</summary>
         public static string ShipType 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (string)SaveDataReader.GetEntry(PARAM_SHIP_TYPE).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the ship's engine class.</summary>
         public static int? EngineClass 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_ENGINE_CLASS).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the ship's shield class.</summary>
         public static int? ShieldClass 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_SHIELD_CLASS).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the ship's cargo capacity.</summary>
         public static int? CargoCapacity 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_CARGO_CAPACITY).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the ship's wing class.</summary>
         public static int? WingClass 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_WING_AND_THRUSTER_CLASS).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the ship's thruster class (same as the wing class).</summary>
         public static int? ThrusterClass 
 		{
 			get { return WingClass; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the ship's crew member limit.</summary>
         public static int? CrewLimit 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_CREW_LIMIT).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the ship's equipment limit.</summary>
         public static int? EquipmentLimit 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_EQUIPMENT_LIMIT).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the ship's equipment limit.</summary>
         public static int? CountermeasureLimit 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_COUNTERMEASURE_LIMIT).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the ship's hardpoint limit.</summary>
         public static int? HardpointLimit 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_HARDPOINT_LIMIT).Value : null; }
 		}
 
 
+        /// <summary> [ELGCY+] Returns the ship's armor limit.</summary>
         public static int? ArmorLimit 
 		{
 			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int?)SaveDataReader.GetEntry(PARAM_ARMOR_LIMIT).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the range of the currently equipped particle cannon.</summary>
         public static int? ParticleCannonRange 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_PARTICLE_CANNON_RANGE).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the range of the currently equipped missile.</summary>
         public static int? MissileRange 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_ARMED_MISSILE_RANGE).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the currently targeted subsystem.</summary>
         public static string TargetedSubsystem 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (string)SaveDataReader.GetEntry(PARAM_TARGETED_SUBSYSTEM).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the remaining amount of countermeasures.</summary>
         public static int? CounterMeasures 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_COUNTERMEASURES_REMAINING).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the IDS (inertia dampening system) speed multiplier.</summary>
         public static int? IDSMultiplier 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_IDS_MULTIPLIER).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the ship's velocity.</summary>
         public static int? Velocity 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_PLAYER_SHIP_VELOCITY).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the ship's set velocity.</summary>
         public static int? SetVelocity 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_PLAYER_SHIP_SET_VELOCITY).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the ship's altitude.</summary>
         public static int? Altitude 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_PLAYER_SHIP_ALTITUDE).Value : null; }
 		}
 
 
+        /// <summary> [EMERC+] Returns the ship's heat signature level.</summary>
         public static int? HeatSignatureLevel 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_HEAT_SIGNATURE_LEVEL).Value : null; }
 		}
 
 
+        /// <summary> [ELGCY+] Returns the ship's total velocity.</summary>
         public static int? TotalVelocity 
 		{
 			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int?)SaveDataReader.GetEntry(PARAM_PLAYER_SHIP_TOTAL_VELOCITY_AVL).Value : null; }
 		}
 
 
+        /// <summary> [ELGCY+] Returns the ship's heading.</summary>
         public static int? Heading 
 		{
 			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int?)SaveDataReader.GetEntry(PARAM_PLAYER_SHIP_HEADING).Value : null; }
 		}
 
 
+        /// <summary> [ELGCY+] Returns the ship's pitch.</summary>
         public static int? Pitch 
 		{
 			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (int?)SaveDataReader.GetEntry(PARAM_PLAYER_SHIP_PITCH).Value : null; }
@@ -414,11 +475,7 @@ namespace EvoVI.Database
             _fuelPercentage = (double)_fuelRemaining / _fuelTotal;
 
             // Get cargo bays
-            maxCount = (
-                (GameMeta.CurrentGame == (GameMeta.CurrentGame & GameMeta.SupportedGame.EVOCHRON_MERCENARY)) ? 5 : 
-                (GameMeta.CurrentGame == (GameMeta.CurrentGame & GameMeta.SupportedGame.EVOCHRON_LEGACY)) ? 10 : 
-                0
-            );
+            maxCount = ShipData.MaxCargoSlots;
             for (int i = 0; i < maxCount; i++) { _cargoBay[i] = (string)SaveDataReader.GetEntry(PARAM_CARGO_BAY[i]).Value; }
 
             // Get position data
@@ -441,11 +498,7 @@ namespace EvoVI.Database
             for (int i = 0; i < maxCount; i++) { _secWeapon[i] = (string)SaveDataReader.GetEntry(PARAM_SECONDARY_WEAPON_SLOT[i]).Value; }
 
             // Get equipment
-            maxCount = (
-                (GameMeta.CurrentGame == (GameMeta.CurrentGame & GameMeta.SupportedGame.EVOCHRON_MERCENARY)) ? 8 :
-                (GameMeta.CurrentGame == (GameMeta.CurrentGame & GameMeta.SupportedGame.EVOCHRON_LEGACY)) ? 10 :
-                0
-            );
+            maxCount = ShipData.MaxEquipmentSlots;
             for (int i = 1; i < maxCount; i++) { _equipmentSlot[i] = (string)SaveDataReader.GetEntry(PARAM_EQUIPMENT_SLOT[i]).Value; }
 
             // Convert heat

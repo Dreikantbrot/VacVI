@@ -2,6 +2,7 @@
 
 namespace EvoVI.Plugins
 {
+    /// <summary> Contains information about a configurable parameter in a plugin.</summary>
     public struct PluginParameterDefault
     {
         #region Variables

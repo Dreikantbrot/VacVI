@@ -13,6 +13,7 @@ namespace EvoVI.Input
     /// </Summary>
     public struct DIKCodes
     {
+        /// <summary> The keys themselves.</summary>
         public enum Keys : int
         {
             [Description(@"")]

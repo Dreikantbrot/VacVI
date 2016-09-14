@@ -6,10 +6,14 @@ using System.Text.RegularExpressions;
 namespace EvoVI.Dialog
 {
     [System.Diagnostics.DebuggerDisplay("{Speaker}: {Text}")]
+    /// <summary> Base class for dialog nodes.</summary>
     public class DialogBase
     {
         #region Regexes (readonly)
+        /// <summary> Regex used to assertain whether a node's text is valid.</summary>
         protected readonly Regex VALIDATION_REGEX = new Regex(@"^(?:\s|\.|,|;|:)*$");
+
+        /// <summary> Regex used to extract the different kinds of choice words and phrases in a node.</summary>
         internal static readonly Regex CHOICES_REGEX = new Regex(@"(?:\$\((?<Choice>.*?)\))|(?:\$\[(?<OptChoice>.*?)\])");
         #endregion
 
@@ -36,7 +40,7 @@ namespace EvoVI.Dialog
         /// </summary>
         public enum DialogSpeaker { PLAYER, VI, COMMAND, NULL };
 
-        /// <summary> The importance of a line of dialog.
+        /// <summary> The priority of a line of dialog.
         /// </summary>
         public enum DialogPriority { VERY_LOW=0, LOW=1, NORMAL=2, HIGH=3, VERY_HIGH=4, CRITICAL=5 };
 

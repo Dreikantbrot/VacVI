@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace EvoVI.Dialog
 {
+    /// <summary> A class representing a specific branch in the dialog tree.</summary>
     public struct DialogTreeBranch
     {
         #region Variables
@@ -31,6 +32,8 @@ namespace EvoVI.Dialog
         #endregion
     }
 
+
+    /// <summary> Builds the dialog tree and keeps a list of all dialog nodes.</summary>
     public static class DialogTreeBuilder
     {
         #region Variables
@@ -112,6 +115,7 @@ namespace EvoVI.Dialog
         /// <summary> Generates an HTML file with all registered dialog nodes and every phrase composition for each dialog node.
         /// </summary>
         /// <param name="targetFilePath">The target filepath.</param>
+        /// <param name="playerCommandsOnly">Whether for the file to only include player dialog nodes.</param>
         internal static void GenerateHtmlOverview(string targetFilePath, bool playerCommandsOnly = false)
         {
             StringBuilder htmlFileBuilder = new StringBuilder();
@@ -137,6 +141,13 @@ namespace EvoVI.Dialog
             }
         }
 
+
+        /// <summary> Generates the HTML markup for aa single dialog node and it's children.
+        /// </summary>
+        /// <param name="node">The start node.</param>
+        /// <param name="playerCommandsOnly">Whether to only process player dialog nodes.</param>
+        /// <param name="level">The current level of indentation.</param>
+        /// <returns>The HTML markup in a StringBuilder instance.</returns>
         private static StringBuilder getDialogPhrasesHTML(DialogBase node, bool playerCommandsOnly = false, int level = 0)
         {
             StringBuilder htmlFileBuilder = new StringBuilder();

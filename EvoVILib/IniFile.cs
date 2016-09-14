@@ -7,11 +7,17 @@ using System.Text.RegularExpressions;
 
 namespace EvoVI
 {
+    /// <summary> A class used for reading and writing INI files.</summary>
     public class IniFile
     {
         #region Constants
-        private readonly Regex SECTION_VALIDATIOR = new Regex(@"^\s*\[\s*(?<Section>[A-Za-z0-9_ ]+)\s*\]\s*$");
+        /// <summary> Regex that identifies a section in an INI file.</summary>
+        private readonly Regex SECTION_VALIDATOR = new Regex(@"^\s*\[\s*(?<Section>[A-Za-z0-9_ ]+)\s*\]\s*$");
+
+        /// <summary> Regex that identifies a key-value pair in an INI file.</summary>
         private readonly Regex KEY_VALUE_VALIDATIOR = new Regex(@"^\s*(?<Key>.*?)\s*=\s*(?<Value>.*?)\s*$");
+
+        /// <summary> Regex that identifies a stringified boolean value.</summary>
         private readonly Regex VALUE_IS_BOOLEAN_VALIDATOR = new Regex(@"^\s*(true|false)\s*$", RegexOptions.IgnoreCase);
         #endregion
 
@@ -69,9 +75,9 @@ namespace EvoVI
             {
                 string currLine = fileContent[i].Contains(';') ? fileContent[i].Substring(0, fileContent[i].IndexOf(';')) : fileContent[i];
 
-                if (SECTION_VALIDATIOR.IsMatch(currLine))
+                if (SECTION_VALIDATOR.IsMatch(currLine))
                 {
-                    currSection = SECTION_VALIDATIOR.Match(currLine).Groups["Section"].Value;
+                    currSection = SECTION_VALIDATOR.Match(currLine).Groups["Section"].Value;
 
                     if (_sections.ContainsKey(currSection))
                     {

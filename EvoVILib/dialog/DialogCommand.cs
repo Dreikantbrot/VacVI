@@ -2,6 +2,7 @@
 
 namespace EvoVI.Dialog
 {
+    /// <summary> A type of dialog node that only executes a command (without anyone speaking).</summary>
     public class DialogCommand : DialogBase
     {
         #region Constructor

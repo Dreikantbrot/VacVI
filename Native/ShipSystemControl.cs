@@ -111,7 +111,7 @@ namespace Native
                         new DialogVI(
                             "I'll light'em up, $(when|as soon as) I can", 
                             DialogBase.DialogPriority.NORMAL, 
-                            () => { return (TargetShipData.ThreatLevel > ThreadLevelState.LOW); }, 
+                            () => { return (TargetShipData.ThreatLevel > ThreatLevelState.LOW); }, 
                             this.Name, 
                             "auto_fire"
                         )
@@ -120,7 +120,7 @@ namespace Native
                         new DialogVI(
                             "$[I'm sorry but|Sorry but] I won't shoot at a friendly target.", 
                             DialogBase.DialogPriority.HIGH, 
-                            () => { return (TargetShipData.ThreatLevel <= ThreadLevelState.LOW); }, 
+                            () => { return (TargetShipData.ThreatLevel <= ThreatLevelState.LOW); }, 
                             this.Name, 
                             "auto_fire_cancel"
                         )
@@ -152,7 +152,7 @@ namespace Native
                         new DialogVI(
                             "$[I'm sorry but|Sorry but] I won't shoot at a friendly target.", 
                             DialogBase.DialogPriority.HIGH, 
-                            () => { return (TargetShipData.ThreatLevel <= ThreadLevelState.LOW); }, 
+                            () => { return (TargetShipData.ThreatLevel <= ThreatLevelState.LOW); }, 
                             this.Name, 
                             "auto_fire_missile_cancel"
                         )
@@ -804,7 +804,7 @@ namespace Native
         private void fire()
         {
             if (
-                (TargetShipData.ThreatLevel > ThreadLevelState.LOW) &&
+                (TargetShipData.ThreatLevel > ThreatLevelState.LOW) &&
                 (PlayerShipData.Mtds == PlayerShipData.MTDSState.LOCKED) &&
                 ((DateTime.Now - _lastTimeFired).TotalMilliseconds >= 1000)
             )
@@ -820,7 +820,7 @@ namespace Native
         private void fireMissile()
         {
             if (
-                (TargetShipData.ThreatLevel > ThreadLevelState.LOW) &&
+                (TargetShipData.ThreatLevel > ThreatLevelState.LOW) &&
                 (PlayerShipData.MissileLock == PlayerShipData.MissileState.LOCKED) &&
                 (PlayerShipData.SecWeapon[0] != null)
             )
@@ -921,8 +921,8 @@ namespace Native
                 "Faction: " + TargetShipData.Faction + ", " +
                 "Hull Integrity " + TargetShipData.DamageLevel + "%, " +
                 "Threat Level: " + (
-                    (TargetShipData.ThreatLevel == ThreadLevelState.LOW) ? "Low" :
-                    (TargetShipData.ThreatLevel == ThreadLevelState.MED) ? "Medium" :
+                    (TargetShipData.ThreatLevel == ThreatLevelState.LOW) ? "Low" :
+                    (TargetShipData.ThreatLevel == ThreatLevelState.MED) ? "Medium" :
                     "High"
                 )
             );

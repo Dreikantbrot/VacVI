@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace EvoVI
 {
+    /// <summary> A 3-dimensional vector.</summary>
     public class Vector3D
     {
         #region Variables
@@ -58,6 +54,7 @@ namespace EvoVI
             get { return System.Math.Atan2(_y, _x); }
         }
         #endregion
+
 
         #region Constructors
         /// <summary> Creates a 3-dimensional vector.

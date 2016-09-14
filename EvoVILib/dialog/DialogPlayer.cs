@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace EvoVI.Dialog
 {
+    /// <summary> The type of dialog node that is spoken by the player.</summary>
     public class DialogPlayer : DialogBase
     {
         #region Private Structs

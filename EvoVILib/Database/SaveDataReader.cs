@@ -7,16 +7,71 @@ using System.Text.RegularExpressions;
 
 namespace EvoVI.Database
 {
-    #region Enums (shared)
+    #region Enums (shared between game databases)
+    /// <summary> Represents an on/off state.</summary>
     public enum OnOffState { OFF = 0, ON = 1 };
+
+    /// <summary> Represents a shield section.</summary>
     public enum ShieldLevelState { FRONT, RIGHT, LEFT, REAR, TOTAL };
-    public enum ThreadLevelState { LOW = 0, MED = 1, HIGH = 2 };
+
+    /// <summary> Represents the threat level.</summary>
+    public enum ThreatLevelState { LOW = 0, MED = 1, HIGH = 2 };
     #endregion
 
 
-    /// <summary> Reads, parses and stores data from savedata.txt.
-    /// </summary>
-    public static class SaveDataReader
+    /// <summary> Contains general ship-related values for ship databases.</summary>
+    internal static class ShipData
+    {
+        #region Properties (shared between game databases)
+        /// <summary> Returns the maximum number of cargo slots possible.</summary>
+        public static int MaxCargoSlots
+        {
+            get
+            {
+                return (
+                    (GameMeta.CurrentGame == (GameMeta.CurrentGame & GameMeta.SupportedGame.EVOCHRON_MERCENARY)) ? 5 :
+                    (GameMeta.CurrentGame == (GameMeta.CurrentGame & GameMeta.SupportedGame.EVOCHRON_LEGACY)) ? 10 :
+                    0
+                );
+            }
+        }
+
+
+        /// <summary> Returns the maximum number of equipment slots possible.</summary>
+        public static int MaxEquipmentSlots
+        {
+            get
+            {
+                return (
+                    (GameMeta.CurrentGame == (GameMeta.CurrentGame & GameMeta.SupportedGame.EVOCHRON_MERCENARY)) ? 8 :
+                    (GameMeta.CurrentGame == (GameMeta.CurrentGame & GameMeta.SupportedGame.EVOCHRON_LEGACY)) ? 10 :
+                    0
+                );
+            }
+        }
+
+
+        /// <summary> Returns the maximum number of capital ship turrets possible.</summary>
+        public static int MaxCapShipTurrets
+        {
+            get
+            {
+                return (
+                    (GameMeta.CurrentGame == (GameMeta.CurrentGame & GameMeta.SupportedGame.EVOCHRON_MERCENARY)) ? 0 :
+                    (GameMeta.CurrentGame == (GameMeta.CurrentGame & GameMeta.SupportedGame.EVOCHRON_LEGACY)) ? 5 :
+                    0
+                );
+            }
+        }
+
+
+        
+        #endregion
+    }
+
+
+    /// <summary> Reads, parses and stores data from "savedata.txt".</summary>
+    internal static class SaveDataReader
     {
         #region Classes
         [System.Diagnostics.DebuggerDisplay("<{_type}> {_name}")]
@@ -185,7 +240,9 @@ namespace EvoVI.Database
             _saveData.Clear();
             _indexTable.Clear();
 
-            /* Read savedata template and parse parameters; Template is based upon Evochron Legacy as it's just an expansion on all the others */
+            /* Read savedata template and parse parameters;
+             * Template is based upon Evochron Legacy as it's just an expansion on all the others
+             */
             string[] savedataTemplate = EvoVI.Properties.Resources.Savedata_Layout.Split('\n');
 
             // Build the database
@@ -196,8 +253,8 @@ namespace EvoVI.Database
                 Match match = SAVEDATA_TEMPLATE_REGEX.Match(currLine);
                 
                 GameMeta.SupportedGame availabilityFlags = GameMeta.SupportedGame.NONE;
-                if (match.Groups["Availability"].Value.Contains("EM")) { availabilityFlags |= GameMeta.SupportedGame.EVOCHRON_MERCENARY; }
-                if (match.Groups["Availability"].Value.Contains("EL")) { availabilityFlags |= GameMeta.SupportedGame.EVOCHRON_LEGACY; }
+                if (match.Groups["Availability"].Value.Contains("EMERC")) { availabilityFlags |= GameMeta.SupportedGame.EVOCHRON_MERCENARY; }
+                if (match.Groups["Availability"].Value.Contains("ELGCY")) { availabilityFlags |= GameMeta.SupportedGame.EVOCHRON_LEGACY; }
 
                 // Is the parameter supported by the currently set game?
                 if ((availabilityFlags & GameMeta.CurrentGame) != GameMeta.CurrentGame) { continue; }

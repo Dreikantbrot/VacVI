@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EvoVI.Input
 {
@@ -13,6 +9,7 @@ namespace EvoVI.Input
     /// </Summary>
     public struct VKCodes
     {
+        /// <summary> The keys themselves.</summary>
         public enum Keys
         {
             [Description(@"Abnt C1.")]

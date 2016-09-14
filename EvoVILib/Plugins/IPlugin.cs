@@ -1,11 +1,11 @@
 ﻿using EvoVI.Dialog;
 using EvoVI.Database;
-using EvoVI.Plugins;
 using System;
 using System.Collections.Generic;
 
 namespace EvoVI.Plugins 
 {
+    /// <summary> An interface for creating plugins.</summary>
     public interface IPlugin
     {
         #region Plugin Information

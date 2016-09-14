@@ -111,13 +111,13 @@ namespace EvoVI.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die [ EM | EL ]	[ NULL ]	[ KEYBOARD ]	TURN_RIGHT																	&apos;Turn Right&apos;
-        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	TURN_LEFT																	&apos;Turn Left&apos;
-        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	PITCH_DOWN																	&apos;Pitch Down&apos;
-        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	PITCH_UP																	&apos;Pitch Up&apos;
-        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	ROLL_RIGHT																	&apos;Roll  Right&apos;
-        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	ROLL_LEFT																	&apos;Roll Left&apos;
-        ///[ EM | EL ]	[ NULL ]	[ KEYBOARD ]	STRAFE_RIGHT																&apos;Strafe [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die [ EMERC | ELGCY ]	[ NULL ]	[ KEYBOARD ]	TURN_RIGHT																	&apos;Turn Right&apos;
+        ///[ EMERC | ELGCY ]	[ NULL ]	[ KEYBOARD ]	TURN_LEFT																	&apos;Turn Left&apos;
+        ///[ EMERC | ELGCY ]	[ NULL ]	[ KEYBOARD ]	PITCH_DOWN																	&apos;Pitch Down&apos;
+        ///[ EMERC | ELGCY ]	[ NULL ]	[ KEYBOARD ]	PITCH_UP																	&apos;Pitch Up&apos;
+        ///[ EMERC | ELGCY ]	[ NULL ]	[ KEYBOARD ]	ROLL_RIGHT																	&apos;Roll  Right&apos;
+        ///[ EMERC | ELGCY ]	[ NULL ]	[ KEYBOARD ]	ROLL_LEFT																	&apos;Roll Left&apos;
+        ///[ EMERC | ELGCY ]	[ NULL ]	[ KEYBOARD ]	STRAFE_RIGHT																&apos;Strafe [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
         internal static string Keymap8_Layout {
             get {
@@ -126,12 +126,12 @@ namespace EvoVI.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die [ EM | EL ]		[ PlayerData ]			&lt;string&gt;	Pilot Name 							(string)
-        ///[ EM | EL ]		[ PlayerShipData ]		&lt;string&gt;	Fuel 								(integer, &lt;Read as string, as this values are two integers separated by an &quot;/&quot; ~Scavenger4711&gt;)
-        ///[ EM | EL ]		[ PlayerData ]			&lt;string&gt;	Cash 								(string, includes commas)
-        ///[ EM | EL ]		[ PlayerShipData ]		&lt;string&gt;	Cargo Bay 1 						(string, cargo type and number, or will display &apos;Empty&apos; if nothing)
-        ///[ EM | EL ]		[ PlayerShipData ]		&lt;string&gt;	Cargo Bay 2
-        ///[ EM | EL ]		[ PlayerShipData  [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die [ EMERC | ELGCY ]		[ PlayerData ]			&lt;string&gt;	Pilot Name 							(string)
+        ///[ EMERC | ELGCY ]		[ PlayerShipData ]		&lt;string&gt;	Fuel 								(integer, &lt;Read as string, as this values are two integers separated by an &quot;/&quot; ~Scavenger4711&gt;)
+        ///[ EMERC | ELGCY ]		[ PlayerData ]			&lt;string&gt;	Cash 								(string, includes commas)
+        ///[ EMERC | ELGCY ]		[ PlayerShipData ]		&lt;string&gt;	Cargo Bay 1 						(string, cargo type and number, or will display &apos;Empty&apos; if nothing)
+        ///[ EMERC | ELGCY ]		[ PlayerShipData ]		&lt;string&gt;	Cargo Bay 2
+        ///[ EMERC | ELGCY ]		[ PlayerShipData  [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
         internal static string Savedata_Layout {
             get {

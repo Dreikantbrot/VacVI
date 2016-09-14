@@ -7,14 +7,26 @@ using System.Reflection;
 
 namespace EvoVI
 {
+    /// <summary> Contains and manages the program's main configuration (confguration.ini).</summary>
     public static class ConfigurationManager
     {
         #region Constants
+        /// <summary> The configuration file's name.</summary>
         private const string CONFIGURATION_FILENAME = "configuration.ini";
+
+        /// <summary> The name for the section "Game" within the config file.</summary>
         public const string SECTION_GAME = "Game";
+
+        /// <summary> The name for the section "Filepaths" within the config file.</summary>
         public const string SECTION_FILEPATHS = "Filepaths";
+
+        /// <summary> The name for the section "Overlay" within the config file.</summary>
         public const string SECTION_OVERLAY = "Overlay";
+
+        /// <summary> The name for the section "VI" within the config file.</summary>
         public const string SECTION_VI = "VI";
+
+        /// <summary> The name for the section "Player" within the config file.</summary>
         public const string SECTION_PLAYER = "Player";
         #endregion
 

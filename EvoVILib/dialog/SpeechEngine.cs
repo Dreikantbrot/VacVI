@@ -12,6 +12,7 @@ using CSCore.Streams.Effects;
 
 namespace EvoVI.Dialog
 {
+    /// <summary> Manages and enables speech synthesis for the VI.</summary>
     public static class SpeechEngine
     {
         #region Custom Actions
