@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using EvoVI.Plugins;
+using XamlAnimatedGif;
 
 namespace EvoVIOverlay
 {
@@ -40,6 +41,21 @@ namespace EvoVIOverlay
         #endregion
 
 
+        #region Enums
+        [Flags]
+        private enum InitializedSystemTypes
+        {
+            NONE = 0,
+            VI = 1,
+            OVERLAY = 2,
+            STATUS_ICON_ANIMATOR = 4,
+            BACKGRND_LOGO_ANIMATOR = 8,
+            LOADING_ANIMATION_DONE = 16,
+            ALL = 31
+        }
+        #endregion
+
+
         #region Constants
         readonly Color[] HUD_BASE_COLOR = new Color[] {
             Color.FromArgb(255, 125, 26, 65),   // Standard HUD color for red hue
@@ -56,12 +72,20 @@ namespace EvoVIOverlay
 
 
         #region Variables
-        private DispatcherTimer _updateTimer;
         private FileSystemWatcher _savedataWatcher;
         private FileSystemWatcher _gameConfigWatcher;
         private FileSystemWatcher _keymapConfigWatcher;
         private bool _playLoadingAnimation;
         private bool _debugMode = true;
+
+        private Action _imgBlinkIn;
+        private Action _imgBlinkOut;
+        private Storyboard _collapseExpandAnimation = new Storyboard();
+        private Thread _autoCollapseThread;
+        private Action _autoCollapseAction;
+        private Action _rotateStatusIconAction;
+
+        private InitializedSystemTypes _initializedSystems = InitializedSystemTypes.NONE;
         #endregion
 
 
@@ -74,22 +98,36 @@ namespace EvoVIOverlay
             ConfigurationManager.LoadConfiguration();
 
 
-            /* Play loading animation */
-            _playLoadingAnimation = ConfigurationManager.ConfigurationFile.ValueIsBoolAndTrue(
-                ConfigurationManager.SECTION_OVERLAY, 
-                "Play_Intro"
-            );
-            if (_playLoadingAnimation)
-            {
-                VI.State = VI.VIState.OFFLINE;
-                loadAnimation();
-            }
-            else
-            {
-                // Stop and hide the gif
-                img_LogoBackground.Visibility = System.Windows.Visibility.Hidden;
-                XamlAnimatedGif.AnimationBehavior.SetRepeatBehavior(img_LogoBackground, new RepeatBehavior(0));
-            }
+            /* Initialize the Overlay */
+            SpeechEngine.OnVISpeechStarted += SpeechEngine_OnVISpeechStarted;
+            VI.OnVIStateChanged += VI_OnVIStateChanged;
+
+            AnimationBehavior.AddLoadedHandler(img_StatusIcon, onGifAnimatorLoaded);
+            AnimationBehavior.AddLoadedHandler(img_LogoBackground, onGifAnimatorLoaded);
+
+            _imgBlinkIn = new Action(() => { img_StatusIcon.Opacity = 100; });
+            _imgBlinkOut = new Action(() => { img_StatusIcon.Opacity = 50; });
+
+            DoubleAnimation collapseAnim;
+            TimeSpan animationTime = TimeSpan.FromSeconds(1);
+            _collapseExpandAnimation = new Storyboard();
+            _autoCollapseAction = new Action(() => { expandCollapse(false); });
+            _rotateStatusIconAction = new Action(() => { AnimationBehavior.GetAnimator(img_StatusIcon).Play(); });
+
+            collapseAnim = new DoubleAnimation();
+            collapseAnim.Duration = animationTime;
+            collapseAnim.To = LogoWidthGrid.ActualWidth;
+            Storyboard.SetTarget(collapseAnim, this);
+            Storyboard.SetTargetProperty(collapseAnim, new PropertyPath("Width"));
+            _collapseExpandAnimation.Children.Add(collapseAnim);
+
+            collapseAnim = new DoubleAnimation();
+            collapseAnim.BeginTime = animationTime;
+            collapseAnim.Duration = animationTime;
+            collapseAnim.To = LogoHeightGrid.ActualHeight;
+            Storyboard.SetTarget(collapseAnim, this);
+            Storyboard.SetTargetProperty(collapseAnim, new PropertyPath("Height"));
+            _collapseExpandAnimation.Children.Add(collapseAnim);
 
 
             /* Set window position */
@@ -128,13 +166,6 @@ namespace EvoVIOverlay
             PluginManager.LoadPlugins();
             PluginManager.InitializePlugins();
 
-            
-            /* Initialize update timer */
-            _updateTimer = new DispatcherTimer(DispatcherPriority.SystemIdle);
-            _updateTimer.Tick += new EventHandler(OnUpdateTimerTick);
-            _updateTimer.Interval = TimeSpan.FromMilliseconds(1000);
-            _updateTimer.Start();
-
 
             /* Initialize file watchers */
             FileSystemEventHandler eventHandler;
@@ -172,38 +203,284 @@ namespace EvoVIOverlay
                 File.SetLastWriteTimeUtc(GameMeta.DefaultKeymapFilePath, DateTime.UtcNow);
             }
 
-            /* Initialize systems manually, if no animation is played */
+            /* Initialize Systems / Start the VI */
+            _initializedSystems = _initializedSystems | InitializedSystemTypes.VI;
+            _initializedSystems = _initializedSystems | InitializedSystemTypes.OVERLAY;
             if (!_playLoadingAnimation) { initalizeSystems(); }
         }
         #endregion
 
 
         #region Events
-        /// <summary> Fires, when the game process has ended.
+        /// <summary> Fires when a gif animator has loaded.
         /// </summary>
         /// <param name="sender">The sender object.</param>
-        /// <param name="e">The event arguments.</param>
-        void GameProcess_Exited(object sender, EventArgs e)
+        /// <param name="e">The routed event arguments.</param>
+        private void onGifAnimatorLoaded(object sender, RoutedEventArgs e)
         {
-            // Close the overlay together with the game.
-            if (this.Dispatcher.CheckAccess())
+            if (
+                (sender == img_StatusIcon) &&
+                ((_initializedSystems & InitializedSystemTypes.STATUS_ICON_ANIMATOR) != InitializedSystemTypes.STATUS_ICON_ANIMATOR)
+            )
             {
-                this.Close();
+                _initializedSystems = _initializedSystems | InitializedSystemTypes.STATUS_ICON_ANIMATOR;
+
+                // Reset the animation and let it spin 2 times when played
+                AnimationBehavior.GetAnimator(img_StatusIcon).Pause();
+                AnimationBehavior.GetAnimator(img_StatusIcon).Rewind();
+                AnimationBehavior.SetRepeatBehavior(img_StatusIcon, new RepeatBehavior(2));
+                AnimationBehavior.GetAnimator(img_StatusIcon).AnimationCompleted += onStatusIconAnmationCompleted;
             }
-            else
+            else if (
+                (sender == img_LogoBackground) &&
+                ((_initializedSystems & InitializedSystemTypes.BACKGRND_LOGO_ANIMATOR) != InitializedSystemTypes.BACKGRND_LOGO_ANIMATOR)
+            )
             {
-                this.Dispatcher.Invoke(new ThreadStart(this.Close));
+                _initializedSystems = _initializedSystems | InitializedSystemTypes.BACKGRND_LOGO_ANIMATOR;
+
+                // Reset the animation and let it spin forever when played
+                AnimationBehavior.GetAnimator(img_LogoBackground).Pause();
+                AnimationBehavior.GetAnimator(img_LogoBackground).Rewind();
+                AnimationBehavior.SetRepeatBehavior(img_LogoBackground, RepeatBehavior.Forever);
+
+                // Play loading animation
+                _playLoadingAnimation = ConfigurationManager.ConfigurationFile.ValueIsBoolAndTrue(
+                    ConfigurationManager.SECTION_OVERLAY,
+                    "Play_Intro"
+                );
+
+                if (_playLoadingAnimation)
+                {
+                    // TODO: Set up the animation
+                    double originalOpacity = this.Opacity;
+
+                    Storyboard story;
+                    DoubleAnimation animation;
+                    TimeSpan animDuration;
+
+                    double timeOffset = 0;
+                    story = new Storyboard();
+                    story.Completed += onLoadAnimationCompleted;
+
+
+                    #region Fade the Window in
+                    timeOffset += 4;
+                    animDuration = TimeSpan.FromSeconds(1);
+
+                    animation = new DoubleAnimation(originalOpacity, animDuration);
+                    animation.BeginTime = TimeSpan.FromSeconds(timeOffset);
+                    Storyboard.SetTarget(animation, this);
+                    Storyboard.SetTargetProperty(animation, new PropertyPath(System.Windows.Shapes.Shape.OpacityProperty));
+                    story.Children.Add(animation);
+                    timeOffset += animDuration.Seconds;
+                    #endregion
+
+
+                    #region Enhance the Window
+                    timeOffset += 0;
+                    animDuration = TimeSpan.FromSeconds(4);
+
+                    animation = new DoubleAnimation(this.MaxWidth, animDuration);
+                    animation.BeginTime = TimeSpan.FromSeconds(timeOffset);
+                    Storyboard.SetTarget(animation, this);
+                    Storyboard.SetTargetProperty(animation, new PropertyPath("Width"));
+                    story.Children.Add(animation);
+                    timeOffset += animDuration.Seconds;
+                    #endregion
+
+
+                    #region Fade the logo in
+                    timeOffset += 0;
+                    animDuration = TimeSpan.FromSeconds(1.5);
+
+                    animation = new DoubleAnimation(0, animDuration);
+                    animation.BeginTime = TimeSpan.FromSeconds(timeOffset);
+                    Storyboard.SetTarget(animation, img_LogoBackground);
+                    Storyboard.SetTargetProperty(animation, new PropertyPath("(Effect).Radius"));
+                    story.Children.Add(animation);
+
+                    animation = new DoubleAnimation(1, animDuration);
+                    animation.BeginTime = TimeSpan.FromSeconds(timeOffset);
+                    Storyboard.SetTarget(animation, img_LogoBackground);
+                    Storyboard.SetTargetProperty(animation, new PropertyPath(System.Windows.Shapes.Shape.OpacityProperty));
+                    story.Children.Add(animation);
+                    timeOffset += animDuration.Seconds;
+                    #endregion
+
+
+                    #region Fade the logo out
+                    timeOffset += 4;
+                    animDuration = TimeSpan.FromSeconds(1.5);
+
+                    animation = new DoubleAnimation(15, animDuration);
+                    animation.BeginTime = TimeSpan.FromSeconds(timeOffset);
+                    Storyboard.SetTarget(animation, img_LogoBackground);
+                    Storyboard.SetTargetProperty(animation, new PropertyPath("(Effect).Radius"));
+                    story.Children.Add(animation);
+
+                    animation = new DoubleAnimation(0, animDuration);
+                    animation.BeginTime = TimeSpan.FromSeconds(timeOffset);
+                    Storyboard.SetTarget(animation, img_LogoBackground);
+                    Storyboard.SetTargetProperty(animation, new PropertyPath(System.Windows.Shapes.Shape.OpacityProperty));
+                    story.Children.Add(animation);
+                    timeOffset += animDuration.Seconds;
+                    #endregion
+
+
+                    #region Fade status icon in
+
+                    animation = new DoubleAnimation(1, animDuration);
+                    animation.BeginTime = TimeSpan.FromSeconds(timeOffset);
+                    Storyboard.SetTarget(animation, img_StatusIcon);
+                    Storyboard.SetTargetProperty(animation, new PropertyPath(System.Windows.Shapes.Shape.OpacityProperty));
+                    story.Children.Add(animation);
+                    timeOffset += animDuration.Seconds;
+                    #endregion
+
+
+                    // Prepare all elements before starting the animation
+                    this.Width = 0;
+                    this.Opacity = 0;
+
+                    img_LogoBackground.Opacity = 0;
+                    img_LogoBackground_Blur.Radius = 15;
+
+                    txt_VISpeechText.Opacity = 0;
+                    img_StatusIcon.Opacity = 0;
+                    txtBlck_PlayerAnswers.Visibility = System.Windows.Visibility.Collapsed;
+
+                    story.Begin();
+                }
+                else
+                {
+                    // Animation deactivated - animation not started
+                    img_LogoBackground.Visibility = System.Windows.Visibility.Collapsed;
+                    _initializedSystems = _initializedSystems | InitializedSystemTypes.LOADING_ANIMATION_DONE;
+                }
             }
+
+            initalizeSystems();
         }
 
 
-        /// <summary> Fires each time, the update timer is being triggered (~500ms).
+        /// <summary> Fires, when the loading animation has been finished.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The ecent arguments.</param>
+        void onLoadAnimationCompleted(object sender, EventArgs e)
+        {
+            AnimationBehavior.GetAnimator(img_LogoBackground).Pause();
+            AnimationBehavior.GetAnimator(img_LogoBackground).Rewind();
+            img_LogoBackground.Visibility = System.Windows.Visibility.Collapsed;
+
+            txt_VISpeechText.Text = "";
+            txt_VISpeechText.Opacity = 1;
+            expandCollapse(false);
+            
+            
+            new Thread(() =>
+                {
+                    Thread.Sleep(2000);
+
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        _initializedSystems = _initializedSystems | InitializedSystemTypes.LOADING_ANIMATION_DONE;
+
+                        initalizeSystems();
+                    });
+                }
+            ).Start();
+        }
+
+
+        /// <summary> Fires when the status icon animation has been completed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The event arguments.</param>
-        private void OnUpdateTimerTick(object sender, EventArgs e)
+        private void onStatusIconAnmationCompleted(object sender, EventArgs e)
         {
-            updateDisplay();
+            // Reset animation
+            AnimationBehavior.GetAnimator(img_StatusIcon).Rewind();
+        }
+
+        
+        /// <summary> Fires when the VI's state of operation has changed.
+        /// </summary>
+        /// <param name="obj">The VI state changed event arguments.</param>
+        private void VI_OnVIStateChanged(VI.OnVIStateChangedEventArgs obj)
+        {
+            string[] properties = { "Background", "BorderBrush", "Foreground" };
+            ColorAnimation animation;
+            TimeSpan animationTime = TimeSpan.FromSeconds(1);
+            Storyboard story = new Storyboard();
+
+            // Animate all colors
+            for (int i = 0; i < properties.Length; i++)
+            {
+                string resource = properties[i];
+                string destResource = resource + "_" + ((obj.CurrentState <= VI.VIState.SLEEPING) ? "Grayscale" : "Normal");
+
+                animation = new ColorAnimation();
+                animation.To = ((SolidColorBrush)this.Resources[destResource]).Color;
+                animation.Duration = animationTime;
+                Storyboard.SetTarget(animation, this);
+                Storyboard.SetTargetProperty(animation, new PropertyPath(properties[i] + ".Color"));
+                story.Children.Add(animation);
+            }
+
+            story.Begin();
+        }
+
+
+        /// <summary> Fires each time the active dialog node changes.
+        /// </summary>
+        /// <param name="obj">The VI speech started event arguments.</param>
+        private void SpeechEngine_OnVISpeechStarted(SpeechEngine.VISpeechStartedEventArgs obj)
+        {
+            // Play the icon animation when the VI speaks
+            this.Dispatcher.InvokeAsync(_rotateStatusIconAction); 
+
+            txt_VISpeechText.Text = obj.SpokenPhrase;
+            txtBlck_PlayerAnswers.Text = String.Empty;
+
+            bool hadPlayerNodes = false;
+
+            for (int i = 0; i < obj.SpokenDialog.ChildNodes.Count; i++)
+            {
+                if (obj.SpokenDialog.ChildNodes[i].Speaker == DialogBase.DialogSpeaker.PLAYER)
+                {
+                    txtBlck_PlayerAnswers.Text += (
+                        (String.IsNullOrWhiteSpace(txtBlck_PlayerAnswers.Text) ? "" : "\n") +
+                        "--- " + obj.SpokenDialog.ChildNodes[i].Text
+                    );
+                    hadPlayerNodes = true;
+                }
+            }
+            
+            txtBlck_PlayerAnswers.Visibility = hadPlayerNodes ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+            txtBlck_PlayerAnswers.UpdateLayout();
+            expandCollapse(true);
+
+            // Abort the auto-close thread
+            if (
+                (_autoCollapseThread != null) &&
+                (_autoCollapseThread.IsAlive)
+            )
+            { _autoCollapseThread.Abort(); }
+
+
+            // ... and start a new one, if there are no answers for the player
+            if (!hadPlayerNodes)
+            {
+                _autoCollapseThread = new Thread(
+                    () =>
+                    {
+                        Thread.Sleep(5000);
+                        this.Dispatcher.Invoke(_autoCollapseAction);
+                    }
+                );
+                _autoCollapseThread.Start();
+            }
         }
 
 
@@ -215,17 +492,14 @@ namespace EvoVIOverlay
         {
             SaveDataReader.ReadGameData();
 
-            Dispatcher.BeginInvoke(
-                DispatcherPriority.Background,
-                new Action(() => { txtBox_FileUpdateStatus.Text = "[!]"; })
-            );
+            if (_initializedSystems == InitializedSystemTypes.ALL)
+            {
+                Dispatcher.BeginInvoke(DispatcherPriority.Background, _imgBlinkIn);
 
-            Thread.Sleep(100);
+                Thread.Sleep(100);
 
-            Dispatcher.BeginInvoke(
-                DispatcherPriority.Background,
-                new Action(() => { txtBox_FileUpdateStatus.Text = "[ ]"; })
-            );
+                Dispatcher.BeginInvoke(DispatcherPriority.Background, _imgBlinkOut);
+            }
         }
 
 
@@ -267,12 +541,36 @@ namespace EvoVIOverlay
         }
 
 
+        /// <summary> Fires, when the game process has ended.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The event arguments.</param>
+        void GameProcess_Exited(object sender, EventArgs e)
+        {
+            // Close the overlay together with the game.
+            if (this.Dispatcher.CheckAccess())
+            {
+                this.Close();
+            }
+            else
+            {
+                this.Dispatcher.Invoke(new ThreadStart(this.Close));
+            }
+        }
+
+
         /// <summary> Fires each time, the overlay has been closed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The event arguments.</param>
         private void window_Closed(object sender, EventArgs e)
         {
+            if (
+                (_autoCollapseThread != null) &&
+                (_autoCollapseThread.IsAlive)
+            )
+            { _autoCollapseThread.Abort(); }
+
             GameMeta.StopGameProcessSearch();
             PluginManager.ShutdownPlugins();
         }
@@ -280,25 +578,6 @@ namespace EvoVIOverlay
 
 
         #region Functions
-        /// <summary> Updates the displayed information of the overlay.
-        /// </summary>
-        private void updateDisplay()
-        {
-            // Title + date and time
-            txtBox_TitleInfo.Text = this.Title;
-            txtBlck_Time.Text = DateTime.UtcNow.ToLongDateString() + "\n" + DateTime.Now.ToLongTimeString();
-
-            if (_debugMode)
-            {
-                txtBlck_MainInfo.Text = "Current Node: " + ((VI.CurrentDialogNode == null) ? "N/A" : VI.CurrentDialogNode.GUIDisplayText) + "\n" +
-                    "Active Nodes:\n" +
-                    buildDialogInfo(DialogTreeBuilder.DialogRoot);
-
-                txtBlck_StatusInfo.Text = "Target Process: " + Interactor.TargetProcessName + "\n" +
-                    PluginManager.Plugins.Count + " plugins loaded";
-            }
-        }
-
         /// <summary> Adjusts the overlay's background and text color to match the HUD.
         /// </summary>
         /// <param name="newR">The new red channel intensity.</param>
@@ -307,7 +586,11 @@ namespace EvoVIOverlay
         /// <param name="hueMode">The currently set hue mode.</param>
         private void setOverlayColor(int newR, int newG, int newB, int hueMode)
         {
-            this.Background = new SolidColorBrush(
+            byte brightness;
+            SolidColorBrush backColor, foreColor, borderColor;
+
+            // Colorize the background and border
+            backColor = new SolidColorBrush(
                 Color.FromArgb(
                     255, 
                     (byte)Math.Min(255, (HUD_BASE_COLOR[hueMode].R) * (float)(newR / 100)),
@@ -316,12 +599,67 @@ namespace EvoVIOverlay
                 )
             );
 
-            if (this.Background is SolidColorBrush)
-            {
-                Color backgrnd = ((SolidColorBrush)this.Background).Color;
+            Color backgrnd = ((SolidColorBrush)backColor).Color;
+            float colorFactor = 1 - ((float)Math.Max(backgrnd.R, Math.Max(backgrnd.G, backgrnd.B)) / 255);
+            foreColor = new SolidColorBrush(
+                Color.FromArgb(255, (byte)(255 * colorFactor), (byte)(255 * colorFactor), (byte)(255 * colorFactor))
+            );
 
-                float colorFactor = 1 - ((float)Math.Max(backgrnd.R, Math.Max(backgrnd.G, backgrnd.B)) / 255);
-                this.Foreground = new SolidColorBrush(Color.FromArgb(255, (byte)(255 * colorFactor), (byte)(255 * colorFactor), (byte)(255 * colorFactor)));
+            borderColor = new SolidColorBrush(
+                Color.FromArgb(255, (byte)Math.Min(255, backgrnd.R * 1.25), (byte)Math.Min(255, backgrnd.G * 1.25), (byte)Math.Min(255, backgrnd.B * 1.25))
+            );
+
+
+            // Generate a grayscale background and border
+            this.Resources["Background_Normal"] = ((SolidColorBrush)backColor).Clone();
+            this.Resources["BorderBrush_Normal"] = ((SolidColorBrush)borderColor).Clone();
+            this.Resources["Foreground_Normal"] = ((SolidColorBrush)foreColor).Clone();
+
+            brightness = (byte)Math.Max(
+                ((SolidColorBrush)backColor).Color.R,
+                Math.Max(
+                    ((SolidColorBrush)backColor).Color.G,
+                    ((SolidColorBrush)backColor).Color.B
+                )
+            );
+            this.Resources["Background_Grayscale"] = new SolidColorBrush(
+                Color.FromArgb(((SolidColorBrush)backColor).Color.A, brightness, brightness, brightness)
+            );
+
+
+            brightness = (byte)Math.Max(
+                ((SolidColorBrush)borderColor).Color.R,
+                Math.Max(
+                    ((SolidColorBrush)borderColor).Color.G,
+                    ((SolidColorBrush)borderColor).Color.B
+                )
+            );
+            this.Resources["BorderBrush_Grayscale"] = new SolidColorBrush(
+                Color.FromArgb(((SolidColorBrush)backColor).Color.A, brightness, brightness, brightness)
+            );
+
+
+            brightness = (byte)(
+                (Math.Max(
+                    ((SolidColorBrush)foreColor).Color.R,
+                    Math.Max(
+                        ((SolidColorBrush)foreColor).Color.G,
+                        ((SolidColorBrush)foreColor).Color.B
+                    )
+                ) + 128) % 255
+            );
+            this.Resources["Foreground_Grayscale"] = new SolidColorBrush(
+                Color.FromArgb(((SolidColorBrush)backColor).Color.A, brightness, brightness, brightness)
+            );
+
+            if (
+                (VI.State >= VI.VIState.READY) ||
+                (_initializedSystems != InitializedSystemTypes.ALL)
+            )
+            {
+                this.Background = backColor;
+                this.BorderBrush = borderColor;
+                this.Foreground = foreColor;
             }
         }
 
@@ -330,176 +668,77 @@ namespace EvoVIOverlay
         /// </summary>
         private void initalizeSystems()
         {
+            if (_initializedSystems != InitializedSystemTypes.ALL) { return; }
+
             // System ready
             VI.State = VI.VIState.READY;
 
             // Check for existence of savedatasettings.txt
             if (!File.Exists(GameMeta.CurrentSaveDataSettingsTextFilePath)) { SpeechEngine.Say(EvoVI.Properties.StringTable.SAVEDATASETTINGS_FILE_NOT_FOUND); }
-        }
-        #endregion
 
+            DialogTreeBuilder.DialogRoot.SetActive();
 
-        #region Animations
-        /// <summary> Starts the initial loading animation.
-        /// </summary>
-        private void loadAnimation()
-        {
-            double originalOpacity = this.Opacity;
-            
-            Storyboard story;
-            DoubleAnimation animation;
-            TimeSpan animDuration;
-
-            double timeOffset = 0;
-            story = new Storyboard();
-            story.Completed += onLoadAnimationCompleted;
-
-
-            #region Fade the window in
-            timeOffset += 4;
-            animDuration = TimeSpan.FromSeconds(1);
-
-            animation = new DoubleAnimation(originalOpacity, animDuration);
-            animation.BeginTime = TimeSpan.FromSeconds(timeOffset);
-            Storyboard.SetTarget(animation, this);
-            Storyboard.SetTargetProperty(animation, new PropertyPath(System.Windows.Shapes.Shape.OpacityProperty));
-            story.Children.Add(animation);
-            timeOffset += 0;    // No further time delay to the next step
-            #endregion
-
-
-            #region Enhance the Window
-            timeOffset += 0;
-            animDuration = TimeSpan.FromSeconds(4);
-
-            animation = new DoubleAnimation(this.MaxWidth, animDuration);
-            animation.BeginTime = TimeSpan.FromSeconds(timeOffset);
-            Storyboard.SetTarget(animation, this);
-            Storyboard.SetTargetProperty(animation, new PropertyPath("Width"));
-            story.Children.Add(animation);
-
-            animation = new DoubleAnimation(this.MaxHeight, animDuration);
-            animation.BeginTime = TimeSpan.FromSeconds(timeOffset);
-            Storyboard.SetTarget(animation, this);
-            Storyboard.SetTargetProperty(animation, new PropertyPath("Height"));
-            story.Children.Add(animation);
-            timeOffset += animDuration.Seconds;
-            #endregion
-
-
-            #region Fade the logo in
-            timeOffset += 0;
-            animDuration = TimeSpan.FromSeconds(1.5);
-
-            animation = new DoubleAnimation(0, animDuration);
-            animation.BeginTime = TimeSpan.FromSeconds(timeOffset);
-            Storyboard.SetTarget(animation, img_LogoBackground);
-            Storyboard.SetTargetProperty(animation, new PropertyPath("(Effect).Radius"));
-            story.Children.Add(animation);
-
-            animation = new DoubleAnimation(1, animDuration);
-            animation.BeginTime = TimeSpan.FromSeconds(timeOffset);
-            Storyboard.SetTarget(animation, img_LogoBackground);
-            Storyboard.SetTargetProperty(animation, new PropertyPath(System.Windows.Shapes.Shape.OpacityProperty));
-            story.Children.Add(animation);
-            timeOffset += animDuration.Seconds;
-            #endregion
-
-
-            #region Fade the logo out
-            timeOffset += 4;
-            animDuration = TimeSpan.FromSeconds(1.5);
-
-            animation = new DoubleAnimation(15, animDuration);
-            animation.BeginTime = TimeSpan.FromSeconds(timeOffset);
-            Storyboard.SetTarget(animation, img_LogoBackground);
-            Storyboard.SetTargetProperty(animation, new PropertyPath("(Effect).Radius"));
-            story.Children.Add(animation);
-
-            animation = new DoubleAnimation(0, animDuration);
-            animation.BeginTime = TimeSpan.FromSeconds(timeOffset);
-            Storyboard.SetTarget(animation, img_LogoBackground);
-            Storyboard.SetTargetProperty(animation, new PropertyPath(System.Windows.Shapes.Shape.OpacityProperty));
-            story.Children.Add(animation);
-            timeOffset += animDuration.Seconds;
-            #endregion
-
-
-            #region Fade in text
-            timeOffset += 1.5;
-            animDuration = TimeSpan.FromSeconds(1);
-
-            animation = new DoubleAnimation(1, animDuration);
-            animation.BeginTime = TimeSpan.FromSeconds(timeOffset);
-            Storyboard.SetTarget(animation, txtBox_TitleInfo);
-            Storyboard.SetTargetProperty(animation, new PropertyPath(System.Windows.Shapes.Shape.OpacityProperty));
-            story.Children.Add(animation);
-            timeOffset += 0.5;
-
-            animation = new DoubleAnimation(1, animDuration);
-            animation.BeginTime = TimeSpan.FromSeconds(timeOffset);
-            Storyboard.SetTarget(animation, txtBlck_Time);
-            Storyboard.SetTargetProperty(animation, new PropertyPath(System.Windows.Shapes.Shape.OpacityProperty));
-            story.Children.Add(animation);
-            timeOffset += 0.5;
-
-            animation = new DoubleAnimation(1, animDuration);
-            animation.BeginTime = TimeSpan.FromSeconds(timeOffset);
-            Storyboard.SetTarget(animation, txtBlck_MainInfo);
-            Storyboard.SetTargetProperty(animation, new PropertyPath(System.Windows.Shapes.Shape.OpacityProperty));
-            story.Children.Add(animation);
-            timeOffset += 0.5;
-
-            animation = new DoubleAnimation(1, animDuration);
-            animation.BeginTime = TimeSpan.FromSeconds(timeOffset);
-            Storyboard.SetTarget(animation, txtBlck_StatusInfo);
-            Storyboard.SetTargetProperty(animation, new PropertyPath(System.Windows.Shapes.Shape.OpacityProperty));
-            story.Children.Add(animation);
-            timeOffset += 0.5;
-
-            animation = new DoubleAnimation(0.5, animDuration);
-            animation.BeginTime = TimeSpan.FromSeconds(timeOffset);
-            Storyboard.SetTarget(animation, txtBox_FileUpdateStatus);
-            Storyboard.SetTargetProperty(animation, new PropertyPath(System.Windows.Shapes.Shape.OpacityProperty));
-            story.Children.Add(animation);
-            timeOffset += animDuration.Seconds;
-            #endregion
-
-
-            // Prepare all elements before starting the animation
-            this.Width = 0;
-            this.Height = 0;
-            this.Opacity = 0;
-
-            img_LogoBackground.Opacity = 0;
-            img_LogoBackground_blur.Radius = 15;
-            XamlAnimatedGif.AnimationBehavior.SetRepeatBehavior(img_LogoBackground, RepeatBehavior.Forever);
-
-            txtBlck_MainInfo.Opacity = 0;
-            txtBlck_StatusInfo.Opacity = 0;
-            txtBlck_Time.Opacity = 0;
-            txtBox_FileUpdateStatus.Opacity = 0;
-            txtBox_TitleInfo.Opacity = 0;
-
-            story.Begin();
+            SpeechEngine.Say("Systems initialized - Hello World!");
         }
 
 
-        /// <summary> Fires, when the loading animation has been finished.
+        /// <summary> Expands or colllapses the overlay window (discrete / full mode).
         /// </summary>
-        /// <param name="sender">The sender object.</param>
-        /// <param name="e">The ecent arguments.</param>
-        void onLoadAnimationCompleted(object sender, EventArgs e)
+        private void expandCollapse(bool expand)
         {
-            XamlAnimatedGif.AnimationBehavior.SetRepeatBehavior(img_LogoBackground, new RepeatBehavior(2));
-            img_LogoBackground.Visibility = System.Windows.Visibility.Hidden;
+            DoubleAnimation widthAnim = ((DoubleAnimation)(_collapseExpandAnimation.Children[0]));
+            DoubleAnimation heightAnim = ((DoubleAnimation)(_collapseExpandAnimation.Children[1]));
 
-            initalizeSystems();
+            if (expand)
+            {
+                widthAnim.BeginTime = TimeSpan.FromSeconds(0);
+                heightAnim.BeginTime = TimeSpan.FromSeconds(1);
+
+                widthAnim.To = this.MaxWidth;
+                heightAnim.To = LogoHeightGrid.ActualHeight + LogoAnswerTextGrid.ActualHeight;
+            }
+            else
+            {
+                widthAnim.BeginTime = TimeSpan.FromSeconds(1);
+                heightAnim.BeginTime = TimeSpan.FromSeconds(0);
+
+                widthAnim.To = LogoWidthGrid.ActualWidth;
+                heightAnim.To = LogoHeightGrid.ActualHeight;
+            }
+
+            _collapseExpandAnimation.Begin();
         }
         #endregion
 
 
         #region [[ Debug ]]
+        private void testDialog()
+        {
+            DialogTreeBranch[] dialogTree = new DialogTreeBranch[]{
+                new DialogTreeBranch(
+                    new DialogPlayer("What is your favourite food"),
+                    new DialogTreeBranch(
+                        new DialogVI("I like $(muffins|cornflakes|pizza|pancakes|small children for breakfast). What do you like most?"),
+                        new DialogTreeBranch(
+                            new DialogPlayer("$[My favourite food is|I like] $(soup|pizza|muffins|cornflakes)."),
+                            new DialogTreeBranch(
+                                new DialogVI("Good choice!")
+                            )
+                        ),
+                        new DialogTreeBranch(
+                            new DialogPlayer("I don't eat."),
+                            new DialogTreeBranch(
+                                new DialogVI("You should! Your $(parents|mother|father) will worry $[about you] otherwise!")
+                            )
+                        )
+                    )
+                )
+            };
+
+            DialogTreeBuilder.BuildDialogTree(null, dialogTree);
+        }
+
+
         private string buildDialogInfo(DialogBase parentNode, int level = 1)
         {
             string dialogInfo = "";
