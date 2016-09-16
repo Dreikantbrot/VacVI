@@ -104,12 +104,12 @@ namespace Native
                 #region Auto-Fire
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "$[Auto ]fire;$(fire|shoot) when you have a lock on", 
+                        "$[Auto ]fire;$(Fire|Shoot) $(as soon as|when) you have a lock on!", 
                         DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "I'll light'em up, $(when|as soon as) I can", 
+                            "I'll light'em up, $(when|as soon as) I can!", 
                             DialogBase.DialogPriority.NORMAL, 
                             () => { return (TargetShipData.ThreatLevel > ThreatLevelState.LOW); }, 
                             this.Name, 
@@ -118,7 +118,7 @@ namespace Native
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "$[I'm sorry but|Sorry but] I won't shoot at a friendly target.", 
+                            "$[I'm sorry but |Sorry but ]I won't shoot at a friendly target.", 
                             DialogBase.DialogPriority.HIGH, 
                             () => { return (TargetShipData.ThreatLevel <= ThreatLevelState.LOW); }, 
                             this.Name, 
@@ -129,12 +129,12 @@ namespace Native
 
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "Stop $[Auto-|automatically ]$(firing|shooting);Manual fire", 
+                        "Stop $[Auto-|automatically ]$(firing|shooting)!;Manual fire!", 
                         DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "$(Aye aye|Got it) - manual fire", 
+                            "$(Aye aye|Got it) - manual fire.", 
                             DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
@@ -145,12 +145,12 @@ namespace Native
 
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "$(fire|launch|shoot) a missile $[as soon as possible|asap]", 
+                        "$(Fire|Launch|Shoot) a missile$[ as soon as possible| asap]!", 
                         DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "$[I'm sorry but|Sorry but] I won't shoot at a friendly target.", 
+                            "$[I'm sorry but |Sorry but ]I won't shoot at a friendly target.", 
                             DialogBase.DialogPriority.HIGH, 
                             () => { return (TargetShipData.ThreatLevel <= ThreatLevelState.LOW); }, 
                             this.Name, 
@@ -159,14 +159,14 @@ namespace Native
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "$[I'm|I am] already on it!", 
+                            "$[I'm |I am ]already on it!", 
                             DialogBase.DialogPriority.HIGH, 
                             () => { return (_autoFireMissile); }
                         )
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "Give me a lock-on and I'll shoot", 
+                            "Give me a lock-on and I'll shoot.", 
                             DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
@@ -177,12 +177,12 @@ namespace Native
 
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "Cancel missile launch", 
+                        "Cancel missile launch!", 
                         DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "$(Aye aye|Got it) - cancelling missile launch", 
+                            "$(Aye aye|Got it) - cancelling missile launch...", 
                             DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
@@ -200,7 +200,7 @@ namespace Native
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "$[Sorry - but] form on what target exactly?", 
+                            "$[Sorry - but ]form on what target exactly?", 
                             DialogBase.DialogPriority.HIGH, 
                             () => { return String.IsNullOrWhiteSpace(TargetShipData.Description); }
                         )
@@ -216,7 +216,7 @@ namespace Native
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "I'm already on it", 
+                            "$[I'm |I am ]already on it!", 
                             DialogBase.DialogPriority.NORMAL, 
                             () => { return (PlayerShipData.Autopilot == PlayerShipData.AutopilotState.FORM_ON_TARGET); }
                         )
@@ -225,12 +225,12 @@ namespace Native
 
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "Break the formation", 
+                        "Break the formation!", 
                         DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "Breaking formation", 
+                            "Breaking formation...", 
                             DialogBase.DialogPriority.NORMAL, 
                             () => { return (PlayerShipData.Autopilot == PlayerShipData.AutopilotState.FORM_ON_TARGET); },
                             this.Name, 
@@ -242,7 +242,7 @@ namespace Native
                 // TODO: NAV_AUTOPILOT doesn't work for some reason...
                 //new DialogTreeBranch(
                 //    new DialogPlayer(
-                //        "Enable autopilot;Take the wheel", 
+                //        "Enable autopilot1;Take the wheel!", 
                 //        DialogBase.DialogImportance.CRITICAL
                 //    ),
                 //    new DialogTreeBranch(
@@ -256,7 +256,7 @@ namespace Native
                 //    ),
                 //    new DialogTreeBranch(
                 //        new DialogVI(
-                //            "I'm already on it", 
+                //            "$[I'm |I am ]already on it!", 
                 //            DialogBase.DialogImportance.NORMAL, 
                 //            () => { return (PlayerShipData.Autopilot != PlayerShipData.AutopilotState.OFF); }
                 //        )
@@ -270,14 +270,14 @@ namespace Native
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            String.Format("You already are in control $[, {0}]", VI.PlayerPhoneticName), 
+                            String.Format("You already are in control $[, {0}].", VI.PlayerPhoneticName), 
                             DialogBase.DialogPriority.NORMAL, 
                             () => { return (PlayerShipData.Autopilot == PlayerShipData.AutopilotState.OFF); }
                         )
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            String.Format("You have the controls;Passing controls back to you $[, {0}]", VI.PlayerPhoneticName),
+                            String.Format("You have the controls;Passing controls back to you $[, {0}].", VI.PlayerPhoneticName),
                             DialogBase.DialogPriority.NORMAL, 
                             () => { return (PlayerShipData.Autopilot != PlayerShipData.AutopilotState.OFF); },
                             this.Name, 
@@ -290,19 +290,19 @@ namespace Native
                 #region Jumping
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "Initiate $[fulcrum ]jump", 
+                        "Initiate $[fulcrum ]jump!", 
                         DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "I wouldn't jump from within a planet's atmosphere", 
+                            "I wouldn't jump from within a planet's atmosphere...", 
                             DialogBase.DialogPriority.VERY_HIGH, 
                             () => { return playerIsInAtmosphere; }
                         )
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "$[Sorry - but] $(we're unable|we don't have enough energy) to jump", 
+                            "$[Sorry - but] $(we're unable|we don't have enough energy) to jump.", 
                             DialogBase.DialogPriority.NORMAL, 
                             () => { return (PlayerShipData.EnergyLevel < 100); }
                         )
@@ -320,12 +320,12 @@ namespace Native
 
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "$[Initiate ]auto-jump;Jump $(as soon as possible|asap)", 
+                        "$[Initiate ]auto-jump;Jump $(as soon as possible|asap)!", 
                         DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            VI_COMMAND_ACK + " - I'll jump when possible", 
+                            VI_COMMAND_ACK + " - I'll jump when possible!", 
                             DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
@@ -336,7 +336,7 @@ namespace Native
 
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "$[Initiate ]emergency jump;Get $(me|us) out of here", 
+                        "$[Initiate ]emergency jump!;Get $(me|us) out of here!", 
                         DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
@@ -370,7 +370,7 @@ namespace Native
                     new DialogPlayer("Cancel $[auto-]jump", DialogBase.DialogPriority.CRITICAL),
                     new DialogTreeBranch(
                         new DialogVI(
-                            VI_COMMAND_ACK + " - Cancelling jump;Jump cancelled", 
+                            VI_COMMAND_ACK + " - Cancelling jump...;Jump cancelled.", 
                             DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
@@ -388,7 +388,7 @@ namespace Native
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "$[Aye aye -|Got it -] Full stop", 
+                            "$[Aye aye -|Got it -] Full stop!", 
                             DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
@@ -399,11 +399,11 @@ namespace Native
 
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "$[Set ]IDS $[Multiplier|Factor ]to $(1|2|3|4|5)", 
+                        "$[Set ]IDS $[Multiplier |Factor ]to $(1|2|3|4|5)!", 
                         DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
-                        new DialogVI("$(Aye aye|Got it)", 
+                        new DialogVI("$(Aye aye|Got it).", 
                             DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
@@ -416,13 +416,13 @@ namespace Native
                 #region Consoles
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "Open navigation console",
+                        "Open navigation console!",
                         DialogBase.DialogPriority.CRITICAL,
                         () => { return (HudData.NavigationConsole == OnOffState.OFF); }
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "Aye aye",
+                            "Aye aye.",
                             DialogBase.DialogPriority.NORMAL,
                             null, 
                             this.Name,
@@ -433,13 +433,13 @@ namespace Native
                 
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "Close navigation console", 
+                        "Close navigation console!", 
                         DialogBase.DialogPriority.CRITICAL,
                         () => { return (HudData.NavigationConsole == OnOffState.ON); }
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "Aye aye",
+                            "Aye aye.",
                             DialogBase.DialogPriority.NORMAL,
                             null,
                             this.Name, 
@@ -450,13 +450,13 @@ namespace Native
 
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "Open build console",
+                        "Open build console!",
                         DialogBase.DialogPriority.CRITICAL,
                         () => { return ((GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) && HudData.BuildConsole == OnOffState.OFF); }
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "Aye aye",
+                            "Aye aye.",
                             DialogBase.DialogPriority.NORMAL,
                             null,
                             this.Name,
@@ -467,13 +467,13 @@ namespace Native
                 
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "Close build console",
+                        "Close build console!",
                         DialogBase.DialogPriority.CRITICAL, 
                         () => { return ((GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) && HudData.BuildConsole == OnOffState.ON); }
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "Aye aye",
+                            "Aye aye.",
                             DialogBase.DialogPriority.NORMAL, 
                             null,
                             this.Name,
@@ -484,13 +484,13 @@ namespace Native
 
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "Open inventory console",
+                        "Open inventory console!",
                         DialogBase.DialogPriority.CRITICAL, 
                         () => { return (HudData.InventoryConsole == OnOffState.OFF); }
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "Aye aye",
+                            "Aye aye.",
                             DialogBase.DialogPriority.NORMAL,
                             null,
                             this.Name, 
@@ -501,13 +501,13 @@ namespace Native
                 
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "Close inventory console",
+                        "Close inventory console!",
                         DialogBase.DialogPriority.CRITICAL, 
                         () => { return (HudData.InventoryConsole == OnOffState.ON); }
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "Aye aye",
+                            "Aye aye.",
                             DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
@@ -518,13 +518,14 @@ namespace Native
 
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "Open trade console", 
+                        "Open trade console!", 
                         DialogBase.DialogPriority.CRITICAL, 
                         () => { return (HudData.TradeConsole == OnOffState.OFF); }
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "Aye aye", DialogBase.DialogPriority.NORMAL, 
+                            "Aye aye.", 
+                            DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
                             "toggle_trade_console"
@@ -534,13 +535,14 @@ namespace Native
                 
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "Close trade console", 
+                        "Close trade console!", 
                         DialogBase.DialogPriority.CRITICAL, 
                         () => { return (HudData.TradeConsole == OnOffState.ON); }
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "Aye aye", DialogBase.DialogPriority.NORMAL, 
+                            "Aye aye.",
+                            DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
                             "toggle_trade_console"
@@ -552,12 +554,12 @@ namespace Native
                 #region HUD
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "$(Switch to|Display) $(partial|full) HUD;Set Hud to $(partial|full) $[mode]",
+                        "$(Switch to|Display) $(partial|full) HUD!;Set Hud to $(partial|full)$[ mode]!",
                         DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "Aye aye",
+                            "Aye aye.",
                             DialogBase.DialogPriority.NORMAL,
                             null, 
                             this.Name,
@@ -568,13 +570,13 @@ namespace Native
                 
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "Disable HUD;Turn off the HUD",
+                        "Disable HUD!;Turn off the HUD!",
                         DialogBase.DialogPriority.CRITICAL,
                         () => { return (HudData.Hud != HudData.HudStatus.OFF); }
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "Aye aye",
+                            "Aye aye.",
                             DialogBase.DialogPriority.NORMAL,
                             null, 
                             this.Name,
@@ -587,12 +589,12 @@ namespace Native
                 #region Target and Ship Information
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "$(Damage|Status|Ship Status) Report;Ship Status",
+                        "$(Damage|Status|Ship Status) report!;Ship status!",
                         DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "Aye aye", 
+                            "Aye aye!", 
                             DialogBase.DialogPriority.NORMAL, 
                             null, 
                             null,
@@ -614,19 +616,19 @@ namespace Native
                 
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "Target Status", 
+                        "Target Status!", 
                         DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "Aye aye", 
+                            "Aye aye.", 
                             DialogBase.DialogPriority.NORMAL, 
                             () => { return !String.IsNullOrWhiteSpace(TargetShipData.Description); }, this.Name, "target_status"
                         )
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "No target selected",
+                            "No target selected!",
                             DialogBase.DialogPriority.NORMAL,
                             () => { return String.IsNullOrWhiteSpace(TargetShipData.Description); }
                         )

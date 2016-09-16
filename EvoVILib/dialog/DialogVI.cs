@@ -121,8 +121,12 @@ namespace EvoVI.Dialog
 
             result += randBaseSentence.Substring(currIndex);
 
-            result = Regex.Replace(result, @"(^|\w)\s*,", "$1,");
-            result = Regex.Replace(result, @"(;|\s|,)\1+", "$1");
+            /*  Beautify the resulting phrase */
+            result = result.Trim();
+            result = Regex.Replace(result, @"(^|\w)\s*,", "$1,");   // trim spaces before commas
+            result = Regex.Replace(result, @"(;|\s|,)\1+", "$1");   // remove excessive semi-colons, commas and whitespaces
+            result = result.Substring(0, 1).ToUpperInvariant() + result.Substring(1);   // 1st character upper-case
+            if (!Regex.IsMatch(result, @"[!.?]\s*$")) { result += "."; }    // Add punctuation mark
             return result;
         }
         #endregion

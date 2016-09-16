@@ -10,8 +10,8 @@ namespace EvoVI.Dialog
     public class DialogBase
     {
         #region Regexes (readonly)
-        /// <summary> Regex used to assertain whether a node's text is valid.</summary>
-        protected readonly Regex VALIDATION_REGEX = new Regex(@"^(?:\s|\.|,|;|:)*$");
+        /// <summary> Regex used to assertain whether a node's text is invalid.</summary>
+        protected readonly Regex INVALIDATION_REGEX = new Regex(@"^(?:\s|\.|,|;|:)*$");
 
         /// <summary> Regex used to extract the different kinds of choice words and phrases in a node.</summary>
         internal static readonly Regex CHOICES_REGEX = new Regex(@"(?:\$\((?<Choice>.*?)\))|(?:\$\[(?<OptChoice>.*?)\])");
@@ -216,7 +216,7 @@ namespace EvoVI.Dialog
         /// <param name="pData">An object containing custom, user-defined data.</param>
         /// <param name="pFlags">The behaviour-flags, modifying the node's behaviour.</param>
         internal DialogBase(
-            string pText = " ",
+            string pText = "",
             DialogPriority pPriority = DialogPriority.NORMAL,
             Func<bool> pConditionFunction = null,
             string pPluginToStart = null,
@@ -224,7 +224,7 @@ namespace EvoVI.Dialog
             DialogFlags pFlags = DialogFlags.NONE
         )
         {
-            this._text = pText;
+            this._text = INVALIDATION_REGEX.IsMatch(pText) ? " " : pText.Trim();
             this._priority = pPriority;
             this._pluginToStart = pPluginToStart;
             this._data = pData;

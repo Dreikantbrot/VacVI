@@ -178,7 +178,7 @@ namespace EvoVI.Dialog
             _grammarList.Clear();
             _grammarStatusList.Clear();
 
-            if (VALIDATION_REGEX.Match(_text).Success) { return; }
+            if (INVALIDATION_REGEX.Match(_text).Success) { return; }
 
             string[] sentences = _text.Split(';');
 
@@ -199,11 +199,11 @@ namespace EvoVI.Dialog
                         // Append "fixed" text
                         string leadingText = sentences[i].Substring(currIndex, matches[u].Index - currIndex);
 
-                        // Commas, dots and semi-colons make recognition harder
+                        // Commas, dots and semi-colons make recognition harder - remove them
                         leadingText = leadingText.Replace(".", "");
                         leadingText = leadingText.Replace(",", "");
                         leadingText = leadingText.Replace(";", "");
-                        if (!VALIDATION_REGEX.Match(leadingText).Success) { builder.Append(leadingText); }
+                        if (!INVALIDATION_REGEX.Match(leadingText).Success) { builder.Append(leadingText); }
 
                         // Append choices
                         if (currMatch.Groups["Choice"].Success)
@@ -223,7 +223,7 @@ namespace EvoVI.Dialog
                 }
 
                 string trailingText = sentences[i].Substring(currIndex);
-                if (!VALIDATION_REGEX.Match(trailingText).Success) { builder.Append(trailingText); }
+                if (!INVALIDATION_REGEX.Match(trailingText).Success) { builder.Append(trailingText); }
 
                 Grammar resultGrammar = new Grammar(builder);
                 resultGrammar.Name = this.GetHashCode().ToString();

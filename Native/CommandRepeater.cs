@@ -72,12 +72,12 @@ namespace Native
                 new DialogTreeBranch(
                     _dialg_didNotUnderstand,
                     new DialogTreeBranch(
-                        new DialogPlayer("Yes", DialogBase.DialogPriority.CRITICAL, () => { return (_lastMisunderstoodDialog != null); }, this.Name, "yes", DialogBase.DialogFlags.ALWAYS_UPDATE)
+                        new DialogPlayer("Yes.", DialogBase.DialogPriority.CRITICAL, () => { return (_lastMisunderstoodDialog != null); }, this.Name, "yes", DialogBase.DialogFlags.ALWAYS_UPDATE)
                     ),
                     new DialogTreeBranch(
-                        new DialogPlayer("No", DialogBase.DialogPriority.CRITICAL, () => { return (_lastMisunderstoodDialog != null); }, this.Name, "no", DialogBase.DialogFlags.ALWAYS_UPDATE),
+                        new DialogPlayer("No.", DialogBase.DialogPriority.CRITICAL, () => { return (_lastMisunderstoodDialog != null); }, this.Name, "no", DialogBase.DialogFlags.ALWAYS_UPDATE),
                         new DialogTreeBranch(
-                            new DialogVI("$[Oh - I see.] What $[did you need|was it] then?", DialogBase.DialogPriority.NORMAL, null, this.Name, "jump_back")
+                            new DialogVI("$[Oh - I see. ]What $[did you need |was it ]then?", DialogBase.DialogPriority.NORMAL, null, this.Name, "jump_back")
                         )
                     )
                 )
