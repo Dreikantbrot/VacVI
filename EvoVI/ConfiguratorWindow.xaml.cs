@@ -224,7 +224,7 @@ namespace EvoVIConfigurator
 
 
             SpeechEngine.Initialize();
-            //GameMeta.OnGameProcessStarted += GameMeta_OnGameProcessStarted;
+            GameMeta.OnGameProcessStarted += GameMeta_OnGameProcessStarted;
         }
         #endregion
 
