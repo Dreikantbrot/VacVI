@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace EvoVI.Dialog
 {
-    [System.Diagnostics.DebuggerDisplay("{Speaker}: {Text}")]
+    [System.Diagnostics.DebuggerDisplay("{Disabled ? \"[~]\" : IsReady ? \"[!]\" : \"[-]\"} {Speaker}: {Text}")]
     /// <summary> Base class for dialog nodes.</summary>
     public class DialogBase
     {
@@ -26,7 +26,7 @@ namespace EvoVI.Dialog
             public DialogBase PreviousDialog { get; private set; }
             public DialogBase CurrentDialog { get; private set; }
 
-            public DialogChangedEventArgs(DialogBase pPrevDialog, DialogBase pCurrentDialog)
+            internal DialogChangedEventArgs(DialogBase pPrevDialog, DialogBase pCurrentDialog)
             {
                 this.PreviousDialog = pPrevDialog;
                 this.CurrentDialog = pCurrentDialog;
@@ -84,11 +84,12 @@ namespace EvoVI.Dialog
         }
 
 
-        /// <summary> Returns the unparsed, raw dialog text.
+        /// <summary> Returns or sets the unparsed, raw dialog text.
         /// </summary>
-        public string RawText
+        public virtual string RawText
         {
             get { return _text; }
+            set { _text = value; }
         }
 
 
@@ -368,7 +369,7 @@ namespace EvoVI.Dialog
         {
             if (!IsReady) { return; }
 
-            OnDialogNodeChanged(new DialogChangedEventArgs(VI.CurrentDialogNode, this));
+            if (OnDialogNodeChanged != null) { OnDialogNodeChanged(new DialogChangedEventArgs(VI.CurrentDialogNode, this)); }
             VI.CurrentDialogNode = this;
 
             DialogTreeBuilder.UpdateReadyNodes();

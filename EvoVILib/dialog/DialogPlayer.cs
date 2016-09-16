@@ -117,6 +117,15 @@ namespace EvoVI.Dialog
             get { return _disabled || !anyGrammarActive; }
             set { _disabled = value; UpdateState(); }
         }
+
+
+        /// <summary> Returns or sets the unparsed, raw dialog text.
+        /// </summary>
+        public override string RawText
+        {
+            get { return _text; }
+            set { _text = value; parseAnswers(); }
+        }
         #endregion
 
 
@@ -163,6 +172,9 @@ namespace EvoVI.Dialog
         /// </summary>
         private void parseAnswers()
         {
+            setRecognitionStatusAll(false, true);
+            SpeechEngine.DeregisterPlayerDialogNode(this);
+
             _grammarList.Clear();
             _grammarStatusList.Clear();
 

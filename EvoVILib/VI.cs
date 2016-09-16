@@ -1,4 +1,5 @@
 ﻿using EvoVI.Dialog;
+using System;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("EvoVI")]
 
@@ -7,6 +8,22 @@ namespace EvoVI
     /// <summary> A class containing information about VI (boardcomputer) itself.</summary>
     public static class VI
     {
+        #region Custom Actions
+        public static event Action<OnVIStateChangedEventArgs> OnVIStateChanged = null;
+        public class OnVIStateChangedEventArgs
+        {
+            public VIState PreviousState { get; private set; }
+            public VIState CurrentState { get; private set; }
+
+            internal OnVIStateChangedEventArgs(VIState pPreviousState, VIState pCurrentState)
+            {
+                this.PreviousState = pPreviousState;
+                this.CurrentState = pCurrentState;
+            }
+        }
+        #endregion
+
+
         #region Enums
         public enum VIState
         {
@@ -21,7 +38,7 @@ namespace EvoVI
         #region Variables
         private static string _name = "Vāk";
         private static string _phoneticName = "Vahk";
-        private static VIState _state = VIState.READY;
+        private static VIState _state = VIState.OFFLINE;
         private static uint _affiliationToPlayer = 50;
 
         private static string _playerName = "Pilot";
@@ -55,7 +72,16 @@ namespace EvoVI
         public static VIState State
         {
             get { return VI._state; }
-            set { VI._state = value; }
+            set
+            {
+                if (
+                    (_state != value) &&
+                    (OnVIStateChanged != null)
+                )
+                { OnVIStateChanged(new OnVIStateChangedEventArgs(_state, value)); }
+
+                VI._state = value;
+            }
         }
 
 

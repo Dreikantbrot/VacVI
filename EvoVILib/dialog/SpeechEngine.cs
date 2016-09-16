@@ -5,7 +5,6 @@ using System.Speech.Synthesis;
 using System.Speech.Recognition;
 using System.IO;
 using CSCore;
-using System.Net;
 using CSCore.Codecs.WAV;
 using CSCore.SoundOut;
 using CSCore.Streams.Effects;
@@ -23,7 +22,7 @@ namespace EvoVI.Dialog
             public Grammar RecognizedGrammar { get; private set; }
             public string RecognizedPhrase { get; private set; }
 
-            public VISpeechRecognizedEventArgs(DialogPlayer pRecognizedDialog, Grammar pRecognizedGrammar, string pRecognizedPhrase)
+            internal VISpeechRecognizedEventArgs(DialogPlayer pRecognizedDialog, Grammar pRecognizedGrammar, string pRecognizedPhrase)
             {
                 this.RecognizedDialog = pRecognizedDialog;
                 this.RecognizedGrammar = pRecognizedGrammar;
@@ -40,12 +39,38 @@ namespace EvoVI.Dialog
             public string RejectedPhrase { get; private set; }
             public string BestAlternative { get; private set; }
 
-            public VISpeechRejectedEventArgs(DialogPlayer pRejectedDialog, Grammar pRejectedGrammar, string pRejectedPhrase, string pBestAlternative)
+            internal VISpeechRejectedEventArgs(DialogPlayer pRejectedDialog, Grammar pRejectedGrammar, string pRejectedPhrase, string pBestAlternative)
             {
                 this.RejectedDialog = pRejectedDialog;
                 this.RejectedGrammar = pRejectedGrammar;
                 this.RejectedPhrase = pRejectedPhrase;
                 this.BestAlternative = pBestAlternative;
+            }
+        }
+
+
+        public static event Action<VISpeechStartedEventArgs> OnVISpeechStarted = null;
+        public class VISpeechStartedEventArgs
+        {
+            public DialogVI SpokenDialog { get; private set; }
+            public string SpokenPhrase { get; private set; }
+
+            internal VISpeechStartedEventArgs(DialogVI pSpokenDialog, string pSpokenPhrase)
+            {
+                this.SpokenDialog = pSpokenDialog;
+                this.SpokenPhrase = pSpokenPhrase;
+            }
+        }
+
+
+        public static event Action<VISpeechStoppedEventArgs> OnVISpeechStopped = null;
+        public class VISpeechStoppedEventArgs
+        {
+            public DialogVI SpokenDialog { get; private set; }
+
+            internal VISpeechStoppedEventArgs(DialogVI pSpokenDialog)
+            {
+                this.SpokenDialog = pSpokenDialog;
             }
         }
         #endregion
@@ -128,13 +153,16 @@ namespace EvoVI.Dialog
             if (e.Result.Confidence >= _confidenceThreshold)
             {
                 DialogPlayer recognizedNode = DialogTreeBuilder.GetPlayerDialog(e.Result.Grammar);
-                OnVISpeechRecognized(
-                    new VISpeechRecognizedEventArgs(
-                        recognizedNode,
-                        e.Result.Grammar,
-                        e.Result.Text
-                    )
-                );
+                if (OnVISpeechRecognized != null)
+                {
+                    OnVISpeechRecognized(
+                        new VISpeechRecognizedEventArgs(
+                            recognizedNode,
+                            e.Result.Grammar,
+                            e.Result.Text
+                        )
+                    );
+                }
 
                 recognizedNode.SetActive();
                 // Say("I recognized you say: " + e.Result.Text + " - I am to " + Math.Floor(e.Result.Confidence * 100) + "% certain of that.");
@@ -153,14 +181,17 @@ namespace EvoVI.Dialog
                 RecognizedPhrase currAlternative = e.Result.Alternates[i];
                 if (currAlternative.Confidence >= 0.15f)
                 {
-                    OnVISpeechRejected(
-                        new VISpeechRejectedEventArgs(
-                            DialogTreeBuilder.GetPlayerDialog(e.Result.Grammar),
-                            e.Result.Grammar,
-                            e.Result.Text,
-                            e.Result.Alternates[i].Text
-                        )
-                    );
+                    if (OnVISpeechRejected != null)
+                    {
+                        OnVISpeechRejected(
+                            new VISpeechRejectedEventArgs(
+                                DialogTreeBuilder.GetPlayerDialog(e.Result.Grammar),
+                                e.Result.Grammar,
+                                e.Result.Text,
+                                e.Result.Alternates[i].Text
+                            )
+                        );
+                    }
 
                     break;
                 }
@@ -215,6 +246,21 @@ namespace EvoVI.Dialog
         }
 
 
+        /// <summary> De-registers a dialog node's answers from the speech recognition engine.
+        /// </summary>
+        /// <param name="node">The dialog node, which answers to remove.</param>
+        internal static void DeregisterPlayerDialogNode(DialogPlayer node)
+        {
+            if (_recognizer == null) { return; }
+
+            // Load the node's answers
+            for (int i = 0; i < node.GrammarList.Count; i++)
+            {
+                if (!_recognizer.Grammars.Contains(node.GrammarList[i])) { _recognizer.UnloadGrammar(node.GrammarList[i]); }
+            }
+        }
+
+
         /// <summary> Lets the VI say the specified text.
         /// </summary>
         /// <param name="text">The text to speak.</param>
@@ -251,12 +297,16 @@ namespace EvoVI.Dialog
             }
 
             if (_queue[0] != dialogNode) { return; }
+
+            string textToSpeak = dialogNode.Text;
+
+            if (OnVISpeechStarted != null) { OnVISpeechStarted(new VISpeechStartedEventArgs(dialogNode, textToSpeak)); }
             
             // TODO: Set emphasis and break lengths
             PromptBuilder prmptBuilder = new PromptBuilder();
             prmptBuilder.StartVoice(_defaultVoice);
             prmptBuilder.StartSentence();
-            prmptBuilder.AppendText(dialogNode.Text);
+            prmptBuilder.AppendText(textToSpeak);
             prmptBuilder.EndSentence();
             prmptBuilder.EndVoice();
 
@@ -303,6 +353,8 @@ namespace EvoVI.Dialog
         {
             // Get the dialog node that has just been played
             DialogVI currNode = _queue[0];
+
+            if (OnVISpeechStopped != null) { OnVISpeechStopped(new VISpeechStoppedEventArgs(currNode)); }
 
             // Remove dialog nodes that are too old
             for (int i = _queue.Count - 1; i >= 0; i--)
