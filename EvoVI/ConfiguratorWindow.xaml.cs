@@ -456,8 +456,7 @@ namespace EvoVIConfigurator
         private void btn_StartGame_Click(object sender, RoutedEventArgs e)
         {
             ToggleUILock(true);
-            //GameMeta.CheckForGameProcess();
-            GameMeta_OnGameProcessStarted(null, null);
+            GameMeta.CheckForGameProcess();
         }
 
 

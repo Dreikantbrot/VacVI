@@ -9,13 +9,14 @@ namespace Native
     public class CommandRepeater : IPlugin
     {
         #region Constants
-        private const string I_DID_NOT_UNDERSTAND_YOU = "I did not understand that. Did you mean {0}?";
+        private const string I_DID_NOT_UNDERSTAND_YOU = "I did not understand that. Did you mean \"{0}\"?";
         #endregion
 
 
         #region Variables
         private Guid _guid = new Guid();
         private DialogBase _jumpBackNode;
+        private DialogVI _dialg_didNotUnderstand = new DialogVI("I did not understand that");
 
         private DialogPlayer _lastMisunderstoodDialog;
         private DialogBase _previousDialogNode;
@@ -69,12 +70,15 @@ namespace Native
         {
             DialogTreeBranch[] standardDialogs = new DialogTreeBranch[] {
                 new DialogTreeBranch(
-                    new DialogPlayer("Yes", DialogBase.DialogPriority.CRITICAL, () => { return (_lastMisunderstoodDialog != null); }, this.Name, "yes")
-                ),
-                new DialogTreeBranch(
-                    new DialogPlayer("No", DialogBase.DialogPriority.CRITICAL, () => { return (_lastMisunderstoodDialog != null); }, this.Name, "no"),
+                    _dialg_didNotUnderstand,
                     new DialogTreeBranch(
-                        new DialogVI("$[Oh - I see.] What $[did you need|was it] then?", DialogBase.DialogPriority.NORMAL, null, this.Name, "jump_back")
+                        new DialogPlayer("Yes", DialogBase.DialogPriority.CRITICAL, () => { return (_lastMisunderstoodDialog != null); }, this.Name, "yes", DialogBase.DialogFlags.ALWAYS_UPDATE)
+                    ),
+                    new DialogTreeBranch(
+                        new DialogPlayer("No", DialogBase.DialogPriority.CRITICAL, () => { return (_lastMisunderstoodDialog != null); }, this.Name, "no", DialogBase.DialogFlags.ALWAYS_UPDATE),
+                        new DialogTreeBranch(
+                            new DialogVI("$[Oh - I see.] What $[did you need|was it] then?", DialogBase.DialogPriority.NORMAL, null, this.Name, "jump_back")
+                        )
                     )
                 )
             };
@@ -137,14 +141,17 @@ namespace Native
         #region Events
         void SpeechEngine_OnVISpeechRejected(SpeechEngine.VISpeechRejectedEventArgs obj)
         {
+            // Remember the misunderstood node and start asking what the player meant
             _lastMisunderstoodDialog = obj.RejectedDialog;
-            SpeechEngine.Say(String.Format(I_DID_NOT_UNDERSTAND_YOU, obj.BestAlternative));
+            _dialg_didNotUnderstand.RawText = String.Format(I_DID_NOT_UNDERSTAND_YOU, obj.BestAlternative);
+            _dialg_didNotUnderstand.SetActive();
         }
 
 
         void DialogBase_OnDialogNodeChanged(DialogBase.DialogChangedEventArgs obj)
         {
-            _previousDialogNode = obj.PreviousDialog;
+            // "Log" the last dialog, in order to jump back to it, but ignore our own dialog
+            if (obj.PreviousDialog != _dialg_didNotUnderstand) { _previousDialogNode = obj.PreviousDialog; }
         }
         #endregion
     }
