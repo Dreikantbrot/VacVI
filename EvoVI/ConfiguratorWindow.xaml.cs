@@ -224,6 +224,7 @@ namespace EvoVIConfigurator
 
 
             SpeechEngine.Initialize();
+            PluginManager.InitializePlugins();
             GameMeta.OnGameProcessStarted += GameMeta_OnGameProcessStarted;
         }
         #endregion
@@ -475,6 +476,11 @@ namespace EvoVIConfigurator
                     // Start the Overlay
                     EvoVIOverlay.OverlayWindow overlayWindow = new EvoVIOverlay.OverlayWindow();
                     overlayWindow.ShowDialog();
+
+                    VI.State = VI.VIState.OFFLINE;
+                    PluginManager.LoadPlugins(true);
+                    PluginManager.InitializePlugins();
+
                     ToggleUILock(false);
                     this.Show();
                     this.BringIntoView();

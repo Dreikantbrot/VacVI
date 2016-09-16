@@ -188,7 +188,29 @@ namespace EvoVI.Plugins
         /// </summary>
         internal static void InitializePlugins()
         {
-            for (int i = 0; i < Plugins.Count; i++) { Plugins[i].Initialize(); }
+            ShutdownPlugins();
+
+            for (int i = 0; i < Plugins.Count; i++)
+            {
+                IPlugin currPlugin = Plugins[i];
+                if (
+                    (!_pluginThreads.ContainsKey(currPlugin)) ||
+                    (_pluginThreads[currPlugin] == null)
+                )
+                { continue; }
+
+                // Check the state of the thread
+                if (
+                    (!_pluginThreads[currPlugin].IsAlive)
+                )
+                {
+                    _pluginThreads[currPlugin] = (new Thread(currPlugin.Initialize));
+                    _pluginThreads[currPlugin].Start();
+
+                    // Wait for the end of the initialization
+                    while (_pluginThreads[currPlugin].IsAlive) { Thread.Sleep(10); }
+                }
+            }
         }
 
 

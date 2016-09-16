@@ -131,7 +131,7 @@ namespace EvoVI.Dialog
 
             for (int i = 0; i < _dialogRoot.ChildNodes.Count; i++)
             {
-                htmlFileBuilder.Append(getDialogPhrasesHTML(_dialogRoot.ChildNodes[i], true));
+                htmlFileBuilder.Append(getDialogPhrasesHTML(_dialogRoot.ChildNodes[i], playerCommandsOnly));
             }
 
             using(System.IO.StreamWriter file = new System.IO.StreamWriter(targetFilePath))
