@@ -200,9 +200,7 @@ namespace EvoVI.Plugins
                 { continue; }
 
                 // Check the state of the thread
-                if (
-                    (!_pluginThreads[currPlugin].IsAlive)
-                )
+                if (!_pluginThreads[currPlugin].IsAlive)
                 {
                     _pluginThreads[currPlugin] = (new Thread(currPlugin.Initialize));
                     _pluginThreads[currPlugin].Start();
@@ -248,12 +246,11 @@ namespace EvoVI.Plugins
                 { continue; }
 
                 // Check the state of the thread
-                if (
-                    (!_pluginThreads[currPlugin].IsAlive)
-                )
+                if (!_pluginThreads[currPlugin].IsAlive)
                 {
-                    _pluginThreads[currPlugin] = (new Thread(currPlugin.OnGameDataUpdate));
-                    _pluginThreads[currPlugin].Start();
+                    Thread execThread = new Thread(new ThreadStart(currPlugin.OnGameDataUpdate));
+                    _pluginThreads[currPlugin] = execThread;
+                    execThread.Start();
                 }
             }
         }

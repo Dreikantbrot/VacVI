@@ -71,6 +71,24 @@ namespace Native
                     new DialogTreeBranch(
                         new DialogVI(String.Format("I am a virtual intelligence and ship assistance software. $[My name is|You can call me|Please, call me|Call me] \"{0}\".", VI.PhoneticName))
                     )
+                ),
+                new DialogTreeBranch(
+                    new DialogPlayer("What is your favourite food"),
+                    new DialogTreeBranch(
+                        new DialogVI("I like $(muffins|cornflakes|pizza|pancakes|small children for breakfast). What do you like most?"),
+                        new DialogTreeBranch(
+                            new DialogPlayer("$[My favourite food is|I like] $(soup|pizza|muffins|cornflakes)."),
+                            new DialogTreeBranch(
+                                new DialogVI("Good choice!")
+                            )
+                        ),
+                        new DialogTreeBranch(
+                            new DialogPlayer("I don't eat."),
+                            new DialogTreeBranch(
+                                new DialogVI("You should! Your $(parents|mother|father) will worry $[about you] otherwise!")
+                            )
+                        )
+                    )
                 )
             };
 

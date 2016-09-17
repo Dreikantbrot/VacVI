@@ -206,11 +206,12 @@ namespace EvoVI.Dialog
         internal static void Initialize()
         {
             _culture = new System.Globalization.CultureInfo(_language, false);
-            try 
+            
+            if (CheckLanguageSupport(_culture))
             {
                 _recognizer = new SpeechRecognitionEngine(_culture);
             }
-            catch (ArgumentException)
+            else
             {
                 _recognizer = null;
                 Say(String.Format(Properties.StringTable.CANNOT_UNDERSTAND_SELECTED_LANGAUGE, _culture.EnglishName));
@@ -228,6 +229,22 @@ namespace EvoVI.Dialog
             _recognizer.SpeechRecognitionRejected += onSpeechRejected;
             _recognizer.SetInputToDefaultAudioDevice();
             _recognizer.RecognizeAsync(RecognizeMode.Multiple);
+        }
+
+
+        /// <summary> Checks, whether the system supports the given language.
+        /// </summary>
+        /// <param name="culture">The culture instance to check.</param>
+        /// <returns>Whether the system supports the given language.</returns>
+        internal static bool CheckLanguageSupport(System.Globalization.CultureInfo culture)
+        {
+            // Get first available, supported language
+            foreach (RecognizerInfo recognizerInfo in SpeechRecognitionEngine.InstalledRecognizers())
+            {
+                if (recognizerInfo.Culture.Equals(culture)) { return true; }
+            }
+
+            return false;
         }
 
 
@@ -351,6 +368,9 @@ namespace EvoVI.Dialog
         /// <param name="e">The playback stopped event arguments.</param>
         private static void soundOutput_Stopped(object sender, PlaybackStoppedEventArgs e)
         {
+            if (_queue.Count <= 0) { 
+                return; }
+
             // Get the dialog node that has just been played
             DialogVI currNode = _queue[0];
 

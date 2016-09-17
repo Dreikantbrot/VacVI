@@ -100,6 +100,7 @@ namespace EvoVIConfigurator
         private List<Key> keyDowns = new List<Key>();
 
         private bool _uiLocked = false;
+        private bool _openChanges = false;
         private SolidColorBrush _brightThemeBrush = new SolidColorBrush(Color.FromArgb(50, 255, 255,255));
         private SolidColorBrush _darkThemeBrush = new SolidColorBrush(Color.FromArgb(50, 0, 0, 0));
 
@@ -223,6 +224,7 @@ namespace EvoVIConfigurator
             tab_Overview_Label_GotFocus(null, null);
 
 
+            _openChanges = false;
             SpeechEngine.Initialize();
             PluginManager.InitializePlugins();
             GameMeta.OnGameProcessStarted += GameMeta_OnGameProcessStarted;
@@ -315,6 +317,21 @@ namespace EvoVIConfigurator
         {
             if (lockUI)
             {
+                if (_openChanges)
+                {
+                    txt_GameReadyOverlay.Text = "There are still some unsaved changes! Press \"Cancel\" and save your settings!";
+                    txt_GameReadyOverlay.BorderBrush = (SolidColorBrush)this.Resources["WarningBorderColor"];
+                    txt_GameReadyOverlay.Background = (SolidColorBrush)this.Resources["WarningBackColor"];
+                    txt_GameReadyOverlay.Foreground = (SolidColorBrush)this.Resources["NormalForeColor"];
+                }
+                else
+                {
+                    txt_GameReadyOverlay.Text = "The VI is ready! - Please start the game!";
+                    txt_GameReadyOverlay.BorderBrush = (SolidColorBrush)this.Resources["SuccessBorderColor"];
+                    txt_GameReadyOverlay.Background = (SolidColorBrush)this.Resources["SuccessBackColor"];
+                    txt_GameReadyOverlay.Foreground = (SolidColorBrush)this.Resources["NormalForeColor"];
+                }
+
                 txt_GameReadyOverlay.Visibility = System.Windows.Visibility.Visible;
                 btn_Close.Tag = btn_Close.Content;
                 btn_Close.Content = "Cancel";
@@ -394,19 +411,12 @@ namespace EvoVIConfigurator
             criticalError = criticalError || (chckBox_Overview_Savedatatextssettings.IsChecked != true);
 
             // Speech recognition engine available?
-            try
-            {
-                new System.Speech.Recognition.SpeechRecognitionEngine(
-                    new System.Globalization.CultureInfo(SpeechEngine.Language, false)
-                );
-                setCheckboxColor(chckBox_Overview_SpeechRecogEngine, CheckBoxColorState.OKAY);
-            }
-            catch (ArgumentException)
-            {
-                setCheckboxColor(chckBox_Overview_SpeechRecogEngine, CheckBoxColorState.ERROR);
-            }
+            System.Globalization.CultureInfo currentCulture = new System.Globalization.CultureInfo(SpeechEngine.Language, false);
+            bool isSupported = SpeechEngine.CheckLanguageSupport(currentCulture);
+            setCheckboxColor(chckBox_Overview_SpeechRecogEngine, isSupported ? CheckBoxColorState.OKAY : CheckBoxColorState.ERROR);
+
             chckBox_Overview_SpeechRecogEngine.Content = "Speech recognition language supported";
-            lbl_Overview_SpeechRecogEngine_Hints.Visibility = (chckBox_Overview_SpeechRecogEngine.IsChecked == true) ?
+            lbl_Overview_SpeechRecogEngine_Hints.Visibility = (isSupported) ?
                 System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
             criticalError = criticalError || (chckBox_Overview_SpeechRecogEngine.IsChecked != true);
 
@@ -491,6 +501,18 @@ namespace EvoVIConfigurator
 
 
         #region Configuration Events
+        /// <summary> Fires when the "Save Settings"-button has been clicked.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void btn_SaveConfig_Click(object sender, RoutedEventArgs e)
+        {
+            ConfigurationManager.ConfigurationFile.Write(ConfigurationManager.ConfigurationFilepath);
+            _openChanges = false;
+        }
+
+        
+        #region Install Directory
         /// <summary> Fires when the "Browse"-button is clicked.
         /// </summary>
         /// <param name="sender">The sender object.</param>
@@ -524,6 +546,7 @@ namespace EvoVIConfigurator
                 (GameMeta.CurrentGame == GameMeta.SupportedGame.EVOCHRON_LEGACY) ? (ImageSource)_imgEvochronLegacy :
                 (ImageSource)_imgLogo_VI
             );
+            _openChanges = true;
         }
 
 
@@ -534,6 +557,127 @@ namespace EvoVIConfigurator
         private void txt_InstallDir_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             verifyInstallDir();
+        }
+        #endregion
+
+
+        #region VI Settings
+        /// <summary> Fires when the VI's name has been changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The text changed event arguments.</param>
+        private void txt_Config_VIName_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ConfigurationManager.ConfigurationFile.SetValue("VI", "Name", txt_Config_VIName.Text);
+            _openChanges = true;
+        }
+
+
+        /// <summary> Fires when the VI's phonetic name has been changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The text changed event arguments.</param>
+        private void txt_Config_VIPhoneticName_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ConfigurationManager.ConfigurationFile.SetValue("VI", "Phonetic_Name", txt_Config_VIPhoneticName.Text);
+            _openChanges = true;
+        }
+
+
+        /// <summary> Fires when the "Test Pronouncation"-button has been clicked.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void btn_Config_VINameTest_Click(object sender, RoutedEventArgs e)
+        {
+            testName(txt_Config_VIPhoneticName.Text);
+        }
+
+
+        /// <summary> Fires when VI voice has been changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The selection changed event arguments.</param>
+        private void comBox_Config_VIVoice_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SpeechEngine.VoiceModulationModes voice = (SpeechEngine.VoiceModulationModes)((ValueLabelPair)(((ComboBox)sender).SelectedItem)).Value;
+            SpeechEngine.VoiceModulation = voice;
+
+            ConfigurationManager.ConfigurationFile.SetValue("VI", "Voice", voice.ToString());
+            _openChanges = true;
+        }
+
+
+        /// <summary> Fires when the language for the speech recognition engine has been changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The selection changed event arguments.</param>
+        private void comBox_Config_SpeechRecLang_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SpeechEngine.Language = ((ComboBoxItem)comBox_Config_SpeechRecLang.SelectedItem).Content.ToString();
+
+            ConfigurationManager.ConfigurationFile.SetValue("VI", "Speech_Recognition_Lang", SpeechEngine.Language);
+            _openChanges = true;
+        }
+
+
+        /// <summary> Fires when the player's name has been changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The text changed event arguments.</param>
+        private void txt_Config_PlayerName_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ConfigurationManager.ConfigurationFile.SetValue("Player", "Name", txt_Config_PlayerName.Text);
+            _openChanges = true;
+        }
+
+
+        /// <summary> Fires when the player's phonetic name has been changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The text changed event arguments.</param>
+        private void txt_Config_PlayerPhoneticName_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ConfigurationManager.ConfigurationFile.SetValue("Player", "Phonetic_Name", txt_Config_PlayerPhoneticName.Text);
+            _openChanges = true;
+        }
+
+
+        /// <summary> Fires when the "Test Pronouncation"-button has been clicked.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void btn_Config_PlayerNameTest_Click(object sender, RoutedEventArgs e)
+        {
+            testName(txt_Config_PlayerPhoneticName.Text);
+        }
+
+
+        /// <summary> Tests the pronounciation of the entered name in text-to-speech.
+        /// </summary>
+        /// <param name="testText">The name to test.</param>
+        private void testName(string testText)
+        {
+            btn_Config_VINameTest.IsEnabled = false;
+            btn_Config_PlayerNameTest.IsEnabled = false;
+
+            SpeechEngine.Say(testText);
+
+            btn_Config_VINameTest.IsEnabled = true;
+            btn_Config_PlayerNameTest.IsEnabled = true;
+        }
+        #endregion
+
+
+        #region Overlay
+        /// <summary> Fires when the player's phonetic name has been changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The text changed event arguments.</param>
+        private void chckBox_Config_LoadingAnimation_Checked(object sender, RoutedEventArgs e)
+        {
+            ConfigurationManager.ConfigurationFile.SetValue("Overlay", "Play_Intro", (chckBox_Config_LoadingAnimation.IsChecked == true) ? "true" : "false");
+            _openChanges = true;
         }
 
 
@@ -560,130 +704,122 @@ namespace EvoVIConfigurator
                     coordinate,
                     ((TextBox)sender).Text + e.Text
                 );
+                _openChanges = true;
             }
             
             e.Handled = !isValid;
         }
+        #endregion
 
 
-        /// <summary> Fires when the VI's name has been changed.
-        /// </summary>
-        /// <param name="sender">The sender object.</param>
-        /// <param name="e">The text changed event arguments.</param>
-        private void txt_Config_VIName_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            ConfigurationManager.ConfigurationFile.SetValue("VI", "Name", txt_Config_VIName.Text);
-        }
-
-
-        /// <summary> Fires when the VI's phonetic name has been changed.
-        /// </summary>
-        /// <param name="sender">The sender object.</param>
-        /// <param name="e">The text changed event arguments.</param>
-        private void txt_Config_VIPhoneticName_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            ConfigurationManager.ConfigurationFile.SetValue("VI", "Phonetic_Name", txt_Config_VIPhoneticName.Text);
-        }
-
-
-        /// <summary> Fires when the "Test Pronouncation"-button has been clicked.
+        #region Extras
+        /// <summary> Fires when the "Extras"-tab is being focused.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The routed event arguments.</param>
-        private void btn_Config_VINameTest_Click(object sender, RoutedEventArgs e)
+        private void tab_Extras_GotFocus(object sender, RoutedEventArgs e)
         {
-            testName(txt_Config_VIPhoneticName.Text);
+            bool installDirValid = verifyInstallDir();
+            //btn_Extras_GenerateAudioFiles.IsEnabled = installDirValid;
+            txt_Extras_TargetAudioFilepath.Text = (installDirValid) ?
+                "Target path: " + GameMeta.CurrentGameDirectoryPath + "\\alerts" : "The current installation directory is invalid!";
+            txt_Extras_TargetAudioFilepath.Foreground = (installDirValid) ?
+                (SolidColorBrush)FindResource("NormalForeColor") : (SolidColorBrush)FindResource("ErrorForeColor");
         }
 
 
-        /// <summary> Fires when VI voice has been changed.
+        /// <summary> Fires when the "Generate Audio Files"-button within "Extras" is being clicked.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void btn_Extras_GenerateAudioFiles_Click(object sender, RoutedEventArgs e)
+        {
+            #region Description from the ModdingKit
+            /* For the female vocal alert, use a directory named \alerts and the following filenames:
+
+                bb-tractordis.wav = Docking tractor beam disengaged
+                bb-lowfuel.wav = Caution: Fuel level low
+                bb-lowalt.wav = Warning: low altitude
+                bb-contracta.wav = Contract objectives accomplished
+                bb-contractf.wav = Contract objectives failed
+                bb-inbound.wav = Alert: Missile inbound
+                bb-gravity = Caution: Entering high level gravity field     <-- Be wary of missing file extension
+                bb-avioplanet.wav = Avionincs switched to planetary mode    <-- Be wary of typo
+                bb-aviospace.wav = Avionics switched to space mode
+                bb-nebula.wav = Caution: Entering dense nebula cloud zone
+                bb-radiation.wav = Caution: Entering high level radiation zone
+                bb-tractor.wav = Docking tractor beam engaged (4 second delay recommended)
+             */
+            #endregion
+
+            Dictionary<string, string> fileData = new Dictionary<string, string>();
+            fileData.Add("bb-tractordis.wav", "Docking tractor beam disengaged");
+            fileData.Add("bb-lowfuel.wav", "Caution: Fuel level low");
+            fileData.Add("bb-lowalt.wav", "Warning: low altitude");
+            fileData.Add("bb-contracta.wav", "Contract objectives accomplished");
+            fileData.Add("bb-contractf.wav", "Contract objectives failed");
+            fileData.Add("bb-inbound.wav", "Alert: Missile inbound");
+            fileData.Add("bb-gravity.wav", "Caution: Entering high level gravity field");
+            fileData.Add("bb-avioplanet.wav", "Avionics switched to planetary mode");
+            fileData.Add("bb-aviospace.wav", "Avionics switched to space mode");
+            fileData.Add("bb-nebula.wav", "Caution: Entering dense nebula cloud zone");
+            fileData.Add("bb-radiation.wav", "Caution: Entering high level radiation zone");
+            fileData.Add("bb-tractor.wav", "Docking tractor beam engaged");
+
+            string targetPath = GameMeta.CurrentGameDirectoryPath + "\\alerts\\";
+            txt_Extras_TargetAudioFilepath.Text = targetPath;
+
+            foreach (KeyValuePair<string, string> keyVal in fileData)
+            {
+                // Generate the audio files
+                SpeechEngine.Say(
+                    new EvoVI.Dialog.DialogVI(keyVal.Value),
+                    false,
+                    SpeechEngine.VoiceModulation,
+                    targetPath + keyVal.Key
+                );
+            }
+        }
+
+
+        /// <summary> Fires when the Theme within "Extras" has been changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The selection changed event arguments.</param>
-        private void comBox_Config_VIVoice_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            SpeechEngine.VoiceModulationModes voice = (SpeechEngine.VoiceModulationModes)((ValueLabelPair)(((ComboBox)sender).SelectedItem)).Value;
-            SpeechEngine.VoiceModulation = voice;
+            ComboBox themeBox = (ComboBox)sender;
 
-            ConfigurationManager.ConfigurationFile.SetValue("VI", "Voice", voice.ToString());
+            switch (themeBox.SelectedIndex)
+            {
+                case 0: this.Resources["BackgroundBrush"] = _brightThemeBrush; break;
+                case 1: this.Resources["BackgroundBrush"] = _darkThemeBrush; break;
+
+                default: themeBox.SelectedIndex = 0; break;
+            }
+
+            ConfigurationManager.ConfigurationFile.SaveValue("Configurator", "Theme", ((ComboBoxItem)themeBox.SelectedValue).Content.ToString());
         }
 
 
-        /// <summary> Fires when the language for the speech recognition engine has been changed.
-        /// </summary>
-        /// <param name="sender">The sender object.</param>
-        /// <param name="e">The selection changed event arguments.</param>
-        private void comBox_Config_SpeechRecLang_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            SpeechEngine.Language = ((ComboBoxItem)comBox_Config_SpeechRecLang.SelectedItem).Content.ToString();
-
-            ConfigurationManager.ConfigurationFile.SetValue("VI", "Speech_Recognition_Lang", SpeechEngine.Language);
-        }
-
-
-        /// <summary> Fires when the player's name has been changed.
-        /// </summary>
-        /// <param name="sender">The sender object.</param>
-        /// <param name="e">The text changed event arguments.</param>
-        private void txt_Config_PlayerName_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            ConfigurationManager.ConfigurationFile.SetValue("Player", "Name", txt_Config_PlayerName.Text);
-        }
-
-
-        /// <summary> Fires when the player's phonetic name has been changed.
-        /// </summary>
-        /// <param name="sender">The sender object.</param>
-        /// <param name="e">The text changed event arguments.</param>
-        private void txt_Config_PlayerPhoneticName_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            ConfigurationManager.ConfigurationFile.SetValue("Player", "Phonetic_Name", txt_Config_PlayerPhoneticName.Text);
-        }
-
-
-        /// <summary> Fires when the "Test Pronouncation"-button has been clicked.
+        /// <summary> Fires, when the "Generate HTML File" button has been clicked.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The routed event arguments.</param>
-        private void btn_Config_PlayerNameTest_Click(object sender, RoutedEventArgs e)
+        private void btn_Extras_GenerateHtmlFile_Click(object sender, RoutedEventArgs e)
         {
-            testName(txt_Config_PlayerPhoneticName.Text);
+            string appPath = Path.GetDirectoryName(
+                System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase
+            ).Replace("file:\\", "");
+            EvoVI.Dialog.DialogTreeBuilder.GenerateHtmlOverview(
+                appPath + "\\Dialog Tree.html",
+                (chck_Extras_PrintPlayerCommandsOnly.IsChecked == true)
+            );
+
+            if (chck_Extras_AutoOpenHtml.IsChecked == true) { System.Diagnostics.Process.Start(appPath + "\\Dialog Tree.html"); }
         }
+        #endregion
 
-
-        /// <summary> Fires when the player's phonetic name has been changed.
-        /// </summary>
-        /// <param name="sender">The sender object.</param>
-        /// <param name="e">The text changed event arguments.</param>
-        private void chckBox_Config_LoadingAnimation_Checked(object sender, RoutedEventArgs e)
-        {
-            ConfigurationManager.ConfigurationFile.SetValue("Overlay", "Play_Intro", (chckBox_Config_LoadingAnimation.IsChecked == true) ? "true" : "false");
-        }
-
-
-        /// <summary> Tests the pronounciation of the entered name in text-to-speech.
-        /// </summary>
-        /// <param name="testText">The name to test.</param>
-        private void testName(string testText)
-        {
-            btn_Config_VINameTest.IsEnabled = false;
-            btn_Config_PlayerNameTest.IsEnabled = false;
-
-            SpeechEngine.Say(testText);
-
-            btn_Config_VINameTest.IsEnabled = true;
-            btn_Config_PlayerNameTest.IsEnabled = true;
-        }
-
-
-        /// <summary> Fires when the "Save Settings"-button has been clicked.
-        /// </summary>
-        /// <param name="sender">The sender object.</param>
-        /// <param name="e">The routed event arguments.</param>
-        private void btn_SaveConfig_Click(object sender, RoutedEventArgs e)
-        {
-            ConfigurationManager.ConfigurationFile.Write(ConfigurationManager.ConfigurationFilepath);
-        }
         #endregion
 
 
@@ -954,112 +1090,6 @@ namespace EvoVIConfigurator
         #endregion
 
 
-        #region Extras
-        /// <summary> Fires when the "Extras"-tab is being focused.
-        /// </summary>
-        /// <param name="sender">The sender object.</param>
-        /// <param name="e">The routed event arguments.</param>
-        private void tab_Extras_GotFocus(object sender, RoutedEventArgs e)
-        {
-            bool installDirValid = verifyInstallDir();
-            //btn_Extras_GenerateAudioFiles.IsEnabled = installDirValid;
-            txt_Extras_TargetAudioFilepath.Text = (installDirValid) ?
-                "Target path: " + GameMeta.CurrentGameDirectoryPath + "\\alerts" : "The current installation directory is invalid!";
-            txt_Extras_TargetAudioFilepath.Foreground = (installDirValid) ?
-                (SolidColorBrush)FindResource("NormalForeColor") : (SolidColorBrush)FindResource("ErrorForeColor");
-        }
-
-
-        /// <summary> Fires when the "Generate Audio Files"-button within "Extras" is being clicked.
-        /// </summary>
-        /// <param name="sender">The sender object.</param>
-        /// <param name="e">The routed event arguments.</param>
-        private void btn_Extras_GenerateAudioFiles_Click(object sender, RoutedEventArgs e)
-        {
-            #region Description from the ModdingKit
-            /* For the female vocal alert, use a directory named \alerts and the following filenames:
-
-                bb-tractordis.wav = Docking tractor beam disengaged
-                bb-lowfuel.wav = Caution: Fuel level low
-                bb-lowalt.wav = Warning: low altitude
-                bb-contracta.wav = Contract objectives accomplished
-                bb-contractf.wav = Contract objectives failed
-                bb-inbound.wav = Alert: Missile inbound
-                bb-gravity = Caution: Entering high level gravity field     <-- Be wary of missing file extension
-                bb-avioplanet.wav = Avionincs switched to planetary mode    <-- Be wary of typo
-                bb-aviospace.wav = Avionics switched to space mode
-                bb-nebula.wav = Caution: Entering dense nebula cloud zone
-                bb-radiation.wav = Caution: Entering high level radiation zone
-                bb-tractor.wav = Docking tractor beam engaged (4 second delay recommended)
-             */
-            #endregion
-
-            Dictionary<string, string> fileData = new Dictionary<string, string>();
-            fileData.Add("bb-tractordis.wav", "Docking tractor beam disengaged");
-            fileData.Add("bb-lowfuel.wav", "Caution: Fuel level low");
-            fileData.Add("bb-lowalt.wav", "Warning: low altitude");
-            fileData.Add("bb-contracta.wav", "Contract objectives accomplished");
-            fileData.Add("bb-contractf.wav", "Contract objectives failed");
-            fileData.Add("bb-inbound.wav", "Alert: Missile inbound");
-            fileData.Add("bb-gravity.wav", "Caution: Entering high level gravity field");
-            fileData.Add("bb-avioplanet.wav", "Avionics switched to planetary mode");
-            fileData.Add("bb-aviospace.wav", "Avionics switched to space mode");
-            fileData.Add("bb-nebula.wav", "Caution: Entering dense nebula cloud zone");
-            fileData.Add("bb-radiation.wav", "Caution: Entering high level radiation zone");
-            fileData.Add("bb-tractor.wav", "Docking tractor beam engaged");
-
-            foreach (KeyValuePair<string, string> keyVal in fileData)
-            {
-                // Generate the audio files
-                SpeechEngine.Say(
-                    new EvoVI.Dialog.DialogVI(keyVal.Value), 
-                    false, 
-                    SpeechEngine.VoiceModulation, 
-                    GameMeta.CurrentGameDirectoryPath + "\\alerts\\" + keyVal.Key
-                );
-            }
-        }
-
-
-        /// <summary> Fires when the Theme within "Extras" has been changed.
-        /// </summary>
-        /// <param name="sender">The sender object.</param>
-        /// <param name="e">The selection changed event arguments.</param>
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ComboBox themeBox = (ComboBox)sender;
-
-            switch (themeBox.SelectedIndex)
-            {
-                case 0: this.Resources["BackgroundBrush"] = _brightThemeBrush; break;
-                case 1: this.Resources["BackgroundBrush"] = _darkThemeBrush; break;
-
-                default: themeBox.SelectedIndex = 0; break;
-            }
-
-            ConfigurationManager.ConfigurationFile.SaveValue("Configurator", "Theme", ((ComboBoxItem)themeBox.SelectedValue).Content.ToString());
-        }
-
-
-        /// <summary> Fires, when the "Generate HTML File" button has been clicked.
-        /// </summary>
-        /// <param name="sender">The sender object.</param>
-        /// <param name="e">The routed event arguments.</param>
-        private void btn_Extras_GenerateHtmlFile_Click(object sender, RoutedEventArgs e)
-        {
-            string appPath = Path.GetDirectoryName(
-                System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase
-            ).Replace("file:\\", "");
-            EvoVI.Dialog.DialogTreeBuilder.GenerateHtmlOverview(
-                appPath + "\\Dialog Tree.html",
-                (chck_Extras_PrintPlayerCommandsOnly.IsChecked == true)
-            );
-
-            if (chck_Extras_AutoOpenHtml.IsChecked == true) { System.Diagnostics.Process.Start(appPath + "\\Dialog Tree.html"); }
-        }
-        #endregion
-
-
         #region About Events
         /// <summary> Fires when a Hyperlink has been clicked.
         /// </summary>
@@ -1071,6 +1101,7 @@ namespace EvoVIConfigurator
             e.Handled = true;
         }
         #endregion
+        
         #endregion
     }
 }

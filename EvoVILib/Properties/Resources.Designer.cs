@@ -64,35 +64,42 @@ namespace EvoVI.Properties {
         ///   Sucht eine lokalisierte Zeichenfolge, die &lt;html&gt;
         ///&lt;head&gt;
         ///	&lt;style&gt;
-        ///		table.dialognode,
-        ///		td.dialognode &gt; div,
-        ///		td.dialognode.choice.mandatory &gt; div,
-        ///		td.dialognode.choice.optional &gt; div
+        ///		div.player,
+        ///		div.vi,
+        ///		div.command
         ///		{
-        ///			border: 1px solid #555;
-        ///			border-radius: 5px;
+        ///			color: #333;
+        ///			margin: 10px;
         ///			padding: 10px;
-        ///			text-align: center;
+        ///			border: 2px solid;
+        ///			/* border-radius: 5px; */
+        ///			border: 2px solid #888;
+        ///			font-family: consolas;
         ///		}
         ///
-        ///		td.dialognode.static
+        ///		div.player,
+        ///		div.player div
         ///		{
-        ///			margin: 10px 0px;
+        ///			border-color: #ffe599 !important;
         ///		}
         ///
-        ///		table.dialognode
+        ///		div.player
         ///		{
-        ///			margin: 10px 0px;
+        ///			background-color: #fff2cc;
         ///		}
         ///
-        ///		td.dialognode.choice.mandatory &gt; div
+        ///		div.vi,
+        ///		div.vi div
         ///		{
-        ///			background-color: #55CCFF;
+        ///			border-color: #bdd6ee !important;
         ///		}
         ///
-        ///		td.dialognode.choice.optional &gt; div
+        ///		div.vi
         ///		{
-        ///			color: #AAA; [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        ///			background-color: #deeaf6;
+        ///		}
+        ///
+        ///		d [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
         internal static string DialogTreeHTML_Template {
             get {
@@ -117,7 +124,7 @@ namespace EvoVI.Properties {
         ///[ EMERC | ELGCY ]	[ NULL ]	[ KEYBOARD ]	PITCH_UP																	&apos;Pitch Up&apos;
         ///[ EMERC | ELGCY ]	[ NULL ]	[ KEYBOARD ]	ROLL_RIGHT																	&apos;Roll  Right&apos;
         ///[ EMERC | ELGCY ]	[ NULL ]	[ KEYBOARD ]	ROLL_LEFT																	&apos;Roll Left&apos;
-        ///[ EMERC | ELGCY ]	[ NULL ]	[ KEYBOARD ]	STRAFE_RIGHT																&apos;Strafe [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        ///[ EMERC | ELGCY ]	[ NULL ]	[ KEYB [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
         internal static string Keymap8_Layout {
             get {
@@ -131,7 +138,7 @@ namespace EvoVI.Properties {
         ///[ EMERC | ELGCY ]		[ PlayerData ]			&lt;string&gt;	Cash 								(string, includes commas)
         ///[ EMERC | ELGCY ]		[ PlayerShipData ]		&lt;string&gt;	Cargo Bay 1 						(string, cargo type and number, or will display &apos;Empty&apos; if nothing)
         ///[ EMERC | ELGCY ]		[ PlayerShipData ]		&lt;string&gt;	Cargo Bay 2
-        ///[ EMERC | ELGCY ]		[ PlayerShipData  [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        /// [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
         internal static string Savedata_Layout {
             get {
