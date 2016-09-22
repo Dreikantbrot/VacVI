@@ -309,6 +309,8 @@ namespace EvoVI.Input
                 string currLine = keymapTemplate[i];
                 Match match = KEYMAP_LAYOUT_REGEX.Match(currLine);
 
+                if (!match.Success) { continue; }
+
                 GameMeta.SupportedGame availabilityFlags = GameMeta.SupportedGame.NONE;
                 if (match.Groups["Availability"].Value.Contains("EMERC")) { availabilityFlags |= GameMeta.SupportedGame.EVOCHRON_MERCENARY; }
                 if (match.Groups["Availability"].Value.Contains("ELGCY")) { availabilityFlags |= GameMeta.SupportedGame.EVOCHRON_LEGACY; }
