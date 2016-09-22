@@ -256,7 +256,7 @@ namespace EvoVI.Database
             )
             {
                 _gameProcessCheckThread.Abort();
-                while (_gameProcessCheckThread.IsAlive) { Thread.Sleep(100); }
+                _gameProcessCheckThread.Join();
             }
         }
 
@@ -274,7 +274,8 @@ namespace EvoVI.Database
             }
             while (_gameProcess == null && Thread.CurrentThread.ThreadState != ThreadState.AbortRequested);
 
-            OnGameProcessStartedFnc(EventArgs.Empty);
+            // Only fire the event if the game process was found ("started")
+            if (_gameProcess != null) { OnGameProcessStartedFnc(EventArgs.Empty); }
         }
 
 

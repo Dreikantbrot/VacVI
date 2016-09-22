@@ -219,15 +219,33 @@ namespace EvoVI.Database
         #region Variables
         private static Dictionary<string, DataEntry> _saveData = new Dictionary<string, DataEntry>();
         private static Dictionary<int, DataEntry> _indexTable = new Dictionary<int, DataEntry>();
+        private static DateTime _lastUpdateTime = DateTime.Now;
+        private static int _updateInterval = -1;
         #endregion
 
 
         #region Properties
-        /// <summary> Returns the id lookup table
+        /// <summary> Returns the id lookup table.
         /// </summary>
         internal static Dictionary<string, DataEntry> SaveData
         {
             get { return SaveDataReader._saveData; }
+        }
+
+
+        /// <summary> Returns the update interval, as it is set within the "savedatasettings.txt".
+        /// </summary>
+        public static int UpdateInterval
+        {
+            get { return SaveDataReader._updateInterval; }
+        }
+
+
+        /// <summary> Returns the last/previous time the gamedata has been updated.
+        /// </summary>
+        public static DateTime LastUpdateTime
+        {
+            get { return SaveDataReader._lastUpdateTime; }
         }
         #endregion
 
@@ -251,6 +269,8 @@ namespace EvoVI.Database
             {
                 string currLine = savedataTemplate[i];
                 Match match = SAVEDATA_TEMPLATE_REGEX.Match(currLine);
+
+                if (!match.Success) { continue; }
                 
                 GameMeta.SupportedGame availabilityFlags = GameMeta.SupportedGame.NONE;
                 if (match.Groups["Availability"].Value.Contains("EMERC")) { availabilityFlags |= GameMeta.SupportedGame.EVOCHRON_MERCENARY; }
@@ -291,6 +311,18 @@ namespace EvoVI.Database
         /// <returns>Whether information has been retrieved successfully.</returns>
         internal static bool ReadGameData()
         {
+            // Determine the update interval, if not already done
+            if (
+                (_updateInterval < 0) &&
+                (File.Exists(GameMeta.CurrentGameDirectoryPath + "\\" + GameMeta.SAVEDATA_SETTINGS_FILENAME))
+            )
+            {
+                Int32.TryParse(
+                    File.ReadAllText(GameMeta.CurrentGameDirectoryPath + "\\" + GameMeta.SAVEDATA_SETTINGS_FILENAME),
+                    out _updateInterval
+                );
+            }
+
             string[] fileContent;
             string filepath = GameMeta.DefaultSavedataPath;
 
@@ -303,6 +335,13 @@ namespace EvoVI.Database
 
             try { fileContent = File.ReadAllLines(filepath); }
             catch (System.IO.IOException) { return false; }
+
+            // File exists, but is empty
+            if (
+                (fileContent.Length == 1) &&
+                (Regex.IsMatch(fileContent[0], @"\0"))
+            )
+            { return false; }
 
             // Get all in-game values and store them inside the database
             for (int i = 0; i < Math.Min(fileContent.Length, _saveData.Count); i++)
@@ -341,6 +380,9 @@ namespace EvoVI.Database
 
             // Call IPlugin.OnGameDataUpdate on all plugins
             PluginManager.CallGameDataUpdateOnPlugins();
+
+            // Update the last update time
+            _lastUpdateTime = DateTime.Now;
             return true;
         }
 

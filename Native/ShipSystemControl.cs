@@ -99,7 +99,138 @@ namespace Native
         #region Interface Functions
         public void Initialize()
         {
-            DialogTreeBranch[] dialogOptions = new DialogTreeBranch[] {
+            SpeechEngine.OnVISpeechRecognized += SpeechEngine_OnVISpeechRecognized;
+        }
+
+        public void OnDialogAction(DialogBase originNode)
+        {
+            switch (originNode.Data.ToString())
+            {
+                #region Auto-Fire
+                case "auto_fire":
+                    _autoFire = true;
+                    OnGameDataUpdate();
+                    break;
+                case "auto_fire_cancel":
+                    _autoFire = false;
+                    break;
+                case "auto_fire_missile":
+                    _autoFireMissile = true;
+                    OnGameDataUpdate();
+                    break;
+                case "auto_fire_missile_cancel":
+                    _autoFireMissile = false;
+                    break;
+                #endregion
+
+                #region Auto-Pilot
+                case "form_on_target":
+                    _targetAutopilotState = (int)PlayerShipData.AutopilotState.FORM_ON_TARGET;
+                    break;
+                case "fly_to_nav":
+                    _targetAutopilotState = (int)PlayerShipData.AutopilotState.FLY_TO_NAV_POINT;
+                    break;
+                case "autopilot_off":
+                    _targetAutopilotState = (int)PlayerShipData.AutopilotState.OFF;
+                    break;
+                #endregion
+
+                #region Jumping
+                case "jump":
+                    if (_jumpState < JumpState.MANUAL) { _jumpState = JumpState.MANUAL; }
+                    emergencyJump();
+                    break;
+                case "auto_jump":
+                    if (_jumpState < JumpState.AUTO) { _jumpState = JumpState.AUTO; }
+                    emergencyJump();
+                    break;
+                case "emergency_jump":
+                    if (_jumpState < JumpState.EMERGENCY) { _jumpState = JumpState.EMERGENCY; }
+                    emergencyJump();
+                    break;
+                case "auto_jump_cancel":
+                    _jumpState = JumpState.NONE;
+                    break;
+                #endregion
+
+                #region Thruster
+                case "full_stop":
+                    Interactor.ExecuteAction(GameAction.ZERO_THROTTLE);
+                    break;
+                case "set_ids_multiplier":
+                    Int32.TryParse(_currRecognizedPhrase.Substring(_currRecognizedPhrase.Length - 1), out _targetIdsMultiplier);
+                    updateIDSMultiplier();
+                    break;
+                #endregion
+
+                #region Consoles
+                case "toggle_nav_console":
+                    Interactor.ExecuteAction(GameAction.NAVIGATION_CONSOLE);
+                    break;
+                case "toggle_build_console":
+                    Interactor.ExecuteAction(GameAction.BUILD_AND_DEPLOY_CONSOLE);
+                    break;
+                case "toggle_inventory_console":
+                    Interactor.ExecuteAction(GameAction.INVENTORY_CONSOLE);
+                    break;
+                case "toggle_trade_console":
+                    Interactor.ExecuteAction(GameAction.TRADE_CONSOLE);
+                    break;
+                #endregion
+
+                #region HUD
+                case "toggle_HUD":
+                    _targetHudMode = (
+                        _currRecognizedPhrase.Contains("full") ? (int)HudData.HudStatus.FULL :
+                        _currRecognizedPhrase.Contains("partial") ? (int)HudData.HudStatus.PARTIAL :
+                        -1
+                    );
+                    updateHUDMode();
+                    break;
+                case "disable_HUD":
+                    _targetHudMode = (int)HudData.HudStatus.OFF;
+                    updateHUDMode();
+                    break;
+                #endregion
+
+                #region Target and Ship Information
+                case "status_report":
+                    SpeechEngine.Say(getShipStatus(), false);
+                    break;
+                case "target_status":
+                    SpeechEngine.Say(getTargetInformation(), false);
+                    break;
+                #endregion
+            }
+        }
+
+        public void OnGameDataUpdate()
+        {
+            if (
+                (_jumpState == JumpState.AUTO) ||
+                (_jumpState == JumpState.EMERGENCY)
+            )
+            {
+                emergencyJump();
+            }
+
+            if (_autoFireMissile) { fireMissile(); }
+
+            if (_autoFire) { fire(); }
+
+            updateAutpilot();
+            updateIDSMultiplier();
+            updateHUDMode();
+        }
+
+        public List<PluginParameterDefault> GetDefaultPluginParameters()
+        {
+            return new List<PluginParameterDefault>();
+        }
+
+        public void BuildDialogTree()
+        {
+            DialogTreeBranch[] dialog = new DialogTreeBranch[] {
 
                 #region Auto-Fire
                 new DialogTreeBranch(
@@ -623,7 +754,11 @@ namespace Native
                         new DialogVI(
                             "Aye aye.", 
                             DialogBase.DialogPriority.NORMAL, 
-                            () => { return !String.IsNullOrWhiteSpace(TargetShipData.Description); }, this.Name, "target_status"
+                            () => { return !String.IsNullOrWhiteSpace(TargetShipData.Description); }, 
+                            this.Name, 
+                            "target_status",
+                            DialogBase.DialogFlags.NONE,
+                            true
                         )
                     ),
                     new DialogTreeBranch(
@@ -635,138 +770,10 @@ namespace Native
                     )
                 ),
                 #endregion
-
+            
             };
 
-            DialogTreeBuilder.BuildDialogTree(null, dialogOptions);
-
-            SpeechEngine.OnVISpeechRecognized += SpeechEngine_OnVISpeechRecognized;
-        }
-
-        public void OnDialogAction(DialogBase originNode)
-        {
-            switch (originNode.Data.ToString())
-            {
-                #region Auto-Fire
-                case "auto_fire":
-                    _autoFire = true;
-                    OnGameDataUpdate();
-                    break;
-                case "auto_fire_cancel":
-                    _autoFire = false;
-                    break;
-                case "auto_fire_missile":
-                    _autoFireMissile = true;
-                    OnGameDataUpdate();
-                    break;
-                case "auto_fire_missile_cancel":
-                    _autoFireMissile = false;
-                    break;
-                #endregion
-
-                #region Auto-Pilot
-                case "form_on_target":
-                    _targetAutopilotState = (int)PlayerShipData.AutopilotState.FORM_ON_TARGET;
-                    break;
-                case "fly_to_nav":
-                    _targetAutopilotState = (int)PlayerShipData.AutopilotState.FLY_TO_NAV_POINT;
-                    break;
-                case "autopilot_off":
-                    _targetAutopilotState = (int)PlayerShipData.AutopilotState.OFF;
-                    break;
-                #endregion
-
-                #region Jumping
-                case "jump":
-                    if (_jumpState < JumpState.MANUAL) { _jumpState = JumpState.MANUAL; }
-                    emergencyJump();
-                    break;
-                case "auto_jump":
-                    if (_jumpState < JumpState.AUTO) { _jumpState = JumpState.AUTO; }
-                    emergencyJump();
-                    break;
-                case "emergency_jump":
-                    if (_jumpState < JumpState.EMERGENCY) { _jumpState = JumpState.EMERGENCY; }
-                    emergencyJump();
-                    break;
-                case "auto_jump_cancel":
-                    _jumpState = JumpState.NONE;
-                    break;
-                #endregion
-
-                #region Thruster
-                case "full_stop":
-                    Interactor.ExecuteAction(GameAction.ZERO_THROTTLE);
-                    break;
-                case "set_ids_multiplier":
-                    Int32.TryParse(_currRecognizedPhrase.Substring(_currRecognizedPhrase.Length - 1), out _targetIdsMultiplier);
-                    updateIDSMultiplier();
-                    break;
-                #endregion
-
-                #region Consoles
-                case "toggle_nav_console":
-                    Interactor.ExecuteAction(GameAction.NAVIGATION_CONSOLE);
-                    break;
-                case "toggle_build_console":
-                    Interactor.ExecuteAction(GameAction.BUILD_AND_DEPLOY_CONSOLE);
-                    break;
-                case "toggle_inventory_console":
-                    Interactor.ExecuteAction(GameAction.INVENTORY_CONSOLE);
-                    break;
-                case "toggle_trade_console":
-                    Interactor.ExecuteAction(GameAction.TRADE_CONSOLE);
-                    break;
-                #endregion
-
-                #region HUD
-                case "toggle_HUD":
-                    _targetHudMode = (
-                        _currRecognizedPhrase.Contains("full") ? (int)HudData.HudStatus.FULL :
-                        _currRecognizedPhrase.Contains("partial") ? (int)HudData.HudStatus.PARTIAL :
-                        -1
-                    );
-                    updateHUDMode();
-                    break;
-                case "disable_HUD":
-                    _targetHudMode = (int)HudData.HudStatus.OFF;
-                    updateHUDMode();
-                    break;
-                #endregion
-
-                #region Target and Ship Information
-                case "status_report":
-                    SpeechEngine.Say(getShipStatus(), false);
-                    break;
-                case "target_status":
-                    SpeechEngine.Say(getTargetInformation(), false);
-                    break;
-                #endregion
-            }
-        }
-
-        public void OnGameDataUpdate()
-        {
-            if (
-                (_jumpState == JumpState.AUTO) ||
-                (_jumpState == JumpState.EMERGENCY)
-            )
-            {
-                emergencyJump();
-            }
-
-            if (_autoFireMissile) { fireMissile(); }
-
-            if (_autoFire) { fire(); }
-
-            updateAutpilot();
-            updateIDSMultiplier();
-            updateHUDMode();
-        }
-
-        public List<PluginParameterDefault> GetDefaultPluginParameters()
-        {
-            return new List<PluginParameterDefault>();
+            DialogTreeBuilder.BuildDialogTree(null, dialog);
         }
 
         public void OnProgramShutdown()
@@ -903,10 +910,10 @@ namespace Native
         private string getShipStatus()
         {
             return (
-                "Engines @" + PlayerShipData.EngineDamage + "%. " +
-                "Navigations @" + PlayerShipData.NavDamage + "%. " +
-                "Weapons @" + PlayerShipData.WeaponDamage + "%. " +
-                "Shields @" + PlayerShipData.ShieldLevel[ShieldLevelState.TOTAL] + "%. " +
+                "Engines at " + PlayerShipData.EngineDamage + "%.\n" +
+                "Navigations at " + PlayerShipData.NavDamage + "%.\n" +
+                "Weapons at " + PlayerShipData.WeaponDamage + "%.\n" +
+                "Shields at " + PlayerShipData.ShieldLevel[ShieldLevelState.TOTAL] + "%.\n" +
                 Math.Round((double)PlayerShipData.FuelPercentage * 100) + "% fuel remaining."
             );
         }
@@ -918,15 +925,15 @@ namespace Native
         private string getTargetInformation()
         {
             return (
-                "Target: " + TargetShipData.Description + ", " +
-                "Target Shields @" + TargetShipData.ShieldLevel[ShieldLevelState.TOTAL] + "%, " +
-                "Faction: " + TargetShipData.Faction + ", " +
-                "Hull Integrity " + TargetShipData.DamageLevel + "%, " +
+                "Target: " + TargetShipData.Description + ".\n" +
+                "Faction: " + TargetShipData.Faction + ".\n" +
+                "Target Shields at " + TargetShipData.ShieldLevel[ShieldLevelState.TOTAL] + "%.\n" +
+                "Hull Integrity at " + TargetShipData.DamageLevel + "%.\n" +
                 "Threat Level: " + (
                     (TargetShipData.ThreatLevel == ThreatLevelState.LOW) ? "Low" :
                     (TargetShipData.ThreatLevel == ThreatLevelState.MED) ? "Medium" :
                     "High"
-                )
+                ) + "."
             );
         }
         #endregion

@@ -7,6 +7,7 @@ namespace EvoVI.Plugins
     {
         #region Variables
         private string _key;
+        private string _description;
         private string _defaultValue;
         private string[] _allowedValues;
         #endregion
@@ -29,6 +30,14 @@ namespace EvoVI.Plugins
         }
 
 
+        /// <summary> Returns the parameter description.
+        /// </summary>
+        public string Description
+        {
+            get { return _description; }
+        }
+
+
         /// <summary> Returns allowed values for the parameter.
         /// </summary>
         public string[] AllowedValues
@@ -48,9 +57,10 @@ namespace EvoVI.Plugins
         /// <param name="pAllowedValues">A list of valid values for the parameter.
         /// <para>Set to null, to allow any value.</para>
         /// </param>
-        public PluginParameterDefault(string pParamName, string pDefaultValue = null, string[] pAllowedValues = null)
+        public PluginParameterDefault(string pParamName, string pDescription, string pDefaultValue = null, string[] pAllowedValues = null)
         {
             this._key = pParamName;
+            this._description = pDescription;
             this._defaultValue = pDefaultValue;
             this._allowedValues = pAllowedValues;
         }

@@ -98,7 +98,7 @@ namespace EvoVI.Dialog
         private static WaveFileReader _soundSource;
         private static MemoryStream _audioStream = new MemoryStream();
 
-        private static uint _maxSpeechNodeAge = 2000;
+        private static uint _maxSpeechNodeAge = 10000;
         private static float _confidenceThreshold = 0.60f;
         private static VoiceModulationModes _voiceModulation = VoiceModulationModes.ROBOTIC;
         #endregion
@@ -205,6 +205,13 @@ namespace EvoVI.Dialog
         /// </summary>
         internal static void Initialize()
         {
+            if (_recognizer != null)
+            {
+                _recognizer.RecognizeAsyncStop();
+                _recognizer.UnloadAllGrammars();
+                _recognizer = null; 
+            }
+
             _culture = new System.Globalization.CultureInfo(_language, false);
             
             if (CheckLanguageSupport(_culture))
@@ -285,7 +292,7 @@ namespace EvoVI.Dialog
         /// <param name="async">If true, speech will be run asynchronously.</param>
         public static void Say(string text = "", bool async = true, VoiceModulationModes modulation = VoiceModulationModes.DEFAULT)
         {
-            Say(new DialogVI(text), async, modulation);
+            Say(new DialogVI(text), async, modulation, null, false);
         }
 
 
@@ -297,24 +304,47 @@ namespace EvoVI.Dialog
         /// <param name="outputFilepath">If set, the audio will be saved as a file to the given location. The audio itself will not be played.</param>
         public static void Say(DialogVI dialogNode, bool async = true, VoiceModulationModes modulation = VoiceModulationModes.DEFAULT, string outputFilepath = null)
         {
+            Say(dialogNode, async, modulation, outputFilepath, false);
+        }
+
+
+        /// <summary> Lets the VI say the specified dialog line.
+        /// <remarks>This function offers a <c>forceSpeech</c>-parameter that is publicly not available.</remarks>
+        /// </summary>
+        /// <param name="dialogNode">The dialog node instance to speak.</param>
+        /// <param name="modulation">The voice modulation mode.</param>
+        /// <param name="async">If true, speech will be run asynchronously, else the function will halt the script until the speech has finished.</param>
+        /// <param name="outputFilepath">If set, the audio will be saved as a file to the given location. The audio itself will not be played.</param>
+        internal static void Say(DialogVI dialogNode, bool async, VoiceModulationModes modulation, string outputFilepath, bool forceSpeech)
+        {
+            // Absolute KO criteria - don't even try!
             if (
                 (dialogNode.Speaker != DialogBase.DialogSpeaker.VI) ||
-                (String.IsNullOrWhiteSpace(dialogNode.Text)) ||
-                (
-                    (VI.State <= VI.VIState.SLEEPING) &&
-                    (dialogNode.Priority < DialogBase.DialogPriority.CRITICAL)
-                )
+                (String.IsNullOrWhiteSpace(dialogNode.Text))
             )
             { return; }
 
+            // Queue the dialog, if not already queued
             if (!_queue.Contains(dialogNode))
             {
                 _queue.Add(dialogNode);
                 dialogNode.SpeechRegisteredInQueue = DateTime.Now; 
             }
 
-            if (_queue[0] != dialogNode) { return; }
+            // Check whether it's time to speak the dialog
+            if (
+                (_queue[0] != dialogNode) ||
+            
+                (
+                    (!forceSpeech) &&
+                    (VI.State <= VI.VIState.TALKING) &&
+                    (_synthesizer.State == SynthesizerState.Ready) &&
+                    (dialogNode.Priority < DialogBase.DialogPriority.CRITICAL)
+                )
+            )
+            { return; }
 
+            VI.State = VI.VIState.TALKING;
             string textToSpeak = dialogNode.Text;
 
             if (OnVISpeechStarted != null) { OnVISpeechStarted(new VISpeechStartedEventArgs(dialogNode, textToSpeak)); }
@@ -350,6 +380,9 @@ namespace EvoVI.Dialog
             {
                 _soundOutput.Stopped += soundOutput_Stopped;
                 _soundOutput.Play();
+
+                while ((!async) && (_soundOutput.PlaybackState == PlaybackState.Playing)) { }
+                //if (!async) { _soundOutput.WaitForStopped(); }    // <-- This function does NOT WORK! - Check at CSCore, whether it's fixed yet
             }
             else
             {
@@ -357,8 +390,6 @@ namespace EvoVI.Dialog
                 _soundOutput.WaveSource.WriteToFile(outputFilepath);
                 soundOutput_Stopped(null, null);
             }
-            
-            if (!async) { _soundOutput.WaitForStopped(); }
         }
 
 
@@ -368,6 +399,7 @@ namespace EvoVI.Dialog
         /// <param name="e">The playback stopped event arguments.</param>
         private static void soundOutput_Stopped(object sender, PlaybackStoppedEventArgs e)
         {
+            VI.State = VI.VIState.READY;
             if (_queue.Count <= 0) { 
                 return; }
 

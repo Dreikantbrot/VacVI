@@ -72,6 +72,12 @@ namespace EvoVI.Plugins
         List<PluginParameterDefault> GetDefaultPluginParameters();
 
 
+        /// <summary> Gets the dialog tree used by the plugin.
+        /// This function is being called by the PluginLoader before plugin initialization.
+        /// </summary>
+        void BuildDialogTree();
+
+
         /// <summary> Gets called each time, the main application has been.
         /// </summary>
         void OnProgramShutdown();

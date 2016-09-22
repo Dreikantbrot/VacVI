@@ -47,7 +47,7 @@ namespace EvoVI.Dialog
         /// <summary> A collection of flags determining the node's behaviour.
         /// </summary>
         [Flags]
-        public enum DialogFlags { NONE=0, ALWAYS_UPDATE=1, INGORE_READY_STATE=2, IGNORE_VI_STATE=4 };
+        public enum DialogFlags { NONE=0, ALWAYS_UPDATE=1, INGORE_READY_STATE=2, IGNORE_VI_STATE=4, ALLOW_INTERRUPTION=6 };
         #endregion
 
 
@@ -159,8 +159,12 @@ namespace EvoVI.Dialog
             get
             {
                 return (
+                    (!VI.Disabled) &&
+                    (DialogTreeBuilder.DialogsActive) &&
                     (
-                        (VI.State > VI.VIState.SLEEPING) ||
+                        ((_speaker == DialogSpeaker.PLAYER) && (VI.State > VI.VIState.TALKING)) ||
+                        ((_speaker != DialogSpeaker.PLAYER) && (VI.State >= VI.VIState.TALKING)) ||
+                        ((VI.State == VI.VIState.TALKING) && ((_flags & DialogFlags.ALLOW_INTERRUPTION) == DialogFlags.ALLOW_INTERRUPTION)) ||
                         ((_flags & DialogFlags.IGNORE_VI_STATE) == DialogFlags.IGNORE_VI_STATE)
                     ) &&
                     (

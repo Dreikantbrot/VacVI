@@ -1,7 +1,8 @@
 ﻿<Application x:Class="EvoVIConfigurator.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             StartupUri="ConfiguratorWindow.xaml">
+             StartupUri="ConfiguratorWindow.xaml"
+             Startup="OnAppStartup">
     <Application.Resources>
          
     </Application.Resources>

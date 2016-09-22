@@ -8,6 +8,12 @@ namespace EvoVI.Dialog
     /// <summary> The type of dialog node that is spoken by the player.</summary>
     public class DialogPlayer : DialogBase
     {
+        #region Regexes (readonly)
+        /// <summary> Regex used to identify characters that make speech recognition harder.</summary>
+        private static readonly Regex CHARACTER_CROP_REGEX = new Regex(@"[.,;!?]");
+        #endregion
+
+
         #region Private Structs
         /// <summary> Contains information about a grammar rule's original enabled state, so it can be reset after being enabled or disabled.
         /// </summary>
@@ -199,21 +205,29 @@ namespace EvoVI.Dialog
                         // Append "fixed" text
                         string leadingText = sentences[i].Substring(currIndex, matches[u].Index - currIndex);
 
-                        // Commas, dots and semi-colons make recognition harder - remove them
-                        leadingText = leadingText.Replace(".", "");
-                        leadingText = leadingText.Replace(",", "");
-                        leadingText = leadingText.Replace(";", "");
+                        // Remove characters that make recognition harder
+                        leadingText = CHARACTER_CROP_REGEX.Replace(leadingText, "");
+
+                        // Check if the leading text is a valid phrase
                         if (!INVALIDATION_REGEX.Match(leadingText).Success) { builder.Append(leadingText); }
 
                         // Append choices
                         if (currMatch.Groups["Choice"].Success)
                         {
-                            builder.Append(new Choices(matches[u].Groups["Choice"].Value.Split('|')));
+                            string match = matches[u].Groups["Choice"].Value;
+
+                            // Remove characters that make recognition harder
+                            match = CHARACTER_CROP_REGEX.Replace(match, "");
+                            builder.Append(new Choices(match.Split('|')));
 
                         }
                         else if (currMatch.Groups["OptChoice"].Success)
                         {
-                            Choices choices = new Choices(matches[u].Groups["OptChoice"].Value.Split('|'));
+                            string match = matches[u].Groups["OptChoice"].Value;
+
+                            // Remove characters that make recognition harder
+                            match = CHARACTER_CROP_REGEX.Replace(match, "");
+                            Choices choices = new Choices(match.Split('|'));
                             choices.Add(" ");
                             builder.Append(choices);
                         }
@@ -223,6 +237,10 @@ namespace EvoVI.Dialog
                 }
 
                 string trailingText = sentences[i].Substring(currIndex);
+
+                // Remove characters that make recognition harder
+                trailingText = CHARACTER_CROP_REGEX.Replace(trailingText, "");
+
                 if (!INVALIDATION_REGEX.Match(trailingText).Success) { builder.Append(trailingText); }
 
                 Grammar resultGrammar = new Grammar(builder);
@@ -283,6 +301,7 @@ namespace EvoVI.Dialog
         public override void UpdateState()
         {
             if (
+                (DialogTreeBuilder.DialogsActive) &&
                 (
                     (IsReady) ||
                     ((_flags & DialogFlags.INGORE_READY_STATE) == DialogFlags.INGORE_READY_STATE)

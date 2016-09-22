@@ -7,7 +7,7 @@
     </Window.Background>
     <Grid Margin="0,0,2,0">
         <Button x:Name="btn_OpenFolder" Content="Open Folder" HorizontalAlignment="Left" Margin="10,0,0,10" Width="90" Height="25" VerticalAlignment="Bottom" Click="btn_OpenFolder_Click" Background="#BFFFFFFF" BorderBrush="#FF6086A0"/>
-        <Button x:Name="btn_Cancel" Content="Cancel" Margin="0,0,10,10" VerticalAlignment="Bottom" RenderTransformOrigin="-0.333,0.4" HorizontalAlignment="Right" Width="90" Height="25" Click="btn_Cancel_Click" Background="#BFFFFFFF" BorderBrush="#FF6086A0"/>
+        <Button x:Name="btn_Cancel" Content="Cancel" Margin="0,0,10,10" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="90" Height="25" Click="btn_Cancel_Click" Background="#BFFFFFFF" BorderBrush="#FF6086A0"/>
         <TextBox x:Name="txt_PathTextBox" Margin="10,0,10,45" TextWrapping="Wrap" Height="23" VerticalAlignment="Bottom" VerticalContentAlignment="Center" TextChanged="txt_PathTextBox_TextChanged" Background="#33FFFFFF" CaretBrush="{Binding SelectionBrush, ElementName=txt_PathTextBox}" Foreground="White"/>
         <TreeView x:Name="tree_FolderTreeView" Margin="10,10,10,73" Background="#7FFFFFFF" BorderBrush="#FFABADB3" Foreground="White"/>
 

@@ -40,10 +40,20 @@ namespace EvoVI.Dialog
         private static DialogBase _dialogRoot = new DialogBase(" ", DialogBase.DialogPriority.VERY_LOW, null, null, null, (DialogBase.DialogFlags.IGNORE_VI_STATE | DialogBase.DialogFlags.INGORE_READY_STATE));
         private static Dictionary<string, DialogPlayer> _grammarLookupTable = new Dictionary<string, DialogPlayer>();
         private static List<DialogBase> _dialogNodes = new List<DialogBase>();
+        private static bool _dialogsActive = false;
         #endregion
 
 
         #region Properties
+        /// <summary> Returns or sets the active state of the entire dialog tree.
+        /// </summary>
+        internal static bool DialogsActive
+        {
+            get { return DialogTreeBuilder._dialogsActive; }
+            set { DialogTreeBuilder._dialogsActive = value; }
+        }
+
+
         /// <summary> Returns the dialog tree's root.
         /// </summary>
         public static DialogBase DialogRoot
@@ -54,19 +64,51 @@ namespace EvoVI.Dialog
 
 
         #region Functions
+        /// <summary> Clears the entire dialog tree.
+        /// </summary>
+        public static void ClearDialogTree()
+        {
+            foreach (KeyValuePair<string, DialogPlayer> hashNode in _grammarLookupTable) { SpeechEngine.DeregisterPlayerDialogNode(hashNode.Value); }
+
+            _dialogNodes.Clear();
+            _grammarLookupTable.Clear();
+
+            _dialogRoot.ChildNodes.Clear();
+        }
+
+
         /// <summary> Builds the specified dialog tree and registers all nodes.
         /// </summary>
         /// <param name="dialogTree">The dialog tree structure.</param>
         /// <param name="parentNode">The parent node of the given tree structure.</param>
         public static void BuildDialogTree(DialogBase parentNode = null, params DialogTreeBranch[] dialogTree)
         {
+            if (parentNode == null) { parentNode = _dialogRoot; }
+
             for (int i = 0; i < dialogTree.Length; i++)
             {
                 DialogTreeBranch currStruct = dialogTree[i];
 
                 if (currStruct._node == null) { continue; }
 
-                currStruct._node.RegisterTo((parentNode != null) ? parentNode : _dialogRoot);
+                // Ignore duplicates
+                bool isDuplicate = false;
+                for (int u = 0; u < _dialogNodes.Count; u++)
+                {
+                    if (
+                        (_dialogNodes[u].Speaker == currStruct._node.Speaker) &&    // <-- Same type
+                        (_dialogNodes[u].RawText == currStruct._node.RawText) &&    // <-- Same syntax
+                        (_dialogNodes[u].ParentNode == parentNode)                  // <-- Same branch
+                    )
+                    {
+                        isDuplicate = true; 
+                        break; 
+                    }
+                }
+
+                if (isDuplicate) { continue; }
+
+                currStruct._node.RegisterTo(parentNode);
                 currStruct._node.UpdateState();
 
                 // Sort into lookup table

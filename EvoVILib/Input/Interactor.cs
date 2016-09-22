@@ -149,11 +149,19 @@ namespace EvoVI.Input
         private static void pressKey(Input[] inputs, KeyPressMode pressMode, int pressTime, bool isScancode)
         {
             if (
-                (VI.State <= VI.VIState.SLEEPING) ||
-                (GameMeta.GameProcess == null) ||
-                (GameMeta.GameProcess.MainWindowHandle != GetForegroundWindow())
+                (VI.State <= VI.VIState.BUSY) ||
+                (
+                    (GameMeta.GameProcess == null) &&
+                    (!ConfigurationManager.StartupParams.IgnoreGameProcessStart)
+                ) ||
+                (
+                    (GameMeta.GameProcess != null) &&
+                    (GameMeta.GameProcess.MainWindowHandle != GetForegroundWindow())
+                )
             )
             { return; }
+            
+            VI.State = VI.VIState.BUSY;
 
             uint result = 0;
             if ((pressMode & KeyPressMode.KEY_DOWN) == KeyPressMode.KEY_DOWN)
@@ -169,6 +177,8 @@ namespace EvoVI.Input
                 inputs[0].u.ki.dwFlags = (uint)(KeyEventF.KeyUp | (isScancode ? KeyEventF.Scancode : KeyEventF.Unicode));
                 result = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(Input)));
             }
+
+            VI.State = VI.VIState.READY;
         }
 
 

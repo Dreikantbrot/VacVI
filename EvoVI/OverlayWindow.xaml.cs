@@ -13,6 +13,8 @@ using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using EvoVI.Plugins;
 using XamlAnimatedGif;
+using System.Text.RegularExpressions;
+using System.Windows.Controls;
 
 namespace EvoVIOverlay
 {
@@ -22,6 +24,7 @@ namespace EvoVIOverlay
     public partial class OverlayWindow : Window
     {
         #region Window Behaviour Override
+        /* Those settings make it possible to click "through" the window with the mouse */
         public const int WS_EX_TRANSPARENT = 0x00000020;
         public const int GWL_EXSTYLE = (-20);
 
@@ -51,7 +54,8 @@ namespace EvoVIOverlay
             STATUS_ICON_ANIMATOR = 4,
             BACKGRND_LOGO_ANIMATOR = 8,
             LOADING_ANIMATION_DONE = 16,
-            ALL = 31
+            ALL_COMPONENTS = 31,
+            INITIALIZATION_DONE = 32 | ALL_COMPONENTS
         }
         #endregion
 
@@ -75,8 +79,12 @@ namespace EvoVIOverlay
         private FileSystemWatcher _savedataWatcher;
         private FileSystemWatcher _gameConfigWatcher;
         private FileSystemWatcher _keymapConfigWatcher;
+        private DispatcherTimer _gameDataTimeoutTimer;
+
+        private bool _updateIndicator;
         private bool _playLoadingAnimation;
         private bool _debugMode = true;
+        private double _standardIconOpacity = 1;
 
         private Action _imgBlinkIn;
         private Action _imgBlinkOut;
@@ -99,14 +107,19 @@ namespace EvoVIOverlay
 
 
             /* Initialize the Overlay */
+            VI.Disabled = true; // Disable VI beforehand to prevent VI_OnVIStateChanged from firing
+
             SpeechEngine.OnVISpeechStarted += SpeechEngine_OnVISpeechStarted;
+            SpeechEngine.OnVISpeechStopped += SpeechEngine_OnVISpeechStopped;
             VI.OnVIStateChanged += VI_OnVIStateChanged;
 
             AnimationBehavior.AddLoadedHandler(img_StatusIcon, onGifAnimatorLoaded);
             AnimationBehavior.AddLoadedHandler(img_LogoBackground, onGifAnimatorLoaded);
 
-            _imgBlinkIn = new Action(() => { img_StatusIcon.Opacity = 100; });
-            _imgBlinkOut = new Action(() => { img_StatusIcon.Opacity = 50; });
+            _standardIconOpacity = img_StatusIcon.Opacity;
+
+            _imgBlinkIn = new Action(() => { img_StatusIcon.Opacity = _standardIconOpacity; });
+            _imgBlinkOut = new Action(() => { img_StatusIcon.Opacity = Math.Max(_standardIconOpacity - 0.2, 0); });
 
             DoubleAnimation collapseAnim;
             TimeSpan animationTime = TimeSpan.FromSeconds(1);
@@ -130,7 +143,8 @@ namespace EvoVIOverlay
             _collapseExpandAnimation.Children.Add(collapseAnim);
 
 
-            /* Set window position */
+            /* Overlay configuration parameters */
+            // Set window position
             int posX, posY;
             Int32.TryParse(
                 ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_OVERLAY, "X"),
@@ -144,7 +158,21 @@ namespace EvoVIOverlay
             this.Top = -SystemParameters.VirtualScreenTop + Math.Max(0, posY);
 
 
+            // Check loading animation parameter
+            _playLoadingAnimation = ConfigurationManager.ConfigurationFile.ValueIsBoolAndTrue(
+                ConfigurationManager.SECTION_OVERLAY,
+                "Play_Intro"
+            );
+
+            // Check game update indicator status
+            _updateIndicator = ConfigurationManager.ConfigurationFile.ValueIsBoolAndTrue(
+                ConfigurationManager.SECTION_OVERLAY,
+                "Display_Update_Indicator"
+            );
+
+
             /* Initialize all components */
+            DialogTreeBuilder.ClearDialogTree();
             VI.Initialize();
             SpeechEngine.Initialize();
             SaveDataReader.BuildDatabase();
@@ -165,54 +193,77 @@ namespace EvoVIOverlay
             /* Load Plugins */
             PluginManager.LoadPlugins();
             PluginManager.InitializePlugins();
+            PluginManager.InitializePluginDialogTrees();
 
 
             /* Initialize file watchers */
             FileSystemEventHandler eventHandler;
 
+            eventHandler = new FileSystemEventHandler(OnSaveDataChanged);
+            _savedataWatcher = new FileSystemWatcher(GameMeta.DefaultSavedataDirectoryPath, GameMeta.DEFAULT_SAVEDATA_FILENAME);
+            _savedataWatcher.Changed += new FileSystemEventHandler(eventHandler);
+            _savedataWatcher.NotifyFilter = (NotifyFilters.LastWrite | NotifyFilters.CreationTime);
+            _savedataWatcher.IncludeSubdirectories = false;
+            _savedataWatcher.EnableRaisingEvents = true;
+
             if (File.Exists(GameMeta.DefaultSavedataPath))
             {
-                eventHandler = new FileSystemEventHandler(OnSaveDataChanged);
-                _savedataWatcher = new FileSystemWatcher(GameMeta.DefaultSavedataDirectoryPath, GameMeta.DEFAULT_SAVEDATA_FILENAME);
-                _savedataWatcher.Changed += new FileSystemEventHandler(eventHandler);
-                _savedataWatcher.NotifyFilter = (NotifyFilters.LastWrite | NotifyFilters.CreationTime);
-                _savedataWatcher.IncludeSubdirectories = false;
-                _savedataWatcher.EnableRaisingEvents = true;
+                // Manually touch the file to invoke the event
                 File.SetLastWriteTimeUtc(GameMeta.DefaultSavedataPath, DateTime.UtcNow);
             }
 
+
+            eventHandler = new FileSystemEventHandler(OnGameConfigChanged);
+            _gameConfigWatcher = new FileSystemWatcher(GameMeta.DefaultGameSettingsDirectoryPath, GameMeta.DEFAULT_GAMECONFIG_FILENAME);
+            _gameConfigWatcher.Changed += new FileSystemEventHandler(eventHandler);
+            _gameConfigWatcher.NotifyFilter = (NotifyFilters.LastWrite | NotifyFilters.CreationTime);
+            _gameConfigWatcher.IncludeSubdirectories = false;
+            _gameConfigWatcher.EnableRaisingEvents = true;
+
             if (File.Exists(GameMeta.DefaultGameSettingsPath))
             {
-                eventHandler = new FileSystemEventHandler(OnGameConfigChanged);
-                _gameConfigWatcher = new FileSystemWatcher(GameMeta.DefaultGameSettingsDirectoryPath, GameMeta.DEFAULT_GAMECONFIG_FILENAME);
-                _gameConfigWatcher.Changed += new FileSystemEventHandler(eventHandler);
-                _gameConfigWatcher.NotifyFilter = (NotifyFilters.LastWrite | NotifyFilters.CreationTime);
-                _gameConfigWatcher.IncludeSubdirectories = false;
-                _gameConfigWatcher.EnableRaisingEvents = true;
+                // Manually touch the file to invoke the event
                 File.SetLastWriteTimeUtc(GameMeta.DefaultGameSettingsPath, DateTime.UtcNow);
             }
 
+
+            eventHandler = new FileSystemEventHandler(OnKeymapChanged);
+            _keymapConfigWatcher = new FileSystemWatcher(GameMeta.DefaultGameSettingsDirectoryPath, GameMeta.KEYMAPPING_FILENAME);
+            _keymapConfigWatcher.Changed += new FileSystemEventHandler(eventHandler);
+            _keymapConfigWatcher.NotifyFilter = (NotifyFilters.LastWrite | NotifyFilters.CreationTime);
+            _keymapConfigWatcher.IncludeSubdirectories = false;
+            _keymapConfigWatcher.EnableRaisingEvents = true;
+
             if (File.Exists(GameMeta.DefaultKeymapFilePath))
             {
-                eventHandler = new FileSystemEventHandler(OnKeymapChanged);
-                _keymapConfigWatcher = new FileSystemWatcher(GameMeta.DefaultGameSettingsDirectoryPath, GameMeta.KEYMAPPING_FILENAME);
-                _keymapConfigWatcher.Changed += new FileSystemEventHandler(eventHandler);
-                _keymapConfigWatcher.NotifyFilter = (NotifyFilters.LastWrite | NotifyFilters.CreationTime);
-                _keymapConfigWatcher.IncludeSubdirectories = false;
-                _keymapConfigWatcher.EnableRaisingEvents = true;
+                // Manually touch the file to invoke the event
                 File.SetLastWriteTimeUtc(GameMeta.DefaultKeymapFilePath, DateTime.UtcNow);
             }
 
+            _gameDataTimeoutTimer = new DispatcherTimer(
+                TimeSpan.FromMilliseconds((SaveDataReader.UpdateInterval < 0) ? 100 : SaveDataReader.UpdateInterval),
+                DispatcherPriority.Background,
+                OnGameDataTimeoutTimerTick,
+                this.Dispatcher
+            );
+            _gameDataTimeoutTimer.Stop();
+
+
             /* Initialize Systems / Start the VI */
-            _initializedSystems = _initializedSystems | InitializedSystemTypes.VI;
-            _initializedSystems = _initializedSystems | InitializedSystemTypes.OVERLAY;
-            if (!_playLoadingAnimation) { initalizeSystems(); }
+            _initializedSystems |= InitializedSystemTypes.VI;
+            _initializedSystems |= InitializedSystemTypes.OVERLAY;
+            if (!_playLoadingAnimation)
+            {
+                _initializedSystems |= InitializedSystemTypes.LOADING_ANIMATION_DONE;
+                initializeSystems();
+            }
         }
         #endregion
 
 
         #region Events
-        /// <summary> Fires when a gif animator has loaded.
+        /// <summary> Initializes the gif animations as soon as the animator as loaded.
+        /// Fires when a gif animator has loaded.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The routed event arguments.</param>
@@ -223,7 +274,7 @@ namespace EvoVIOverlay
                 ((_initializedSystems & InitializedSystemTypes.STATUS_ICON_ANIMATOR) != InitializedSystemTypes.STATUS_ICON_ANIMATOR)
             )
             {
-                _initializedSystems = _initializedSystems | InitializedSystemTypes.STATUS_ICON_ANIMATOR;
+                _initializedSystems |= InitializedSystemTypes.STATUS_ICON_ANIMATOR;
 
                 // Reset the animation and let it spin 2 times when played
                 AnimationBehavior.GetAnimator(img_StatusIcon).Pause();
@@ -236,7 +287,7 @@ namespace EvoVIOverlay
                 ((_initializedSystems & InitializedSystemTypes.BACKGRND_LOGO_ANIMATOR) != InitializedSystemTypes.BACKGRND_LOGO_ANIMATOR)
             )
             {
-                _initializedSystems = _initializedSystems | InitializedSystemTypes.BACKGRND_LOGO_ANIMATOR;
+                _initializedSystems |= InitializedSystemTypes.BACKGRND_LOGO_ANIMATOR;
 
                 // Reset the animation and let it spin forever when played
                 AnimationBehavior.GetAnimator(img_LogoBackground).Pause();
@@ -244,14 +295,8 @@ namespace EvoVIOverlay
                 AnimationBehavior.SetRepeatBehavior(img_LogoBackground, RepeatBehavior.Forever);
 
                 // Play loading animation
-                _playLoadingAnimation = ConfigurationManager.ConfigurationFile.ValueIsBoolAndTrue(
-                    ConfigurationManager.SECTION_OVERLAY,
-                    "Play_Intro"
-                );
-
                 if (_playLoadingAnimation)
                 {
-                    // TODO: Set up the animation
                     double originalOpacity = this.Opacity;
 
                     Storyboard story;
@@ -329,7 +374,7 @@ namespace EvoVIOverlay
 
                     #region Fade status icon in
 
-                    animation = new DoubleAnimation(1, animDuration);
+                    animation = new DoubleAnimation(_standardIconOpacity, animDuration);
                     animation.BeginTime = TimeSpan.FromSeconds(timeOffset);
                     Storyboard.SetTarget(animation, img_StatusIcon);
                     Storyboard.SetTargetProperty(animation, new PropertyPath(System.Windows.Shapes.Shape.OpacityProperty));
@@ -347,7 +392,7 @@ namespace EvoVIOverlay
 
                     txt_VISpeechText.Opacity = 0;
                     img_StatusIcon.Opacity = 0;
-                    txtBlck_PlayerAnswers.Visibility = System.Windows.Visibility.Collapsed;
+                    stckPnl_PlayerAnswers.Visibility = System.Windows.Visibility.Collapsed;
 
                     story.Begin();
                 }
@@ -355,15 +400,16 @@ namespace EvoVIOverlay
                 {
                     // Animation deactivated - animation not started
                     img_LogoBackground.Visibility = System.Windows.Visibility.Collapsed;
-                    _initializedSystems = _initializedSystems | InitializedSystemTypes.LOADING_ANIMATION_DONE;
+                    _initializedSystems |= InitializedSystemTypes.LOADING_ANIMATION_DONE;
                 }
             }
 
-            initalizeSystems();
+            initializeSystems();
         }
 
 
-        /// <summary> Fires, when the loading animation has been finished.
+        /// <summary> Pauses the loading animation, resets values and attempts initialzation.
+        /// Fires, when the loading animation has been finished.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The ecent arguments.</param>
@@ -372,6 +418,9 @@ namespace EvoVIOverlay
             AnimationBehavior.GetAnimator(img_LogoBackground).Pause();
             AnimationBehavior.GetAnimator(img_LogoBackground).Rewind();
             img_LogoBackground.Visibility = System.Windows.Visibility.Collapsed;
+
+            img_StatusIcon.Opacity = img_StatusIcon.Opacity;
+            img_StatusIcon.BeginAnimation(OpacityProperty, null);
 
             txt_VISpeechText.Text = "";
             txt_VISpeechText.Opacity = 1;
@@ -384,16 +433,17 @@ namespace EvoVIOverlay
 
                     this.Dispatcher.Invoke(() =>
                     {
-                        _initializedSystems = _initializedSystems | InitializedSystemTypes.LOADING_ANIMATION_DONE;
+                        _initializedSystems |= InitializedSystemTypes.LOADING_ANIMATION_DONE;
 
-                        initalizeSystems();
+                        initializeSystems();
                     });
                 }
             ).Start();
         }
 
 
-        /// <summary> Fires when the status icon animation has been completed.
+        /// <summary> Rewinds the status icon animation when completed.
+        /// Fires when the status icon animation has been completed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The event arguments.</param>
@@ -404,106 +454,258 @@ namespace EvoVIOverlay
         }
 
         
-        /// <summary> Fires when the VI's state of operation has changed.
+        /// <summary> Colors the overlay according to the VI's state.
+        /// Fires when the VI's state of operation has changed.
         /// </summary>
         /// <param name="obj">The VI state changed event arguments.</param>
         private void VI_OnVIStateChanged(VI.OnVIStateChangedEventArgs obj)
         {
-            string[] properties = { "Background", "BorderBrush", "Foreground" };
-            ColorAnimation animation;
-            TimeSpan animationTime = TimeSpan.FromSeconds(1);
-            Storyboard story = new Storyboard();
+            this.Dispatcher.Invoke(
+                () =>
+                {
+                    string[] properties = { "Background", "BorderBrush", "Foreground" };
+                    ColorAnimation animation;
+                    TimeSpan animationTime = TimeSpan.FromSeconds(1);
+                    Storyboard story = new Storyboard();
 
-            // Animate all colors
-            for (int i = 0; i < properties.Length; i++)
-            {
-                string resource = properties[i];
-                string destResource = resource + "_" + ((obj.CurrentState <= VI.VIState.SLEEPING) ? "Grayscale" : "Normal");
+                    // Animate all colors
+                    for (int i = 0; i < properties.Length; i++)
+                    {
+                        string resource = properties[i];
+                        string destResource = resource + "_";
 
-                animation = new ColorAnimation();
-                animation.To = ((SolidColorBrush)this.Resources[destResource]).Color;
-                animation.Duration = animationTime;
-                Storyboard.SetTarget(animation, this);
-                Storyboard.SetTargetProperty(animation, new PropertyPath(properties[i] + ".Color"));
-                story.Children.Add(animation);
-            }
+                        // Determine the color resource to change to
+                        destResource += (
+                            (obj.CurrentState >= VI.VIState.READY) ? "Normal" :                             // <-- Normal colors on ready-state
+                            (obj.CurrentState == VI.VIState.BUSY) ? ((i == 1) ? "Grayscale" : "Normal") :   // <-- Gray border only, if in busy-state
+                            (obj.CurrentState <= VI.VIState.SLEEPING) ? "Grayscale" :                       // <-- Grayscale everything, if sleeping or offline
+                            "Normal"                                                                        // <-- All other states normal
+                        );
 
-            story.Begin();
+                        animation = new ColorAnimation();
+                        animation.To = ((SolidColorBrush)this.Resources[destResource]).Color;
+                        animation.Duration = animationTime;
+                        Storyboard.SetTarget(animation, this);
+                        Storyboard.SetTargetProperty(animation, new PropertyPath(properties[i] + ".Color"));
+                        story.Children.Add(animation);
+                    }
+
+                    story.Begin();
+                }
+            );
         }
 
 
-        /// <summary> Fires each time the active dialog node changes.
+        /// <summary> Expands the overlay and displays spoken text.
+        /// Fires each time the VI started to speak.
         /// </summary>
         /// <param name="obj">The VI speech started event arguments.</param>
         private void SpeechEngine_OnVISpeechStarted(SpeechEngine.VISpeechStartedEventArgs obj)
         {
-            // Play the icon animation when the VI speaks
-            this.Dispatcher.InvokeAsync(_rotateStatusIconAction); 
-
-            txt_VISpeechText.Text = obj.SpokenPhrase;
-            txtBlck_PlayerAnswers.Text = String.Empty;
-
-            bool hadPlayerNodes = false;
-
-            for (int i = 0; i < obj.SpokenDialog.ChildNodes.Count; i++)
-            {
-                if (obj.SpokenDialog.ChildNodes[i].Speaker == DialogBase.DialogSpeaker.PLAYER)
+            this.Dispatcher.InvokeAsync(
+                () =>
                 {
-                    txtBlck_PlayerAnswers.Text += (
-                        (String.IsNullOrWhiteSpace(txtBlck_PlayerAnswers.Text) ? "" : "\n") +
-                        "--- " + obj.SpokenDialog.ChildNodes[i].Text
-                    );
-                    hadPlayerNodes = true;
-                }
-            }
-            
-            txtBlck_PlayerAnswers.Visibility = hadPlayerNodes ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
-            txtBlck_PlayerAnswers.UpdateLayout();
-            expandCollapse(true);
+                    // Abort the auto-close thread
+                    if (
+                        (_autoCollapseThread != null) &&
+                        (_autoCollapseThread.IsAlive)
+                    )
+                    { _autoCollapseThread.Abort(); }
 
-            // Abort the auto-close thread
-            if (
-                (_autoCollapseThread != null) &&
-                (_autoCollapseThread.IsAlive)
-            )
-            { _autoCollapseThread.Abort(); }
+                    // Play the icon animation when the VI speaks
+                    this.Dispatcher.InvokeAsync(_rotateStatusIconAction);
 
+                    txt_VISpeechText.Text = obj.SpokenPhrase;
+                    stckPnl_PlayerAnswers.Children.Clear();
 
-            // ... and start a new one, if there are no answers for the player
-            if (!hadPlayerNodes)
-            {
-                _autoCollapseThread = new Thread(
-                    () =>
+                    bool hadPlayerNodes = false;
+
+                    for (int i = 0; i < obj.SpokenDialog.ChildNodes.Count; i++)
                     {
-                        Thread.Sleep(5000);
-                        this.Dispatcher.Invoke(_autoCollapseAction);
+                        if (obj.SpokenDialog.ChildNodes[i].Speaker == DialogBase.DialogSpeaker.PLAYER)
+                        {
+                            #region Build answer dialog stack
+                            string[] sentences = obj.SpokenDialog.ChildNodes[i].RawText.Split(';');
+
+                            TextBlock newTxtBlock;
+                            StackPanel sentenceStack = new StackPanel();
+                            sentenceStack.Orientation = Orientation.Horizontal;
+                            sentenceStack.Margin = new Thickness(0, 0, 0, 10);
+
+                            for (int u = 0; u < sentences.Length; u++)
+                            {
+                                string currSentence = "--- " + sentences[u];
+
+                                if (String.IsNullOrWhiteSpace(currSentence)) { continue; }
+
+                                int currIndex = 0;
+                                MatchCollection matches = DialogBase.CHOICES_REGEX.Matches(currSentence);
+
+                                if (matches.Count > 0)
+                                {
+                                    #region Build choice stack
+                                    for (int j = 0; j < matches.Count; j++)
+                                    {
+                                        Match currMatch = matches[j];
+
+                                        string choiceType = (
+                                            (currMatch.Groups["Choice"].Success) ? "Choice" :
+                                            (currMatch.Groups["OptChoice"].Success) ? "OptChoice" :
+                                            ""
+                                        );
+                                        bool hasChoices = currMatch.Groups[choiceType].Success;
+
+                                        // Append "fixed" text
+                                        string leadingText = currSentence;
+                                        leadingText = leadingText.Substring(currIndex, matches[j].Index - currIndex);
+                                        
+                                        if (!String.IsNullOrWhiteSpace(leadingText))
+                                        {
+                                            newTxtBlock = new TextBlock();
+                                            newTxtBlock.Text = leadingText.Trim() + (hasChoices ? " " : "");
+                                            newTxtBlock.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                                            newTxtBlock.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+                                            sentenceStack.Children.Add(newTxtBlock);
+                                        }
+
+
+                                        // Append choices
+                                        if (hasChoices)
+                                        {
+                                            string[] choices = matches[j].Groups[choiceType].Value.Split('|');
+
+                                            newTxtBlock = new TextBlock();
+                                            newTxtBlock.Margin = new Thickness(0);
+                                            newTxtBlock.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                                            newTxtBlock.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+                                            newTxtBlock.TextAlignment = TextAlignment.Center;
+
+                                            if (choiceType == "OptChoice") { newTxtBlock.Foreground = new SolidColorBrush(Colors.Gray); }
+
+                                            for (int k = 0; k < choices.Length; k++)
+                                            {
+                                                if (String.IsNullOrWhiteSpace(choices[k])) { continue; }
+                                                newTxtBlock.Text += ((k > 0) ? "\n" : "") + choices[k].Trim();
+                                            }
+
+                                            sentenceStack.Children.Add(newTxtBlock);
+                                        }
+
+                                        currIndex = matches[j].Index + currMatch.Length;
+                                    }
+                                    #endregion
+                                }
+
+                                // Append "fixed", trailing text (or the entire text, if no choices)
+                                newTxtBlock = new TextBlock();
+                                newTxtBlock.Text = ((sentenceStack.Children.Count > 0) ? " " : "") + currSentence.Substring(currIndex).Trim();
+                                newTxtBlock.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                                newTxtBlock.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+                                sentenceStack.Children.Add(newTxtBlock);
+
+                                stckPnl_PlayerAnswers.Children.Add(sentenceStack);
+                            }
+                            #endregion
+
+                            hadPlayerNodes = true;
+                        }
                     }
-                );
-                _autoCollapseThread.Start();
-            }
+
+                    stckPnl_PlayerAnswers.Visibility = hadPlayerNodes ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+                    stckPnl_PlayerAnswers.UpdateLayout();
+                    expandCollapse(true);
+                }
+            );
         }
 
 
-        /// <summary> Fires each time, the "savedata.txt"-file gets changed.
+        /// <summary> Collapes the overlay after a 5 second timeout.
+        /// Fires each time the VI started to speak.
+        /// </summary>
+        /// <param name="obj">The VI speech stopped event arguments.</param>
+        void SpeechEngine_OnVISpeechStopped(SpeechEngine.VISpeechStoppedEventArgs obj)
+        {
+            this.Dispatcher.Invoke(
+                () =>
+                {
+                    // Abort the auto-close thread
+                    if (
+                        (_autoCollapseThread != null) &&
+                        (_autoCollapseThread.IsAlive)
+                    )
+                    { _autoCollapseThread.Abort(); }
+
+                    // ... check if there are any active player nodes waiting for input
+                    for (int i = 0; i < obj.SpokenDialog.ChildNodes.Count; i++)
+                    {
+                        if (
+                            (obj.SpokenDialog.ChildNodes[i].Speaker == DialogBase.DialogSpeaker.PLAYER) &&
+                            (obj.SpokenDialog.ChildNodes[i].IsReady)
+                        )
+                        { return; }
+                    }
+
+                    // ... and start a new one, if there are no answers for the player
+                    _autoCollapseThread = new Thread(
+                        () =>
+                        {
+                            Thread.Sleep(5000);
+                            this.Dispatcher.Invoke(_autoCollapseAction);
+                        }
+                    );
+                    _autoCollapseThread.Start();
+                }
+            );
+        }
+
+
+        /// <summary> Makes the status icon blink on game update.
+        /// Fires each time, the "savedata.txt"-file gets changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The file system event arguments.</param>
         private void OnSaveDataChanged(object sender, System.IO.FileSystemEventArgs e)
         {
+            VI.Disabled = false;
             SaveDataReader.ReadGameData();
 
-            if (_initializedSystems == InitializedSystemTypes.ALL)
+            if (
+                (this._updateIndicator) &&
+                (SaveDataReader.UpdateInterval > 50) &&
+                (_initializedSystems == InitializedSystemTypes.ALL_COMPONENTS)
+            )
             {
-                Dispatcher.BeginInvoke(DispatcherPriority.Background, _imgBlinkIn);
+                Dispatcher.BeginInvoke(DispatcherPriority.Render, _imgBlinkIn);
 
-                Thread.Sleep(100);
+                Thread.Sleep(SaveDataReader.UpdateInterval / 2);
 
-                Dispatcher.BeginInvoke(DispatcherPriority.Background, _imgBlinkOut);
+                Dispatcher.BeginInvoke(DispatcherPriority.Render, _imgBlinkOut);
             }
         }
 
 
-        /// <summary> Fires each time, the "sw.cfg"-file gets changed.
+        /// <summary> Disables the VI if the game has been paused.
+        /// Fires when the timeout timer for game data updates ticked.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The event arguments.</param>
+        private void OnGameDataTimeoutTimerTick(object sender, EventArgs e)
+        {
+            if (ConfigurationManager.StartupParams.NoIdleTimeout) { return; }
+
+            double updateDeltaTime = (DateTime.Now - SaveDataReader.LastUpdateTime).TotalMilliseconds;
+            if (updateDeltaTime > (2 * SaveDataReader.UpdateInterval)) { VI.Disabled = true; }
+
+            // Synchronize update time intervals
+            if (SaveDataReader.UpdateInterval != _gameDataTimeoutTimer.Interval.Milliseconds)
+            {
+                _gameDataTimeoutTimer.Interval = TimeSpan.FromMilliseconds(SaveDataReader.UpdateInterval);
+            }
+        }
+
+
+        /// <summary> Updates the color scheme on HUD configuration changes.
+        /// Fires each time, the "sw.cfg"-file gets changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The file system event arguments.</param>
@@ -531,7 +733,8 @@ namespace EvoVIOverlay
         }
 
 
-        /// <summary> Fires each time, the "keymap8.txt"-file gets changed.
+        /// <summary> Updates the keymapping on keymap changes.
+        /// Fires each time, the "keymap8.txt"-file gets changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The file system event arguments.</param>
@@ -541,7 +744,8 @@ namespace EvoVIOverlay
         }
 
 
-        /// <summary> Fires, when the game process has ended.
+        /// <summary> Closes the overlay on game process end.
+        /// Fires, when the game process has ended.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The event arguments.</param>
@@ -559,7 +763,8 @@ namespace EvoVIOverlay
         }
 
 
-        /// <summary> Fires each time, the overlay has been closed.
+        /// <summary> Stops threads and shuts down plugins.
+        /// Fires each time, the overlay has been closed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The event arguments.</param>
@@ -600,13 +805,22 @@ namespace EvoVIOverlay
             );
 
             Color backgrnd = ((SolidColorBrush)backColor).Color;
-            float colorFactor = 1 - ((float)Math.Max(backgrnd.R, Math.Max(backgrnd.G, backgrnd.B)) / 255);
             foreColor = new SolidColorBrush(
-                Color.FromArgb(255, (byte)(255 * colorFactor), (byte)(255 * colorFactor), (byte)(255 * colorFactor))
+                Color.FromArgb(
+                    255, 
+                    (byte)Math.Min(255, backgrnd.R * 2.5),
+                    (byte)Math.Min(255, backgrnd.G * 2.5),
+                    (byte)Math.Min(255, backgrnd.B * 2.5)
+                )
             );
 
             borderColor = new SolidColorBrush(
-                Color.FromArgb(255, (byte)Math.Min(255, backgrnd.R * 1.25), (byte)Math.Min(255, backgrnd.G * 1.25), (byte)Math.Min(255, backgrnd.B * 1.25))
+                Color.FromArgb(
+                    255, 
+                    (byte)Math.Min(255, backgrnd.R * 1.25), 
+                    (byte)Math.Min(255, backgrnd.G * 1.25), 
+                    (byte)Math.Min(255, backgrnd.B * 1.25)
+                )
             );
 
 
@@ -654,7 +868,7 @@ namespace EvoVIOverlay
 
             if (
                 (VI.State >= VI.VIState.READY) ||
-                (_initializedSystems != InitializedSystemTypes.ALL)
+                (_initializedSystems != InitializedSystemTypes.ALL_COMPONENTS)
             )
             {
                 this.Background = backColor;
@@ -666,16 +880,26 @@ namespace EvoVIOverlay
 
         /// <summary> Initializes / starts the system.
         /// </summary>
-        private void initalizeSystems()
+        private void initializeSystems()
         {
-            if (_initializedSystems != InitializedSystemTypes.ALL) { return; }
+            if (
+                (_initializedSystems != InitializedSystemTypes.ALL_COMPONENTS) ||
+                (_initializedSystems == InitializedSystemTypes.INITIALIZATION_DONE)
+            )
+            { return; }
+
+            // Prevent double initialization
+            _initializedSystems = InitializedSystemTypes.INITIALIZATION_DONE;
 
             // System ready
             VI.State = VI.VIState.READY;
 
             // Check for existence of savedatasettings.txt
             if (!File.Exists(GameMeta.CurrentSaveDataSettingsTextFilePath)) { SpeechEngine.Say(EvoVI.Properties.StringTable.SAVEDATASETTINGS_FILE_NOT_FOUND); }
+            
+            _gameDataTimeoutTimer.Start();
 
+            DialogTreeBuilder.DialogsActive = true;
             DialogTreeBuilder.DialogRoot.SetActive();
 
             SpeechEngine.Say("Systems initialized - Hello World!");
@@ -689,21 +913,24 @@ namespace EvoVIOverlay
             DoubleAnimation widthAnim = ((DoubleAnimation)(_collapseExpandAnimation.Children[0]));
             DoubleAnimation heightAnim = ((DoubleAnimation)(_collapseExpandAnimation.Children[1]));
 
+            widthAnim.To = this.BorderThickness.Left + this.BorderThickness.Right;
+            heightAnim.To = this.BorderThickness.Top + this.BorderThickness.Bottom;
+
             if (expand)
             {
                 widthAnim.BeginTime = TimeSpan.FromSeconds(0);
                 heightAnim.BeginTime = TimeSpan.FromSeconds(1);
 
-                widthAnim.To = this.MaxWidth;
-                heightAnim.To = LogoHeightGrid.ActualHeight + LogoAnswerTextGrid.ActualHeight;
+                widthAnim.To += this.MaxWidth;
+                heightAnim.To += LogoHeightGrid.ActualHeight + LogoVITextGrid.ActualHeight + LogoAnswerTextGrid.ActualHeight;
             }
             else
             {
                 widthAnim.BeginTime = TimeSpan.FromSeconds(1);
                 heightAnim.BeginTime = TimeSpan.FromSeconds(0);
 
-                widthAnim.To = LogoWidthGrid.ActualWidth;
-                heightAnim.To = LogoHeightGrid.ActualHeight;
+                widthAnim.To += LogoWidthGrid.ActualWidth;
+                heightAnim.To += LogoHeightGrid.ActualHeight;
             }
 
             _collapseExpandAnimation.Begin();

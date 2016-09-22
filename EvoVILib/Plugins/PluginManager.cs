@@ -9,6 +9,11 @@ namespace EvoVI.Plugins
     /// <summary> Loads, initializes, calls and manages plugins.</summary>
     public static class PluginManager
     {
+        #region Constants
+        const string LOG_SEPARATOR = "-------------------------------------";
+        #endregion
+
+
         #region Variables
         public static List<IPlugin> Plugins = new List<IPlugin>();
         private static IniFile _pluginFile;
@@ -48,6 +53,14 @@ namespace EvoVI.Plugins
         internal static Dictionary<string, List<IPlugin>> LoadedDLLs
         {
             get { return PluginManager._dllDictionary; }
+        }
+
+
+        /// <summary> Returns the path of the plugin error log file.
+        /// </summary>
+        private static string errorLogPath
+        {
+            get { return GetPluginPath() + "\\errorLog.log"; }
         }
         #endregion
 
@@ -184,6 +197,14 @@ namespace EvoVI.Plugins
         }
 
 
+        /// <summary> Loads all plugin diaog trees.
+        /// </summary>
+        internal static void InitializePluginDialogTrees()
+        {
+            for (int i = 0; i < Plugins.Count; i++) { Plugins[i].BuildDialogTree(); }
+        }
+
+
         /// <summary> Initializes all loaded plugins.
         /// </summary>
         internal static void InitializePlugins()
@@ -202,11 +223,13 @@ namespace EvoVI.Plugins
                 // Check the state of the thread
                 if (!_pluginThreads[currPlugin].IsAlive)
                 {
-                    _pluginThreads[currPlugin] = (new Thread(currPlugin.Initialize));
-                    _pluginThreads[currPlugin].Start();
+                    Thread execThread = new Thread(new ThreadStart(currPlugin.Initialize));
+                    _pluginThreads[currPlugin] = execThread;
+                    try { _pluginThreads[currPlugin].Start(); }
+                    catch (Exception e) { File.AppendAllText(errorLogPath, e.Message + Environment.NewLine + LOG_SEPARATOR); }
 
-                    // Wait for the end of the initialization
-                    while (_pluginThreads[currPlugin].IsAlive) { Thread.Sleep(10); }
+                    // Wait for the end of the initialization (max. 30 seconds)
+                    if (_pluginThreads[currPlugin].IsAlive) { _pluginThreads[currPlugin].Join(30000); }
                 }
             }
         }
@@ -224,7 +247,7 @@ namespace EvoVI.Plugins
                 if (pluginThread.Value.IsAlive) { pluginThread.Value.Abort(); }
 
                 // Wait for... an abortion O.o
-                while (pluginThread.Value.IsAlive) { Thread.Sleep(100); }
+                if (pluginThread.Value.IsAlive) { pluginThread.Value.Join(); }
 
                 // Tell the plugin to shut down
                 pluginThread.Key.OnProgramShutdown();
@@ -250,7 +273,8 @@ namespace EvoVI.Plugins
                 {
                     Thread execThread = new Thread(new ThreadStart(currPlugin.OnGameDataUpdate));
                     _pluginThreads[currPlugin] = execThread;
-                    execThread.Start();
+                    try { execThread.Start(); }
+                    catch (Exception e) { File.AppendAllText(errorLogPath, e.Message + Environment.NewLine + LOG_SEPARATOR); }
                 }
             }
         }

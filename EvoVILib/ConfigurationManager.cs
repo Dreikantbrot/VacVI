@@ -10,9 +10,38 @@ namespace EvoVI
     /// <summary> Contains and manages the program's main configuration (confguration.ini).</summary>
     public static class ConfigurationManager
     {
+        #region Structs
+        /// <summary> Contains program startup parameters (command line argumments).</summary>
+        internal static class StartupParams
+        {
+            public static bool IgnoreGameProcessStart
+            {
+                get;
+                internal set;
+            }
+
+
+            public static bool NoIdleTimeout
+            {
+                get;
+                internal set;
+            }
+
+            static StartupParams()
+            {
+                IgnoreGameProcessStart = false;
+                NoIdleTimeout = false;
+            }
+        }
+        #endregion
+
+
         #region Constants
         /// <summary> The configuration file's name.</summary>
         private const string CONFIGURATION_FILENAME = "configuration.ini";
+
+        /// <summary> The name for the section "Application" within the config file.</summary>
+        public const string SECTION_APPLICATION = "Application";
 
         /// <summary> The name for the section "Game" within the config file.</summary>
         public const string SECTION_GAME = "Game";
@@ -73,6 +102,14 @@ namespace EvoVI
             string section = "";
             _configurationFile.Read();
 
+            /* "Application" Settings */
+            section = SECTION_APPLICATION;
+            if (_configurationFile.HasSection(section))
+            {
+
+            }
+
+
             /* "Game" section */
             section = SECTION_GAME;
             if (_configurationFile.HasSection(section))
@@ -122,11 +159,11 @@ namespace EvoVI
                 { VI.Name = _configurationFile.GetValue(section, "Name"); }
 
                 // VI Phonetic Name
-                if (
-                    (_configurationFile.HasKey(section, "Phonetic_Name")) &&
-                    (!String.IsNullOrWhiteSpace(_configurationFile.GetValue(section, "Phonetic_Name")))
-                )
-                { VI.PhoneticName = _configurationFile.GetValue(section, "Phonetic_Name"); }
+                if (_configurationFile.HasKey(section, "Phonetic_Name"))
+                {
+                    VI.PhoneticName = _configurationFile.GetValue(section, "Phonetic_Name");
+                    if (String.IsNullOrWhiteSpace(VI.PhoneticName)) { VI.PhoneticName = VI.Name; }
+                }
 
                 // VI Voice
                 if (_configurationFile.HasKey(section, "Voice"))
@@ -151,7 +188,11 @@ namespace EvoVI
             if (_configurationFile.HasSection(section))
             {
                 if (_configurationFile.HasKey(section, "Name")) { VI.PlayerName = _configurationFile.GetValue(section, "Name"); }
-                if (_configurationFile.HasKey(section, "Phonetic_Name")) { VI.PlayerPhoneticName = _configurationFile.GetValue(section, "Phonetic_Name"); }
+                if (_configurationFile.HasKey(section, "Phonetic_Name"))
+                {
+                    VI.PlayerPhoneticName = _configurationFile.GetValue(section, "Phonetic_Name");
+                    if (String.IsNullOrWhiteSpace(VI.PlayerPhoneticName)) { VI.PlayerPhoneticName = VI.PlayerName; }
+                }
             }
         }
         #endregion

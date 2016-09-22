@@ -115,7 +115,6 @@ namespace EvoVIConfigurator
         {
             InitializeComponent();
 
-
             /* Load assets */
             PluginManager.LoadPlugins(true);
             ConfigurationManager.LoadConfiguration();
@@ -168,6 +167,7 @@ namespace EvoVIConfigurator
 
             // "Overlay" section
             chckBox_Config_LoadingAnimation.IsChecked = ConfigurationManager.ConfigurationFile.ValueIsBoolAndTrue(ConfigurationManager.SECTION_OVERLAY, "Play_Intro");
+            chckBox_Config_GameDataLoadingIndicator.IsChecked = ConfigurationManager.ConfigurationFile.ValueIsBoolAndTrue(ConfigurationManager.SECTION_OVERLAY, "Display_Update_Indicator");
             txt_Config_OverlayPosX.Text = ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_OVERLAY, "X");
             txt_Config_OverlayPosY.Text = ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_OVERLAY, "Y");
 
@@ -190,8 +190,8 @@ namespace EvoVIConfigurator
             if (comBox_Config_SpeechRecLang.SelectedItem == null) { comBox_Config_SpeechRecLang.SelectedIndex = 0; }
 
             // "Player" section
-            txt_Config_PlayerName.Text = ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_PLAYER, "Name");
-            txt_Config_PlayerPhoneticName.Text = ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_PLAYER, "Phonetic_Name");
+            txt_Config_PlayerName.Text = VI.PlayerName;
+            txt_Config_PlayerPhoneticName.Text = VI.PlayerPhoneticName;
 
 
             /* Fill plugin list */
@@ -226,7 +226,8 @@ namespace EvoVIConfigurator
 
             _openChanges = false;
             SpeechEngine.Initialize();
-            PluginManager.InitializePlugins();
+            PluginManager.InitializePluginDialogTrees();
+            DialogTreeBuilder.DialogsActive = false;
             GameMeta.OnGameProcessStarted += GameMeta_OnGameProcessStarted;
         }
         #endregion
@@ -317,9 +318,22 @@ namespace EvoVIConfigurator
         {
             if (lockUI)
             {
+                int enabledPlugins = 0;
+                for (int i = 0; i < PluginManager.Plugins.Count; i++)
+                {
+                    if (PluginManager.PluginFile.ValueIsBoolAndTrue(PluginManager.Plugins[i].Name, "Enabled")) { enabledPlugins++; }
+                }
+
                 if (_openChanges)
                 {
                     txt_GameReadyOverlay.Text = "There are still some unsaved changes! Press \"Cancel\" and save your settings!";
+                    txt_GameReadyOverlay.BorderBrush = (SolidColorBrush)this.Resources["WarningBorderColor"];
+                    txt_GameReadyOverlay.Background = (SolidColorBrush)this.Resources["WarningBackColor"];
+                    txt_GameReadyOverlay.Foreground = (SolidColorBrush)this.Resources["NormalForeColor"];
+                }
+                else if (enabledPlugins == 0)
+                {
+                    txt_GameReadyOverlay.Text = "There are no plugins activated - Functionality might be restricted!";
                     txt_GameReadyOverlay.BorderBrush = (SolidColorBrush)this.Resources["WarningBorderColor"];
                     txt_GameReadyOverlay.Background = (SolidColorBrush)this.Resources["WarningBackColor"];
                     txt_GameReadyOverlay.Foreground = (SolidColorBrush)this.Resources["NormalForeColor"];
@@ -467,7 +481,15 @@ namespace EvoVIConfigurator
         private void btn_StartGame_Click(object sender, RoutedEventArgs e)
         {
             ToggleUILock(true);
-            GameMeta.CheckForGameProcess();
+
+            if (ConfigurationManager.StartupParams.IgnoreGameProcessStart)
+            {
+                GameMeta_OnGameProcessStarted(null, null);
+            }
+            else
+            {
+                GameMeta.CheckForGameProcess();
+            }            
         }
 
 
@@ -489,7 +511,8 @@ namespace EvoVIConfigurator
 
                     VI.State = VI.VIState.OFFLINE;
                     PluginManager.LoadPlugins(true);
-                    PluginManager.InitializePlugins();
+                    PluginManager.InitializePluginDialogTrees();
+                    DialogTreeBuilder.DialogsActive = false;
 
                     ToggleUILock(false);
                     this.Show();
@@ -507,6 +530,13 @@ namespace EvoVIConfigurator
         /// <param name="e">The routed event arguments.</param>
         private void btn_SaveConfig_Click(object sender, RoutedEventArgs e)
         {
+            /* NOTE: Deleting characters from the window coordinate textboxes will not be caught by the event handler,
+             * so once the user deletes something, it won't be updated within the coniguration.
+             * So in order to save the value that's actually in the textbox, we need to update it manually here.
+             */
+            ConfigurationManager.ConfigurationFile.SetValue(ConfigurationManager.SECTION_OVERLAY, "X", txt_Config_OverlayPosX.Text);
+            ConfigurationManager.ConfigurationFile.SetValue(ConfigurationManager.SECTION_OVERLAY, "Y", txt_Config_OverlayPosY.Text);
+
             ConfigurationManager.ConfigurationFile.Write(ConfigurationManager.ConfigurationFilepath);
             _openChanges = false;
         }
@@ -661,7 +691,7 @@ namespace EvoVIConfigurator
             btn_Config_VINameTest.IsEnabled = false;
             btn_Config_PlayerNameTest.IsEnabled = false;
 
-            SpeechEngine.Say(testText);
+            SpeechEngine.Say(new DialogVI(testText), true,  SpeechEngine.VoiceModulation, null, true);
 
             btn_Config_VINameTest.IsEnabled = true;
             btn_Config_PlayerNameTest.IsEnabled = true;
@@ -670,13 +700,33 @@ namespace EvoVIConfigurator
 
 
         #region Overlay
-        /// <summary> Fires when the player's phonetic name has been changed.
+        /// <summary> Fires when the loading animation option has changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
-        /// <param name="e">The text changed event arguments.</param>
+        /// <param name="e">The routed event arguments.</param>
         private void chckBox_Config_LoadingAnimation_Checked(object sender, RoutedEventArgs e)
         {
-            ConfigurationManager.ConfigurationFile.SetValue("Overlay", "Play_Intro", (chckBox_Config_LoadingAnimation.IsChecked == true) ? "true" : "false");
+            ConfigurationManager.ConfigurationFile.SetValue(
+                ConfigurationManager.SECTION_OVERLAY,
+                "Play_Intro", 
+                (chckBox_Config_LoadingAnimation.IsChecked == true) ? "true" : "false"
+            );
+            _openChanges = true;
+        }
+
+
+
+        /// <summary> Fires when the game update indicator option has changed.
+        /// </summary>
+        /// <param name="sender">The sender object.</param>
+        /// <param name="e">The routed event arguments.</param>
+        private void chckBox_Config_GameDataLoadingIndicator_Checked(object sender, RoutedEventArgs e)
+        {
+            ConfigurationManager.ConfigurationFile.SetValue(
+                ConfigurationManager.SECTION_OVERLAY,
+                "Display_Update_Indicator",
+                (chckBox_Config_GameDataLoadingIndicator.IsChecked == true) ? "true" : "false"
+            );
             _openChanges = true;
         }
 
@@ -688,19 +738,19 @@ namespace EvoVIConfigurator
         private void validateNumericInput(object sender, TextCompositionEventArgs e)
         {
             string coordinate = (
-                (sender == txt_Config_OverlayPosX) ? "X" : 
-                (sender == txt_Config_OverlayPosY) ? "Y" : 
+                (sender == txt_Config_OverlayPosX) ? "X" :
+                (sender == txt_Config_OverlayPosY) ? "Y" :
                 "???"
             );
 
             // Check the validity of the currently added characters
-            bool isValid = (new System.Text.RegularExpressions.Regex(@"^\d+")).IsMatch(e.Text);
+            bool isValid = System.Text.RegularExpressions.Regex.IsMatch(e.Text, @"^\d+");
 
             if (isValid)
             {
                 // Save the entire value
                 ConfigurationManager.ConfigurationFile.SetValue(
-                    ConfigurationManager.SECTION_OVERLAY, 
+                    ConfigurationManager.SECTION_OVERLAY,
                     coordinate,
                     ((TextBox)sender).Text + e.Text
                 );
@@ -767,18 +817,19 @@ namespace EvoVIConfigurator
             fileData.Add("bb-tractor.wav", "Docking tractor beam engaged");
 
             string targetPath = GameMeta.CurrentGameDirectoryPath + "\\alerts\\";
-            txt_Extras_TargetAudioFilepath.Text = targetPath;
-
+            VI.State = VI.VIState.READY;
             foreach (KeyValuePair<string, string> keyVal in fileData)
             {
                 // Generate the audio files
                 SpeechEngine.Say(
-                    new EvoVI.Dialog.DialogVI(keyVal.Value),
+                    new DialogVI(keyVal.Value),
                     false,
                     SpeechEngine.VoiceModulation,
-                    targetPath + keyVal.Key
+                    targetPath + keyVal.Key,
+                    true
                 );
             }
+            VI.State = VI.VIState.OFFLINE;
         }
 
 
@@ -970,10 +1021,38 @@ namespace EvoVIConfigurator
 
                             stckPanel.Children.Add(paramValue);
                         }
-                        #endregion
 
                         // Add the stack panel to plugin configurations
                         stck_PluginsParameters.Children.Add(stckPanel);
+                        #endregion
+
+                        #region Add the parameter description below
+                        if (
+                            (PluginManager.PluginDefaults.ContainsKey(plugin.Name)) &&
+                            (PluginManager.PluginDefaults[plugin.Name].ContainsKey(attributes.Key))
+                        )
+                        {
+                            TextBox descrBox = new TextBox();
+                            descrBox.Text = PluginManager.PluginDefaults[plugin.Name][attributes.Key].Description;
+                            descrBox.Focusable = false;
+                            descrBox.IsHitTestVisible = false;
+                            descrBox.IsReadOnly = true;
+                            descrBox.FontWeight = FontWeights.Bold;
+                            descrBox.BorderBrush = new System.Windows.Media.SolidColorBrush(Color.FromArgb(255, 159, 185, 241));
+                            descrBox.Background = new System.Windows.Media.SolidColorBrush(Color.FromArgb(85, 159, 211, 241));
+                            descrBox.Foreground = new System.Windows.Media.SolidColorBrush(Colors.White);
+                            descrBox.Padding = new Thickness(5);
+                            descrBox.Margin = new Thickness(0, 0, 15, 0);
+                            descrBox.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
+                            descrBox.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                            descrBox.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
+                            descrBox.TextWrapping = TextWrapping.Wrap;
+
+                            Grid.SetColumnSpan(descrBox, 2);
+                            stck_PluginsParameters.Children.Add(descrBox);
+                        }
+                        #endregion
+
                         stckPanel.InvalidateArrange();
                     }
                 }

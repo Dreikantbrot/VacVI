@@ -29,8 +29,9 @@ namespace EvoVI
         {
             OFFLINE = 1,
             SLEEPING = 2,
-            READY = 3,
-            BUSY = 4
+            BUSY = 3,
+            TALKING = 4,
+            READY = 5
         };
         #endregion
 
@@ -45,6 +46,7 @@ namespace EvoVI
         private static string _playerPhoneticName = "Pilot";
 
         private static DialogBase _currentDialogNode;
+        private static bool _disabled;
         #endregion
 
 
@@ -71,16 +73,21 @@ namespace EvoVI
         /// </summary>
         public static VIState State
         {
-            get { return VI._state; }
+            get { return _disabled ? VIState.OFFLINE : VI._state; }
             set
             {
+                VIState prevValue = VI.State;
+                VI._state = value;
+
+                // This check with State prevents the event from triggering, when the VI
+                // is disabled, but it's state is being changed, because to an outsider
+                // VI.State will always return OFFLINE. That would make it appear as if
+                // the state has changed from OFFLINE to OFFLINE, which is no change at all.
                 if (
-                    (_state != value) &&
+                    (prevValue != State) &&
                     (OnVIStateChanged != null)
                 )
-                { OnVIStateChanged(new OnVIStateChangedEventArgs(_state, value)); }
-
-                VI._state = value;
+                { OnVIStateChanged(new OnVIStateChangedEventArgs(State, value)); }
             }
         }
 
@@ -117,6 +124,38 @@ namespace EvoVI
         {
             get { return VI._currentDialogNode; }
             internal set { VI._currentDialogNode = value; }
+        }
+
+
+        /// <summary> Return whether the VI is disabled.
+        /// </summary>
+        public static bool Disabled
+        {
+            get { return VI._disabled; }
+            internal set
+            {
+                VIState prevApparentState = State;
+                VI._disabled = value;
+
+                // Disabling/Enabling the VI essentially makes it apppear to be OFFLINE (see "State"-getter),
+                // without changing the value itself, however.
+                // So if the "disabled" state changes, we need to fire the OnVIStateChanged event manually.
+                if (
+                    (
+                        ((!VI._disabled) && (prevApparentState == VIState.OFFLINE)) ||
+                        ((VI._disabled) && (prevApparentState != VIState.OFFLINE))
+                    ) &&
+                    (OnVIStateChanged != null)
+                )
+                { 
+                    OnVIStateChanged(
+                        new OnVIStateChangedEventArgs(
+                            VI._disabled ? prevApparentState : VIState.OFFLINE,
+                            VI._disabled ? VIState.OFFLINE : State
+                        )
+                    );
+                }
+            }
         }
         #endregion
 
