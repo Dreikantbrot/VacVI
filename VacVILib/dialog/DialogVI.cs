@@ -1,6 +1,7 @@
 ﻿using VacVI.Plugins;
 using System;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace VacVI.Dialog
 {
@@ -10,6 +11,7 @@ namespace VacVI.Dialog
         #region Variables
         private bool _waitUntilFinished;
         private DateTime _speechRegisteredInQueue;
+        Action<SpeechEngine.VISpeechStoppedEventArgs> _waitUntilFinishedHandler;
         #endregion
 
 
@@ -73,6 +75,11 @@ namespace VacVI.Dialog
         {
             this._speaker = DialogSpeaker.VI;
             this._waitUntilFinished = pWaituntilFinished;
+            this._waitUntilFinishedHandler = delegate(SpeechEngine.VISpeechStoppedEventArgs e)
+            {
+                SpeechEngine.OnVISpeechStopped -= this._waitUntilFinishedHandler;
+                base.Trigger();
+            };
         }
         #endregion
 
@@ -151,10 +158,20 @@ namespace VacVI.Dialog
         /// </summary>
         public override void Trigger()
         {
-            SpeechEngine.Say(this, !_waitUntilFinished);
+            if (_waitUntilFinished)
+            {
+                // Subscribe to the OnSpeechFinished event handler and trigger from there
+                SpeechEngine.OnVISpeechStopped += this._waitUntilFinishedHandler;
+                new Thread(() => { SpeechEngine.Say(this, false); }).Start();
+                return;
+            }
+            else
+            {
+                SpeechEngine.Say(this, true);
+            }
             base.Trigger();
 
-            // Next node is being selected via the onSpeechFinished event handler
+            // Next node selection will be called by the SpeechEngine automatically
         }
         #endregion
     }

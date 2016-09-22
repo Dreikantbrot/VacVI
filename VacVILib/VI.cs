@@ -40,6 +40,7 @@ namespace VacVI
         private static string _name = "Vāc";
         private static string _phoneticName = "Vahk";
         private static VIState _state = VIState.OFFLINE;
+        private static VIState _previousState = VIState.OFFLINE;
         private static uint _affiliationToPlayer = 50;
 
         private static string _playerName = "Pilot";
@@ -76,7 +77,7 @@ namespace VacVI
             get { return _disabled ? VIState.OFFLINE : VI._state; }
             set
             {
-                VIState prevValue = VI.State;
+                _previousState = VI.State;
                 VI._state = value;
 
                 // This check with State prevents the event from triggering, when the VI
@@ -84,11 +85,19 @@ namespace VacVI
                 // VI.State will always return OFFLINE. That would make it appear as if
                 // the state has changed from OFFLINE to OFFLINE, which is no change at all.
                 if (
-                    (prevValue != State) &&
+                    (_previousState != State) &&
                     (OnVIStateChanged != null)
                 )
                 { OnVIStateChanged(new OnVIStateChangedEventArgs(State, value)); }
             }
+        }
+
+
+        /// <summary> Returns the VI's previous state.
+        /// </summary>
+        public static VIState PreviousState
+        {
+            get { return VI._previousState; }
         }
 
 
@@ -134,7 +143,7 @@ namespace VacVI
             get { return VI._disabled; }
             internal set
             {
-                VIState prevApparentState = State;
+                _previousState = VI.State;
                 VI._disabled = value;
 
                 // Disabling/Enabling the VI essentially makes it apppear to be OFFLINE (see "State"-getter),
@@ -142,15 +151,15 @@ namespace VacVI
                 // So if the "disabled" state changes, we need to fire the OnVIStateChanged event manually.
                 if (
                     (
-                        ((!VI._disabled) && (prevApparentState == VIState.OFFLINE)) ||
-                        ((VI._disabled) && (prevApparentState != VIState.OFFLINE))
+                        ((!VI._disabled) && (_previousState == VIState.OFFLINE)) ||
+                        ((VI._disabled) && (_previousState != VIState.OFFLINE))
                     ) &&
                     (OnVIStateChanged != null)
                 )
                 { 
                     OnVIStateChanged(
                         new OnVIStateChangedEventArgs(
-                            VI._disabled ? prevApparentState : VIState.OFFLINE,
+                            VI._disabled ? _previousState : VIState.OFFLINE,
                             VI._disabled ? VIState.OFFLINE : State
                         )
                     );

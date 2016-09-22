@@ -99,7 +99,12 @@ namespace Native
         {
             List<PluginParameterDefault> parameters = new List<PluginParameterDefault>();
 
-            parameters.Add(new PluginParameterDefault("Auto Sleep Timeout", "Determines the time in seconds of silence, after which the VI will go on standby automatically.", "120", null));
+            parameters.Add(new PluginParameterDefault(
+                "Auto Sleep Timeout", 
+                "Determines the time in seconds of silence, after which the VI will go on standby automatically.", 
+                "120", 
+                null
+            ));
 
             return parameters;
         }
@@ -108,19 +113,47 @@ namespace Native
         {
             DialogTreeBranch[] dialog = new DialogTreeBranch[] {
                 new DialogTreeBranch(
-                    new DialogPlayer("Take a nap!;Go to sleep!;Goodnight.;Go on standby!", DialogBase.DialogPriority.CRITICAL),
+                    new DialogPlayer(
+                        "Take a nap!;Go to sleep!;Goodnight.;Go on standby!", 
+                        DialogBase.DialogPriority.CRITICAL
+                    ),
                     new DialogTreeBranch(  
-                        new DialogVI("Goodnight;Nap time!;Wake me up if you need me.", DialogBase.DialogPriority.NORMAL, () => { return (VI.State >= VI.VIState.READY); }, this.Name, "sleep")
+                        new DialogVI(
+                            "Goodnight;Nap time!;Wake me up if you need me.", 
+                            DialogBase.DialogPriority.NORMAL,
+                            () => { return (VI.State >= VI.VIState.READY); }, 
+                            this.Name, "sleep", 
+                            DialogBase.DialogFlags.NONE,
+                            true
+                        )
                     )
                 ),
 
                 new DialogTreeBranch(
-                    new DialogPlayer(String.Format("$[Hey ]$[{0} ]$(Wake up|I need your help)!", VI.PhoneticName), DialogBase.DialogPriority.CRITICAL, null, null, null, (DialogBase.DialogFlags.IGNORE_VI_STATE)),
-                    new DialogTreeBranch(  
-                        new DialogVI("$[But] I was $[already] awake the whole time.", DialogBase.DialogPriority.CRITICAL, () => { return (VI.State >= VI.VIState.READY); })
+                    new DialogPlayer(
+                        String.Format("$[Hey ]$[{0} ]$(Wake up|I need your help)!", VI.PhoneticName), 
+                        DialogBase.DialogPriority.CRITICAL, 
+                        null, 
+                        null,
+                        null, 
+                        (DialogBase.DialogFlags.IGNORE_VI_STATE)
                     ),
                     new DialogTreeBranch(  
-                        new DialogVI("Hello world!;Systems online.;Returning from standby.", DialogBase.DialogPriority.CRITICAL, () => { return (VI.State < VI.VIState.READY); }, this.Name, "wake_up", (DialogBase.DialogFlags.IGNORE_VI_STATE))
+                        new DialogVI(
+                            "$[But] I was $[already] awake the whole time.", 
+                            DialogBase.DialogPriority.CRITICAL, 
+                            () => { return (VI.State >= VI.VIState.READY); }
+                        )
+                    ),
+                    new DialogTreeBranch(  
+                        new DialogVI(
+                            "Hello world!;Systems online.;Returning from standby.", 
+                            DialogBase.DialogPriority.CRITICAL,
+                            () => { return (VI.State < VI.VIState.READY); }, 
+                            this.Name, 
+                            "wake_up", 
+                            (DialogBase.DialogFlags.IGNORE_VI_STATE)
+                        )
                     )
                 )
             };

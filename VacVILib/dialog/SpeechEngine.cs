@@ -334,11 +334,10 @@ namespace VacVI.Dialog
             // Check whether it's time to speak the dialog
             if (
                 (_queue[0] != dialogNode) ||
-            
+                (_synthesizer.State != SynthesizerState.Ready) ||
                 (
                     (!forceSpeech) &&
                     (VI.State <= VI.VIState.TALKING) &&
-                    (_synthesizer.State == SynthesizerState.Ready) &&
                     (dialogNode.Priority < DialogBase.DialogPriority.CRITICAL)
                 )
             )
@@ -376,20 +375,24 @@ namespace VacVI.Dialog
                 _soundOutput.Initialize(echoSource);
             }
 
-            if (outputFilepath == null)
+            try
             {
-                _soundOutput.Stopped += soundOutput_Stopped;
-                _soundOutput.Play();
+                if (outputFilepath == null)
+                {
+                    _soundOutput.Stopped += soundOutput_Stopped;
+                    _soundOutput.Play();
 
-                while ((!async) && (_soundOutput.PlaybackState == PlaybackState.Playing)) { }
-                //if (!async) { _soundOutput.WaitForStopped(); }    // <-- This function does NOT WORK! - Check at CSCore, whether it's fixed yet
+                    while ((!async) && (_soundOutput.PlaybackState == PlaybackState.Playing)) { }
+                    //if (!async) { _soundOutput.WaitForStopped(); }    // <-- This function does NOT WORK! - Check at CSCore, whether it's fixed yet
+                }
+                else
+                {
+                    if (!Directory.Exists(Path.GetDirectoryName(outputFilepath))) { Directory.CreateDirectory(Path.GetDirectoryName(outputFilepath)); }
+                    _soundOutput.WaveSource.WriteToFile(outputFilepath);
+                    soundOutput_Stopped(null, null);
+                }
             }
-            else
-            {
-                if (!Directory.Exists(Path.GetDirectoryName(outputFilepath))) { Directory.CreateDirectory(Path.GetDirectoryName(outputFilepath)); }
-                _soundOutput.WaveSource.WriteToFile(outputFilepath);
-                soundOutput_Stopped(null, null);
-            }
+            catch { }
         }
 
 
@@ -400,8 +403,7 @@ namespace VacVI.Dialog
         private static void soundOutput_Stopped(object sender, PlaybackStoppedEventArgs e)
         {
             VI.State = VI.VIState.READY;
-            if (_queue.Count <= 0) { 
-                return; }
+            if (_queue.Count <= 0) {  return; }
 
             // Get the dialog node that has just been played
             DialogVI currNode = _queue[0];
