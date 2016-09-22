@@ -1,7 +1,7 @@
-﻿using EvoVI;
-using EvoVI.Dialog;
-using EvoVI.Database;
-using EvoVI.Plugins;
+﻿using VacVI;
+using VacVI.Dialog;
+using VacVI.Database;
+using VacVI.Plugins;
 using System;
 using System.Collections.Generic;
 using System.Timers;
@@ -76,7 +76,7 @@ namespace Native
             if (_autoSleepTimer.Interval > 0) { _autoSleepTimer.Start(); }
         }
 
-        public void OnDialogAction(EvoVI.Dialog.DialogBase originNode)
+        public void OnDialogAction(VacVI.Dialog.DialogBase originNode)
         {
             switch (originNode.Data.ToString())
             {

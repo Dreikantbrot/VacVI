@@ -1,8 +1,8 @@
-﻿using EvoVI;
-using EvoVI.Dialog;
-using EvoVI.Database;
-using EvoVI.Input;
-using EvoVI.Plugins;
+﻿using VacVI;
+using VacVI.Dialog;
+using VacVI.Database;
+using VacVI.Input;
+using VacVI.Plugins;
 using System;
 using System.Collections.Generic;
 

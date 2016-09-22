@@ -1,9 +1,9 @@
-﻿using EvoVI.Dialog;
-using EvoVI.Database;
-using EvoVI.Plugins;
+﻿using VacVI.Dialog;
+using VacVI.Database;
+using VacVI.Plugins;
 using System;
 using System.Collections.Generic;
-using EvoVI;
+using VacVI;
 
 namespace Native
 {
@@ -68,7 +68,7 @@ namespace Native
 
         }
 
-        public void OnDialogAction(EvoVI.Dialog.DialogBase originNode)
+        public void OnDialogAction(VacVI.Dialog.DialogBase originNode)
         {
 
         }

@@ -1,0 +1,88 @@
+<html>
+<head>
+	<style>
+		div.player,
+		div.vi,
+		div.command
+		{
+			color: #333;
+			margin: 10px;
+			padding: 10px;
+			border: 2px solid;
+			/* border-radius: 5px; */
+			border: 2px solid #888;
+			font-family: consolas;
+		}
+
+		div.player,
+		div.player div
+		{
+			border-color: #ffe599 !important;
+		}
+
+		div.player
+		{
+			background-color: #fff2cc;
+		}
+
+		div.vi,
+		div.vi div
+		{
+			border-color: #bdd6ee !important;
+		}
+
+		div.vi
+		{
+			background-color: #deeaf6;
+		}
+
+		div.command,
+		div.command div
+		{
+			border-color: #c5e0b3 !important;
+		}
+
+		div.command
+		{
+			background-color: #e2efd9;
+		}
+		
+		div.player div,
+		div.vi div,
+		div.command div
+		{
+			padding: 5px;
+			margin: 10px;
+			border: 1px solid;
+		}
+
+		table.sentenceCompositions
+		{
+			border-spacing: 0px;
+		}
+		
+		td.static,
+		td.choice
+		{
+			padding-right: 10px;
+		}
+
+
+		td.choice
+		{
+			text-align: center;
+		}
+
+		td.choice.Choice
+		{
+		}
+
+		td.choice.OptChoice
+		{
+			color: #AAA;
+		}
+	</style>
+</head>
+
+<body></body>	
+</html>
