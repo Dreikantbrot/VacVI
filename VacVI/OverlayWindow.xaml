@@ -19,7 +19,7 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition x:Name="LogoHeightGrid" Height="78" MaxHeight="58"/>
+            <RowDefinition x:Name="LogoHeightGrid" Height="78" MaxHeight="78"/>
             <RowDefinition x:Name="LogoVITextGrid" Height="Auto"/>
             <RowDefinition x:Name="LogoAnswerTextGrid" Height="Auto"/>
             <RowDefinition/>

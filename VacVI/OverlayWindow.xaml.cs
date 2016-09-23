@@ -85,6 +85,7 @@ namespace VacVIOverlay
         private bool _playLoadingAnimation;
         private bool _debugMode = true;
         private double _standardIconOpacity = 1;
+        private double _standardOverlayOpacity = 0.8;
 
         private Action _imgBlinkIn;
         private Action _imgBlinkOut;
@@ -117,6 +118,7 @@ namespace VacVIOverlay
             AnimationBehavior.AddLoadedHandler(img_LogoBackground, onGifAnimatorLoaded);
 
             _standardIconOpacity = img_StatusIcon.Opacity;
+            _standardOverlayOpacity = this.Opacity;
 
             _imgBlinkIn = new Action(() => { img_StatusIcon.Opacity = _standardIconOpacity; });
             _imgBlinkOut = new Action(() => { img_StatusIcon.Opacity = Math.Max(_standardIconOpacity - 0.2, 0); });
@@ -297,8 +299,6 @@ namespace VacVIOverlay
                 // Play loading animation
                 if (_playLoadingAnimation)
                 {
-                    double originalOpacity = this.Opacity;
-
                     Storyboard story;
                     DoubleAnimation animation;
                     TimeSpan animDuration;
@@ -312,7 +312,7 @@ namespace VacVIOverlay
                     timeOffset += 4;
                     animDuration = TimeSpan.FromSeconds(1);
 
-                    animation = new DoubleAnimation(originalOpacity, animDuration);
+                    animation = new DoubleAnimation(_standardOverlayOpacity, animDuration);
                     animation.BeginTime = TimeSpan.FromSeconds(timeOffset);
                     Storyboard.SetTarget(animation, this);
                     Storyboard.SetTargetProperty(animation, new PropertyPath(System.Windows.Shapes.Shape.OpacityProperty));
@@ -478,7 +478,7 @@ namespace VacVIOverlay
                         destResource += (
                             (obj.CurrentState >= VI.VIState.READY) ? "Normal" :                             // <-- Normal colors on ready-state
                             (obj.CurrentState == VI.VIState.BUSY) ? ((i == 1) ? "Grayscale" : "Normal") :   // <-- Gray border only, if in busy-state
-                            (obj.CurrentState <= VI.VIState.SLEEPING) ? "Grayscale" :                       // <-- Grayscale everything, if sleeping or offline
+                            (obj.CurrentState <= VI.VIState.OFFLINE) ? "Grayscale" :                        // <-- Grayscale everything, if offline
                             "Normal"                                                                        // <-- All other states normal
                         );
 
@@ -489,6 +489,14 @@ namespace VacVIOverlay
                         Storyboard.SetTargetProperty(animation, new PropertyPath(properties[i] + ".Color"));
                         story.Children.Add(animation);
                     }
+
+                    // Animate opacity
+                    DoubleAnimation opacityAnimation = new DoubleAnimation();
+                    opacityAnimation.To = (obj.CurrentState == VI.VIState.SLEEPING) ? 0.4 : _standardOverlayOpacity;    // Opacity lower, when sleeping
+                    opacityAnimation.Duration = animationTime;
+                    Storyboard.SetTarget(opacityAnimation, this);
+                    Storyboard.SetTargetProperty(opacityAnimation, new PropertyPath(OpacityProperty));
+                    story.Children.Add(opacityAnimation);
 
                     story.Begin();
                 }
