@@ -38,7 +38,7 @@ namespace VacVI
 
         #region Variables
         private static string _name = "Vāc";
-        private static string _phoneticName = "Vahk";
+        private static string _phoneticName = "Vahq";
         private static VIState _state = VIState.OFFLINE;
         private static VIState _previousState = VIState.OFFLINE;
         private static uint _affiliationToPlayer = 50;

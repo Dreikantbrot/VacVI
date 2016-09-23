@@ -2,31 +2,46 @@
 using System;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace VacVI.Dialog
 {
     /// <summary> A dialog node that is spoken by the VI.</summary>
     public class DialogVI : DialogBase
     {
+        #region Regexes (readonly)
+        /// <summary> Regex for filtering out word writings and pronunciations.</summary>
+        private static readonly Regex WORD_PRONUNCIATION_REGEX = new Regex(@"<\s*(?<RawText>.+?)\s*-->\s*(?<SpokenText>.+?)\s*>");
+        #endregion
+
+
         #region Variables
         private bool _waitUntilFinished;
         private DateTime _speechRegisteredInQueue;
-        Action<SpeechEngine.VISpeechStoppedEventArgs> _waitUntilFinishedHandler;
+        private Action<SpeechEngine.VISpeechStoppedEventArgs> _waitUntilFinishedHandler;
         #endregion
 
 
         #region Properties
-        /// <summary> Returns the parsed dialog text.
+        /// <summary> Returns the parsed dialog text (how it is spoken).
         /// </summary>
         public override string Text
         {
-            get { return parseRandomSentence(); }
+            get { return ResolvePronunciationSyntax(ParseRandomSentence(), true); }
+        }
+
+
+        /// <summary> Returns the parsed dialog text (how it is displayed).
+        /// </summary>
+        public override string DisplayedText
+        {
+            get { return ResolvePronunciationSyntax(ParseRandomSentence(), false); }
         }
 
 
         /// <summary> Returns the string to display on the GUI.
         /// </summary>
-        internal override string GUIDisplayText
+        internal override string DebugDisplayText
         {
             get { return "<...>"; }
         }
@@ -87,7 +102,7 @@ namespace VacVI.Dialog
         #region Functions
         /// <summary> Parses a randomized composition of the text the VI should speak.
         /// </summary>
-        private string parseRandomSentence()
+        public string ParseRandomSentence()
         {
             Random rndNr = new Random();
             string result = "";
@@ -138,6 +153,26 @@ namespace VacVI.Dialog
                 if (!Regex.IsMatch(result, @"[!.?]\s*$")) { result += "."; }    // Add punctuation mark
             }
             return result;
+        }
+
+
+        /// <summary> Takes a syntax string and parses word pronunciations to the desired version.
+        /// </summary>
+        /// <param name="text">The syntax string.</param>
+        /// <param name="parseToSpokenText">If true, parses the spoken text, else the displayed text.</param>
+        /// <returns>The parsed text.</returns>
+        public string ResolvePronunciationSyntax(string text, bool parseToSpokenText)
+        {
+            MatchCollection pronunciationMatches = WORD_PRONUNCIATION_REGEX.Matches(text);
+            for (int u = 0; u < pronunciationMatches.Count; u++)
+            {
+                text = text.Replace(
+                    pronunciationMatches[u].Value,
+                    pronunciationMatches[u].Groups[parseToSpokenText ? "SpokenText" : "RawText"].Value
+                );
+            }
+
+            return text;
         }
         #endregion
 

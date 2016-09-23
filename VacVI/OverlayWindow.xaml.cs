@@ -523,7 +523,7 @@ namespace VacVIOverlay
                     // Play the icon animation when the VI speaks
                     this.Dispatcher.InvokeAsync(_rotateStatusIconAction);
 
-                    txt_VISpeechText.Text = obj.SpokenPhrase;
+                    txt_VISpeechText.Text = obj.DisplayedPhrase;
                     stckPnl_PlayerAnswers.Children.Clear();
 
                     bool hadPlayerNodes = false;
@@ -1030,7 +1030,7 @@ namespace VacVIOverlay
                             arrow + dock + " " +
                             currChild.Speaker + ": "
                         ) : 
-                    "") +  currChild.GUIDisplayText + "\n";
+                    "") +  currChild.DebugDisplayText + "\n";
 
                 dialogInfo += buildDialogInfo(currChild, level + 1);
             }

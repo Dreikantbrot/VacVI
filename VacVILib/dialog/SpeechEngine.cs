@@ -54,11 +54,13 @@ namespace VacVI.Dialog
         {
             public DialogVI SpokenDialog { get; private set; }
             public string SpokenPhrase { get; private set; }
+            public string DisplayedPhrase { get; private set; }
 
-            internal VISpeechStartedEventArgs(DialogVI pSpokenDialog, string pSpokenPhrase)
+            internal VISpeechStartedEventArgs(DialogVI pSpokenDialog, string pSpokenPhrase, string pDisplayedPhrase)
             {
                 this.SpokenDialog = pSpokenDialog;
                 this.SpokenPhrase = pSpokenPhrase;
+                this.DisplayedPhrase = pDisplayedPhrase;
             }
         }
 
@@ -344,9 +346,11 @@ namespace VacVI.Dialog
             { return; }
 
             VI.State = VI.VIState.TALKING;
-            string textToSpeak = dialogNode.Text;
+            string randomText = dialogNode.ParseRandomSentence();
+            string textToSpeak = dialogNode.ResolvePronunciationSyntax(randomText, true);
+            string textToDisplay = dialogNode.ResolvePronunciationSyntax(randomText, false);
 
-            if (OnVISpeechStarted != null) { OnVISpeechStarted(new VISpeechStartedEventArgs(dialogNode, textToSpeak)); }
+            if (OnVISpeechStarted != null) { OnVISpeechStarted(new VISpeechStartedEventArgs(dialogNode, textToSpeak, textToDisplay)); }
             
             // TODO: Set emphasis and break lengths
             PromptBuilder prmptBuilder = new PromptBuilder();

@@ -93,11 +93,19 @@ namespace VacVI.Dialog
         }
 
 
-        /// <summary> Returns the parsed dialog text.
+        /// <summary> Returns the parsed dialog text (how it is spoken).
         /// </summary>
         public virtual string Text
         {
             get { return _text; }
+        }
+
+
+        /// <summary> Returns the parsed dialog text (how it is displayed).
+        /// </summary>
+        public virtual string DisplayedText
+        {
+            get { return this._text; }
         }
 
 
@@ -201,9 +209,9 @@ namespace VacVI.Dialog
         }
 
 
-        /// <summary> Returns the string to display on the GUI.
+        /// <summary> Returns the string to display on the GUI in debug mode.
         /// </summary>
-        internal virtual string GUIDisplayText
+        internal virtual string DebugDisplayText
         {
             get { return this._text; }
         }
