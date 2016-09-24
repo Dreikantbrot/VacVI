@@ -667,6 +667,9 @@ namespace VacVIConfigurator
         private void txt_InstallDir_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             verifyInstallDir();
+
+            // Update "Extras"-Subtab
+            tab_Extras_GotFocus(sender, null);
         }
         #endregion
 
@@ -847,7 +850,7 @@ namespace VacVIConfigurator
         private void tab_Extras_GotFocus(object sender, RoutedEventArgs e)
         {
             bool installDirValid = verifyInstallDir();
-            //btn_Extras_GenerateAudioFiles.IsEnabled = installDirValid;
+            btn_Extras_GenerateAudioFiles.IsEnabled = installDirValid;
             txt_Extras_TargetAudioFilepath.Text = (installDirValid) ?
                 "Target path: " + GameMeta.CurrentGameDirectoryPath + "\\alerts" : "The current installation directory is invalid!";
             txt_Extras_TargetAudioFilepath.Foreground = (installDirValid) ?
@@ -895,7 +898,6 @@ namespace VacVIConfigurator
             fileData.Add("bb-tractor.wav", "Docking tractor beam engaged");
 
             string targetPath = GameMeta.CurrentGameDirectoryPath + "\\alerts\\";
-            VI.State = VI.VIState.READY;
             foreach (KeyValuePair<string, string> keyVal in fileData)
             {
                 // Generate the audio files
@@ -907,7 +909,6 @@ namespace VacVIConfigurator
                     true
                 );
             }
-            VI.State = VI.VIState.OFFLINE;
         }
 
 
