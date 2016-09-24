@@ -18,13 +18,8 @@ namespace VacVIConfigurator
     /// </summary>
     public partial class ConfiguratorWindow : Window
     {
-        #region DLL Imports
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        static extern int MapVirtualKey(uint uCode, uint uMapType);
-        #endregion
-
-
         #region Classes
+        /// <summary> Class holding a real and displayed value for comboboxes.</summary>
         private class ValueLabelPair
         {
             #region Variables
@@ -34,12 +29,17 @@ namespace VacVIConfigurator
 
 
             #region Properties
+            /// <summary> Returns or sets the underlying (real) value.
+            /// </summary>
             public object Value
             {
                 get { return _value; }
                 set { _value = value; }
             }
 
+
+            /// <summary> Returns or sets the value's label.
+            /// </summary>
             public string DisplayValue
             {
                 get { return _displayValue; }
@@ -48,20 +48,36 @@ namespace VacVIConfigurator
             #endregion
 
 
-            public ValueLabelPair(object pValue = null, string pLabel = null)
+            #region Constructor
+            /// <summary> Creates a value-label pair.
+            /// </summary>
+            /// <param name="pValue">The underlying value.</param>
+            /// <param name="pLabel">The displayed value / value label.</param>
+            public ValueLabelPair(object pValue = null, string pDisplayValue = null)
             {
                 _value = pValue;
-                _displayValue = pLabel;
+                _displayValue = pDisplayValue;
             }
+            #endregion
         }
 
+
+        /// <summary> Class holding a real and displayed value for supported games.</summary>
         private class GameEntry : ValueLabelPair
         {
+            /// <summary> Creates a game entry instance as a value-label pair.
+            /// </summary>
+            /// <param name="pValue">The supported game.</param>
             public GameEntry(GameMeta.SupportedGame pValue) : base(pValue, GameMeta.GetDescription(pValue)) { }
         }
 
+
+        /// <summary> Class holding a real and displayed value for VI voices.</summary>
         private class VIVoice : ValueLabelPair
         {
+            /// <summary> Creates a VI voice entry instance as a value-label pair.
+            /// </summary>
+            /// <param name="pValue">The VI modulation mode (aka the voice).</param>
             public VIVoice(SpeechEngine.VoiceModulationModes pValue) : base(pValue)
             {                
                 switch(pValue)
@@ -85,6 +101,7 @@ namespace VacVIConfigurator
 
 
         #region Enums
+        /// <summary> Enum for Okay-Warning-Error states.</summary>
         private enum CheckBoxColorState
         {
             NONE = -1,
@@ -365,11 +382,66 @@ namespace VacVIConfigurator
 
             _uiLocked = lockUI;
         }
+
+
+        /// <summary> Tests the pronounciation of the entered name in text-to-speech.
+        /// </summary>
+        /// <param name="testText">The name to test.</param>
+        private void testName(string testText)
+        {
+            btn_Config_VINameTest.IsEnabled = false;
+            btn_Config_PlayerNameTest.IsEnabled = false;
+
+            SpeechEngine.Say(new DialogVI(testText), true, SpeechEngine.VoiceModulation, null, true);
+
+            btn_Config_VINameTest.IsEnabled = true;
+            btn_Config_PlayerNameTest.IsEnabled = true;
+        }
+
+
+        /// <summary> Checks and updates the status of the currently loaded plugin.
+        /// </summary>
+        private void validatePlugin()
+        {
+            if (comBox_PluginSelection.SelectedItem == null) { return; }
+
+            // Update plugin information
+            string newSelectedPluginName = ((ValueLabelPair)comBox_PluginSelection.SelectedItem).Value.ToString();
+            IPlugin plugin = PluginManager.GetPlugin(newSelectedPluginName);
+
+            if (plugin != null)
+            {
+                lbl_PluginName.Text = plugin.Name;
+                lbl_PluginVersion.Text = "Version: " + (!String.IsNullOrWhiteSpace(plugin.Version) ? plugin.Version : "N/A");
+                lbl_PluginDescription.Text = !String.IsNullOrWhiteSpace(plugin.Description) ? plugin.Description : "";
+                lbl_PluginAuthor.Text = !String.IsNullOrWhiteSpace(plugin.Author) ? plugin.Author : "<Unknown Author>";
+                lbl_PluginHomepage.Text = !String.IsNullOrWhiteSpace(plugin.Homepage) ? plugin.Homepage : "<Homepage N/A>";
+
+                // (Un-)Check the "compatibility" checkbox and update the style
+                bool isCompatible = ((GameMeta.CurrentGame & plugin.CompatibilityFlags) == GameMeta.CurrentGame);
+                txt_PluginCompatibility.Foreground = (
+                    new System.Windows.Media.SolidColorBrush(isCompatible ? Color.FromArgb(200, 0, 200, 0) : Color.FromArgb(200, 250, 0, 0))
+                );
+                txt_PluginCompatibility.Background = (
+                    new System.Windows.Media.SolidColorBrush(isCompatible ? Color.FromArgb(128, 0, 180, 0) : Color.FromArgb(128, 200, 0, 0))
+                );
+                txt_PluginCompatibility.Text = (isCompatible ? "" : "Not ") + "Compatible";
+                txt_PluginCompatibility.Visibility = System.Windows.Visibility.Visible;
+
+                // (Un-)Check the "enabled" checkbox and trigger checked/unchecked event to do the rest
+                chck_PluginsEnabled.IsChecked = (
+                    (!PluginManager.PluginFile.HasKey(plugin.Name, "Enabled")) ||
+                    (PluginManager.PluginFile.ValueIsBoolAndTrue(plugin.Name, "Enabled"))
+                );
+                chck_PluginsEnabled_CheckedUnchecked(null, null);
+            }
+        }
         #endregion
 
 
         #region Events
-        /// <summary> Fires, when the configurator is closing.
+        /// <summary> Stops the game process searh, if still ongoing.
+        /// Fires, when the configurator is closing.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The cancel event arguments.</param>
@@ -380,7 +452,8 @@ namespace VacVIConfigurator
         
 
         #region Overview Events
-        /// <summary> Fires when the "Overview"-tab is being focused.
+        /// <summary> Updates the checklist on the "Overview"-tab.
+        /// Fires when the "Overview"-tab is being focused.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The routed event arguments.</param>
@@ -464,7 +537,8 @@ namespace VacVIConfigurator
         }
 
 
-        /// <summary> Fires when the "Close"-button is clicked.
+        /// <summary> Cancels game process earch and unlocks UI or closes the application.
+        /// Fires when the "Close"-button is clicked.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The routed event arguments.</param>
@@ -474,7 +548,8 @@ namespace VacVIConfigurator
         }
 
 
-        /// <summary> Locks the configurator UI and waits for the game process to start.
+        /// <summary> Locks the UI and starts the game process check.
+        /// Locks the configurator UI and waits for the game process to start.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The routed event arguments.</param>
@@ -493,7 +568,8 @@ namespace VacVIConfigurator
         }
 
 
-        /// <summary> Hides the configurator and starts the overlay.
+        /// <summary> Hides the configurator, starts the overlay and awaits its termination.
+        /// Hides the configurator and starts the overlay.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The routed event arguments.</param>
@@ -524,7 +600,8 @@ namespace VacVIConfigurator
 
 
         #region Configuration Events
-        /// <summary> Fires when the "Save Settings"-button has been clicked.
+        /// <summary> Saves the configurator settings to a file.
+        /// Fires when the "Save Settings"-button has been clicked.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The routed event arguments.</param>
@@ -543,7 +620,8 @@ namespace VacVIConfigurator
 
         
         #region Install Directory
-        /// <summary> Fires when the "Browse"-button is clicked.
+        /// <summary> Opens the "Browse" dialog window.
+        /// Fires when the "Browse"-button is clicked.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The routed event arguments.</param>
@@ -557,7 +635,8 @@ namespace VacVIConfigurator
         }
 
 
-        /// <summary> Fires when the game within the game selection list changed.
+        /// <summary> Changes the selected game and updates the configurator.
+        /// Fires when the game within the game selection list changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The selection changed event arguments.</param>
@@ -580,7 +659,8 @@ namespace VacVIConfigurator
         }
 
 
-        /// <summary> Fires when the text inside the path-textbox changed.
+        /// <summary> Verifies the newly entered install directory.
+        /// Fires when the text inside the path-textbox changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The text changed event arguments.</param>
@@ -592,7 +672,8 @@ namespace VacVIConfigurator
 
 
         #region VI Settings
-        /// <summary> Fires when the VI's name has been changed.
+        /// <summary> Updates the VI's name in the current configuration.
+        /// Fires when the VI's name has been changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The text changed event arguments.</param>
@@ -603,7 +684,8 @@ namespace VacVIConfigurator
         }
 
 
-        /// <summary> Fires when the VI's phonetic name has been changed.
+        /// <summary> Updates the VI's phonetic name in the current configuration.
+        /// Fires when the VI's phonetic name has been changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The text changed event arguments.</param>
@@ -614,7 +696,8 @@ namespace VacVIConfigurator
         }
 
 
-        /// <summary> Fires when the "Test Pronouncation"-button has been clicked.
+        /// <summary> Makes the VI say it's phonetic name for test purposes.
+        /// Fires when the "Test Pronouncation"-button has been clicked.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The routed event arguments.</param>
@@ -624,7 +707,8 @@ namespace VacVIConfigurator
         }
 
 
-        /// <summary> Fires when VI voice has been changed.
+        /// <summary> Updates the VI's voice in the current configuration.
+        /// Fires when VI voice has been changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The selection changed event arguments.</param>
@@ -638,7 +722,8 @@ namespace VacVIConfigurator
         }
 
 
-        /// <summary> Fires when the language for the speech recognition engine has been changed.
+        /// <summary> Updates the voice recognition language in the current configuration.
+        /// Fires when the language for the speech recognition engine has been changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The selection changed event arguments.</param>
@@ -651,7 +736,8 @@ namespace VacVIConfigurator
         }
 
 
-        /// <summary> Fires when the player's name has been changed.
+        /// <summary> Updates the player's name in the current configuration.
+        /// Fires when the player's name has been changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The text changed event arguments.</param>
@@ -662,7 +748,8 @@ namespace VacVIConfigurator
         }
 
 
-        /// <summary> Fires when the player's phonetic name has been changed.
+        /// <summary> Updates the player's phonetic name in the current configuration.
+        /// Fires when the player's phonetic name has been changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The text changed event arguments.</param>
@@ -673,7 +760,8 @@ namespace VacVIConfigurator
         }
 
 
-        /// <summary> Fires when the "Test Pronouncation"-button has been clicked.
+        /// <summary> Makes the VI say the player's phonetic name for test purposes.
+        /// Fires when the "Test Pronouncation"-button has been clicked.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The routed event arguments.</param>
@@ -681,26 +769,12 @@ namespace VacVIConfigurator
         {
             testName(txt_Config_PlayerPhoneticName.Text);
         }
-
-
-        /// <summary> Tests the pronounciation of the entered name in text-to-speech.
-        /// </summary>
-        /// <param name="testText">The name to test.</param>
-        private void testName(string testText)
-        {
-            btn_Config_VINameTest.IsEnabled = false;
-            btn_Config_PlayerNameTest.IsEnabled = false;
-
-            SpeechEngine.Say(new DialogVI(testText), true,  SpeechEngine.VoiceModulation, null, true);
-
-            btn_Config_VINameTest.IsEnabled = true;
-            btn_Config_PlayerNameTest.IsEnabled = true;
-        }
         #endregion
 
 
         #region Overlay
-        /// <summary> Fires when the loading animation option has changed.
+        /// <summary> Updates the "play loading animatiton on startup" setting in the current configuration.
+        /// Fires when the loading animation option has changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The routed event arguments.</param>
@@ -716,7 +790,8 @@ namespace VacVIConfigurator
 
 
 
-        /// <summary> Fires when the game update indicator option has changed.
+        /// <summary> Updates the "display game data update indicator" setting in the current configuration.
+        /// Fires when the game update indicator option has changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The routed event arguments.</param>
@@ -731,7 +806,8 @@ namespace VacVIConfigurator
         }
 
 
-        /// <summary> Fires when the values wthin the textboxes for the overlay positon have changed.
+        /// <summary> Validates the overlay's entered X and Y coordinates.
+        /// Fires when the values wthin the textboxes for the overlay positon have changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The text composition event arguments.</param>
@@ -763,7 +839,8 @@ namespace VacVIConfigurator
 
 
         #region Extras
-        /// <summary> Fires when the "Extras"-tab is being focused.
+        /// <summary> Updates the "Extras"-tab.
+        /// Fires when the "Extras"-tab is being focused.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The routed event arguments.</param>
@@ -778,7 +855,8 @@ namespace VacVIConfigurator
         }
 
 
-        /// <summary> Fires when the "Generate Audio Files"-button within "Extras" is being clicked.
+        /// <summary> Generates custom, VI spoken sound files for the game.
+        /// Fires when the "Generate Audio Files"-button within "Extras" is being clicked.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The routed event arguments.</param>
@@ -833,7 +911,8 @@ namespace VacVIConfigurator
         }
 
 
-        /// <summary> Fires when the Theme within "Extras" has been changed.
+        /// <summary> Changes the configurator theme.
+        /// Fires when the Theme within "Extras" has been changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The selection changed event arguments.</param>
@@ -853,7 +932,8 @@ namespace VacVIConfigurator
         }
 
 
-        /// <summary> Fires, when the "Generate HTML File" button has been clicked.
+        /// <summary> Generates an HTML file with all available dialogs.
+        /// Fires, when the "Generate HTML File" button has been clicked.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The routed event arguments.</param>
@@ -875,7 +955,8 @@ namespace VacVIConfigurator
 
 
         #region Controls Events
-        /// <summary> Fires when the "Controls"-tab received focus.
+        /// <summary> Updates the in-game controls overview.
+        /// Fires when the "Controls"-tab received focus.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The routed event arguments.</param>
@@ -925,7 +1006,8 @@ namespace VacVIConfigurator
 
 
         #region Plugins Events
-        /// <summary> Fires when the plugin within the plugin selection list changed.
+        /// <summary> Updates plugin information.
+        /// Fires when the plugin within the plugin selection list changed.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The selection changed event arguments.</param>
@@ -1065,11 +1147,12 @@ namespace VacVIConfigurator
         }
 
 
-        /// <summary> Fires when a parameter has been changed under plugin configuration via combobox.
+        /// <summary> Saves the edited plugin value for values in a combobox to file.
+        /// Fires when a parameter has been changed under plugin configuration via combobox.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The selection changed event arguments.</param>
-        void onParamValueChanged(object sender, SelectionChangedEventArgs e)
+        private void onParamValueChanged(object sender, SelectionChangedEventArgs e)
         {
             if (((ComboBox)sender).SelectedValue == null) { return; }
 
@@ -1084,11 +1167,12 @@ namespace VacVIConfigurator
         }
 
 
-        /// <summary> Fires when a parameter has been changed under plugin configuration via textbox.
+        /// <summary> Saves the edited plugin value for values in a textbox to file.
+        /// Fires when a parameter has been changed under plugin configuration via textbox.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The text changed event arguments.</param>
-        void onParamValueChanged(object sender, TextChangedEventArgs e)
+        private void onParamValueChanged(object sender, TextChangedEventArgs e)
         {
             string newSelectedPluginName = ((ValueLabelPair)comBox_PluginSelection.SelectedItem).Value.ToString();
             IPlugin plugin = PluginManager.GetPlugin(newSelectedPluginName);
@@ -1100,7 +1184,8 @@ namespace VacVIConfigurator
         }
 
 
-        /// <summary> Fires when the "Enabled"-checkbox under "Plugins" has changed status.
+        /// <summary> Saves a plugin's enabled/disabled state to file.
+        /// Fires when the "Enabled"-checkbox under "Plugins" has changed status.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The routed event arguments.</param>
@@ -1127,50 +1212,12 @@ namespace VacVIConfigurator
             );
             chck_PluginsEnabled.Content = ((chck_PluginsEnabled.IsChecked == true) ? "En" : "Dis") + "abled";
         }
-
-
-        /// <summary> Checks and updates the status of the currently loaded plugin.
-        /// </summary>
-        private void validatePlugin()
-        {
-            if (comBox_PluginSelection.SelectedItem == null) { return; }
-
-            // Update plugin information
-            string newSelectedPluginName = ((ValueLabelPair)comBox_PluginSelection.SelectedItem).Value.ToString();
-            IPlugin plugin = PluginManager.GetPlugin(newSelectedPluginName);
-
-            if (plugin != null)
-            {
-                lbl_PluginName.Text = plugin.Name;
-                lbl_PluginVersion.Text = "Version: " + (!String.IsNullOrWhiteSpace(plugin.Version) ? plugin.Version : "N/A");
-                lbl_PluginDescription.Text = !String.IsNullOrWhiteSpace(plugin.Description) ? plugin.Description : "";
-                lbl_PluginAuthor.Text = !String.IsNullOrWhiteSpace(plugin.Author) ? plugin.Author : "<Unknown Author>";
-                lbl_PluginHomepage.Text = !String.IsNullOrWhiteSpace(plugin.Homepage) ? plugin.Homepage : "<Homepage N/A>";
-
-                // (Un-)Check the "compatibility" checkbox and update the style
-                bool isCompatible = ((GameMeta.CurrentGame & plugin.CompatibilityFlags) == GameMeta.CurrentGame);
-                txt_PluginCompatibility.Foreground = (
-                    new System.Windows.Media.SolidColorBrush(isCompatible ? Color.FromArgb(200, 0, 200, 0) : Color.FromArgb(200, 250, 0, 0))
-                );
-                txt_PluginCompatibility.Background = (
-                    new System.Windows.Media.SolidColorBrush(isCompatible ? Color.FromArgb(128, 0, 180, 0) : Color.FromArgb(128, 200, 0, 0))
-                );
-                txt_PluginCompatibility.Text = (isCompatible ? "" : "Not ") + "Compatible";
-                txt_PluginCompatibility.Visibility = System.Windows.Visibility.Visible;
-
-                // (Un-)Check the "enabled" checkbox and trigger checked/unchecked event to do the rest
-                chck_PluginsEnabled.IsChecked = (
-                    (!PluginManager.PluginFile.HasKey(plugin.Name, "Enabled")) ||
-                    (PluginManager.PluginFile.ValueIsBoolAndTrue(plugin.Name, "Enabled"))
-                );
-                chck_PluginsEnabled_CheckedUnchecked(null, null);
-            }
-        }
         #endregion
 
 
         #region About Events
-        /// <summary> Fires when a Hyperlink has been clicked.
+        /// <summary> Opens a hyperlink in the "About" tab.
+        /// Fires when a Hyperlink has been clicked.
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The request navigate event arguments.</param>
