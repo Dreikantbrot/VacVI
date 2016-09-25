@@ -211,15 +211,8 @@
                     <RowDefinition Height="68"/>
                 </Grid.RowDefinitions>
                 <GroupBox Header="Current Configuration" Margin="10" Background="{DynamicResource BackgroundBrush}" BorderBrush="White" Foreground="White" FontWeight="Bold">
-                    <ScrollViewer VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalScrollBarVisibility="Auto">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="300"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel x:Name="stck_ControlDescr" Orientation="Vertical" Margin="0"/>
-                            <StackPanel x:Name="stck_Controls" Orientation="Vertical" Grid.Column="1" Margin="0"/>
-                        </Grid>
+                    <ScrollViewer VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalScrollBarVisibility="Auto" Margin="0,3,0,0">
+                        <Grid x:Name="grid_Controls" Margin="0"/>
                     </ScrollViewer>
                 </GroupBox>
                 <TextBox Margin="10" TextWrapping="Wrap" Background="{DynamicResource BackgroundBrush}" Foreground="White" Padding="0" VerticalContentAlignment="Center" CaretBrush="{Binding SelectionBrush, ElementName=txt_InstallDir}" TextChanged="txt_InstallDir_TextChanged" HorizontalContentAlignment="Center" FontWeight="Bold" FontSize="14" Focusable="False" Grid.Row="1" Text="Note: These displayed controls have automatically been extracted from the current game profile."/>
@@ -253,8 +246,23 @@
                 <Image Height="88" Margin="10,10,10,0" VerticalAlignment="Top" Grid.Row="1" Grid.Column="1"/>
                 <TextBox x:Name="lbl_PluginDescription" Margin="10,103,10,38" TextWrapping="Wrap" Text="Plugin Description" Grid.Row="1" Background="{DynamicResource BackgroundBrush}" Foreground="White" IsReadOnly="True" Grid.ColumnSpan="2" Focusable="False"/>
                 <TextBox x:Name="lbl_PluginVersion" Margin="10,0,10,10" TextWrapping="Wrap" Text="Version" Grid.Row="1" Background="{DynamicResource BackgroundBrush}" Foreground="White" FontWeight="Normal" VerticalContentAlignment="Center" IsReadOnly="True" MaxLines="1" Grid.ColumnSpan="2" Focusable="False" Height="23" VerticalAlignment="Bottom"/>
-                <GroupBox x:Name="grpBox_PluginsConfigWndow" Grid.Column="2" Header="Plugin Configuration" Margin="10,5,10,10" Grid.Row="1" Foreground="White" BorderBrush="White" Background="{DynamicResource BackgroundBrush}" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" FontWeight="Bold">
-                    <StackPanel x:Name="stck_PluginsParameters" Margin="5,10,5,5"/>
+                <GroupBox Grid.Column="2" Header="Plugin Configuration" Margin="10,5,10,10" Grid.Row="1" Foreground="White" BorderBrush="White" Background="{DynamicResource BackgroundBrush}" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" FontWeight="Bold">
+                    <Grid>
+                        <ScrollViewer VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalScrollBarVisibility="Auto">
+                            <Grid x:Name="grid_pluginParameterGrid">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" MinWidth="120" MaxWidth="250"/>
+                                    <ColumnDefinition Width="*" MinWidth="120" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                            </Grid>
+                        </ScrollViewer>
+                        <Label x:Name="lbl_noParamsToConfigure" Content="No parameters to configure!" Margin="10,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Grid.ColumnSpan="2" Background="#7FC8C8C8" Foreground="#FFF0F0F0" VerticalAlignment="Center" />
+                    </Grid>
                 </GroupBox>
                 <TextBox x:Name="txt_PluginCompatibility" Grid.Column="2" HorizontalAlignment="Left" Height="26" Margin="214,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="150" Background="#7F00C800" CaretBrush="{Binding SelectionBrush, ElementName=txt_PluginCompatibility}" VerticalContentAlignment="Center" Foreground="White" HorizontalContentAlignment="Center" IsReadOnly="True" FontWeight="Bold" BorderThickness="0" FontSize="14" Text="Compatible"/>
             </Grid>

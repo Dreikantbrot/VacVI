@@ -113,7 +113,6 @@ namespace VacVIConfigurator
 
 
         #region Variables
-        private Label lbl_noParamsToConfigure;
         private List<Key> keyDowns = new List<Key>();
 
         private bool _uiLocked = false;
@@ -152,19 +151,6 @@ namespace VacVIConfigurator
 
                 comBox_GameSelection.Items.Add(new GameEntry(games[i]));
             }
-
-
-            /* Build "No parameters to configure!"-textbox in configuration window */
-            lbl_noParamsToConfigure = new Label();
-            lbl_noParamsToConfigure.Content = "No parameters to configure!";
-            lbl_noParamsToConfigure.FontWeight = FontWeights.Bold;
-            lbl_noParamsToConfigure.Margin = new Thickness(10);
-            lbl_noParamsToConfigure.Foreground = (new System.Windows.Media.SolidColorBrush(Colors.WhiteSmoke));
-            lbl_noParamsToConfigure.Background = (new System.Windows.Media.SolidColorBrush(Color.FromArgb(128, 200, 200, 200)));
-            lbl_noParamsToConfigure.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
-            lbl_noParamsToConfigure.VerticalAlignment = System.Windows.VerticalAlignment.Center;
-            lbl_noParamsToConfigure.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
-            lbl_noParamsToConfigure.HorizontalContentAlignment = System.Windows.HorizontalAlignment.Center;
 
 
             /* Load main configuration */
@@ -968,25 +954,68 @@ namespace VacVIConfigurator
         {
             KeyboardControls.BuildDatabase();
             KeyboardControls.LoadKeymap();
-            bool highlightBackground = true;
 
-            stck_Controls.Children.Clear();
-            stck_ControlDescr.Children.Clear();
+            grid_Controls.Children.Clear();
 
+            ColumnDefinition col;
+
+            // Control definition
+            col = new ColumnDefinition();
+            col.Width = new GridLength(1, GridUnitType.Auto);
+            grid_Controls.ColumnDefinitions.Add(col);
+
+            // Keyboard Control
+            col = new ColumnDefinition();
+            col.Width = new GridLength(1, GridUnitType.Auto);
+            grid_Controls.ColumnDefinitions.Add(col);
+
+            // Mouse Control
+            col = new ColumnDefinition();
+            col.Width = new GridLength(1, GridUnitType.Auto);
+            grid_Controls.ColumnDefinitions.Add(col);
+
+            // Joystick Control
+            col = new ColumnDefinition();
+            col.Width = new GridLength(1, GridUnitType.Auto);
+            grid_Controls.ColumnDefinitions.Add(col);
+
+            // Rest width
+            col = new ColumnDefinition();
+            col.Width = new GridLength(1, GridUnitType.Star);
+            grid_Controls.ColumnDefinitions.Add(col);
+
+            Thickness controlsMargin = new Thickness(15, 0, 0, 0);
+            int currRow = 0;
             foreach (KeyValuePair<GameAction, ActionDetail> actionDetail in KeyboardControls.GameActions)
             {
-                SolidColorBrush currBackgroundBrush = new SolidColorBrush(
-                    Color.FromArgb((byte)(highlightBackground ? 50 : 0), 219, 244, 255)
-                );
+                // Create new row, if necessary
+                if (currRow > 0) { grid_Controls.RowDefinitions.Add(new RowDefinition()); }
 
+
+                // Draw background row color
+                System.Windows.Shapes.Rectangle rect = new System.Windows.Shapes.Rectangle();
+                rect.Margin = new Thickness(0);
+                rect.Fill = new SolidColorBrush(Color.FromArgb((byte)(((currRow % 2) == 0) ? 50 : 0), 219, 244, 255));
+                rect.VerticalAlignment = System.Windows.VerticalAlignment.Stretch;
+                rect.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
+                grid_Controls.Children.Add(rect);
+                Grid.SetRow(rect, currRow);
+                Grid.SetColumn(rect, 0);
+                Grid.SetColumnSpan(rect, grid_Controls.ColumnDefinitions.Count);
+
+
+                // Control description
                 Label descr = new Label();
                 descr.FontWeight = FontWeights.Bold;
                 descr.Foreground = new SolidColorBrush(Colors.White);
                 descr.Content = actionDetail.Value.Description;
-                descr.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
-                descr.Background = currBackgroundBrush;
-                stck_ControlDescr.Children.Add(descr);
+                descr.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+                grid_Controls.Children.Add(descr);
+                Grid.SetColumn(descr, 0);
+                Grid.SetRow(descr, currRow);
 
+
+                // Keyboard Control
                 string keyDescription = (
                     (actionDetail.Value.Scancode > 0) ? (
                         (actionDetail.Value.IsAltAction ? DIKCodes.GetDescription(DIKCodes.Keys.LMENU) + " + " : "") +
@@ -994,16 +1023,17 @@ namespace VacVIConfigurator
                     ) :
                     ""
                 );
-
                 Label cntrl = new Label();
                 cntrl.FontWeight = FontWeights.Bold;
                 cntrl.Foreground = new SolidColorBrush(Colors.White);
                 cntrl.Content = keyDescription;
-                cntrl.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
-                cntrl.Background = currBackgroundBrush;
-                stck_Controls.Children.Add(cntrl);
+                cntrl.Margin = controlsMargin;
+                cntrl.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+                grid_Controls.Children.Add(cntrl);
+                Grid.SetColumn(cntrl, 1);
+                Grid.SetRow(cntrl, currRow);
 
-                highlightBackground = !highlightBackground;
+                currRow++;
             }
         }
         #endregion
@@ -1023,103 +1053,108 @@ namespace VacVIConfigurator
             // Build configuration menu
             string newSelectedPluginName = ((ValueLabelPair)comBox_PluginSelection.SelectedItem).Value.ToString();
             IPlugin plugin = PluginManager.GetPlugin(newSelectedPluginName);
-            Dictionary<string, string> pluginParams = PluginManager.PluginFile.GetSectionAttributes(plugin.Name);
 
-            stck_PluginsParameters.Children.Clear();
+            grid_pluginParameterGrid.RowDefinitions.Clear();
+            grid_pluginParameterGrid.Children.Clear();
 
-            if (pluginParams != null)
+            if (PluginManager.PluginDefaults.ContainsKey(plugin.Name))
             {
-                // Filter out the "enabled" attribute from the parameter count
-                int customParamsCount = pluginParams.Count;
-                if (PluginManager.PluginFile.HasKey(plugin.Name, "Enabled")) { customParamsCount--; }
+                Dictionary<string, PluginParameterDefault> pluginParams = PluginManager.PluginDefaults[plugin.Name];
 
-                if (customParamsCount > 0)
+                if (pluginParams.Count > 0)
                 {
                     // Change config content to the stack panel
-                    grpBox_PluginsConfigWndow.Content = stck_PluginsParameters;
+                    grid_pluginParameterGrid.Visibility = System.Windows.Visibility.Visible;
+                    lbl_noParamsToConfigure.Visibility = System.Windows.Visibility.Hidden;
 
-                    foreach (KeyValuePair<string, string> attributes in pluginParams)
+                    Thickness globalMargin = new Thickness(5);
+
+                    int currRow = 0;
+                    RowDefinition newRow;
+                    foreach (KeyValuePair<string, PluginParameterDefault> pluginDefault in pluginParams)
                     {
-                        if (String.Equals(attributes.Key, "Enabled", StringComparison.InvariantCultureIgnoreCase)) { continue; }
+                        PluginParameterDefault currPluginParam = pluginDefault.Value;
+                        string currSetVal = PluginManager.PluginFile.GetValue(plugin.Name, currPluginParam.Key);
 
-                        #region Create the configuration stack panel
-                        // Create keyval stack panel
-                        StackPanel stckPanel = new StackPanel();
-                        stckPanel.Orientation = Orientation.Horizontal;
-                        stckPanel.Margin = new Thickness(0, 5, 0, 5);
-                        stckPanel.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
-                        stckPanel.VerticalAlignment = System.Windows.VerticalAlignment.Top;
+                        #region Create the configuration stack
+                        newRow = new RowDefinition();
+                        newRow.Height = new GridLength(1, GridUnitType.Auto);
+                        grid_pluginParameterGrid.RowDefinitions.Add(newRow);
 
                         // Add the parameter label
-                        Label paramKey = new Label();
-                        paramKey.Content = attributes.Key + ":";
+                        TextBlock paramKey = new TextBlock();
+                        paramKey.Text = currPluginParam.Key + ":";
+                        paramKey.Margin = globalMargin;
                         paramKey.FontWeight = FontWeights.Bold;
+                        paramKey.TextWrapping = TextWrapping.Wrap;
                         paramKey.Foreground = new System.Windows.Media.SolidColorBrush(Colors.White);
                         paramKey.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
                         paramKey.VerticalAlignment = System.Windows.VerticalAlignment.Center;
-                        paramKey.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
-                        paramKey.MaxWidth = 250;
-                        stckPanel.Children.Add(paramKey);
 
+                        grid_pluginParameterGrid.Children.Add(paramKey);
+                        Grid.SetRow(paramKey, currRow);
+                        Grid.SetColumn(paramKey, 0);
+                        
                         // Add the value selection - check for list of allowed values for this parameter
-                        if (
-                            (PluginManager.PluginDefaults.ContainsKey(plugin.Name)) &&
-                            (PluginManager.PluginDefaults[plugin.Name].ContainsKey(attributes.Key)) &&
-                            (PluginManager.PluginDefaults[plugin.Name][attributes.Key].AllowedValues != null)
-                        )
+                        if (currPluginParam.AllowedValues != null)
                         {
                             // Plugin has a list of allowed values - create combobox
                             ComboBox paramValue = new ComboBox();
                             paramValue.FontWeight = FontWeights.Bold;
                             paramValue.Foreground = new System.Windows.Media.SolidColorBrush(Colors.Black);
-                            paramValue.MinWidth = 120;
-                            paramValue.Margin = new Thickness(5, 0, 0, 0);
-                            paramValue.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+                            paramValue.Margin = globalMargin;
+                            paramValue.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
                             paramValue.VerticalAlignment = System.Windows.VerticalAlignment.Center;
                             paramValue.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
 
-                            paramValue.Tag = attributes.Key;
+                            paramValue.Tag = currPluginParam.Key;
                             paramValue.SelectionChanged += onParamValueChanged;
 
-                            string[] allowedVals = PluginManager.PluginDefaults[plugin.Name][attributes.Key].AllowedValues;
-                            for (int i = 0; i < allowedVals.Length; i++) { paramValue.Items.Add(allowedVals[i]); }
-                            paramValue.SelectedValue = attributes.Value;
+                            for (int i = 0; i < currPluginParam.AllowedValues.Length; i++) { paramValue.Items.Add(currPluginParam.AllowedValues[i]); }
+                            paramValue.SelectedValue = currSetVal;
 
-                            stckPanel.Children.Add(paramValue);
+                            grid_pluginParameterGrid.Children.Add(paramValue);
+                            Grid.SetRow(paramValue, currRow);
+                            Grid.SetColumn(paramValue, 1);
                         }
                         else
                         {
                             // Plugin has no list of allowed values - create textbox (anything goes)
                             TextBox paramValue = new TextBox();
-                            paramValue.Text = attributes.Value;
+                            paramValue.Text = currSetVal;
                             paramValue.FontWeight = FontWeights.Bold;
                             paramValue.BorderBrush = new System.Windows.Media.SolidColorBrush(Color.FromArgb((int)(255 * 0.2), 171, 173, 179));
                             paramValue.Background = new System.Windows.Media.SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
                             paramValue.Foreground = new System.Windows.Media.SolidColorBrush(Colors.White);
-                            paramValue.MinWidth = 120;
-                            paramValue.Margin = new Thickness(5, 0, 0, 0);
-                            paramValue.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+                            paramValue.Margin = globalMargin;
+                            paramValue.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
                             paramValue.VerticalAlignment = System.Windows.VerticalAlignment.Center;
                             paramValue.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
 
-                            paramValue.Tag = attributes.Key;
+                            paramValue.Tag = currPluginParam.Key;
                             paramValue.TextChanged += onParamValueChanged;
 
-                            stckPanel.Children.Add(paramValue);
+                            grid_pluginParameterGrid.Children.Add(paramValue);
+                            Grid.SetRow(paramValue, currRow);
+                            Grid.SetColumn(paramValue, 1);
                         }
-
-                        // Add the stack panel to plugin configurations
-                        stck_PluginsParameters.Children.Add(stckPanel);
                         #endregion
 
                         #region Add the parameter description below
-                        if (
-                            (PluginManager.PluginDefaults.ContainsKey(plugin.Name)) &&
-                            (PluginManager.PluginDefaults[plugin.Name].ContainsKey(attributes.Key))
-                        )
+                        if (currPluginParam.DefaultValue != null)
                         {
+                            newRow = new RowDefinition();
+                            newRow.Height = new GridLength(1, GridUnitType.Auto);
+                            grid_pluginParameterGrid.RowDefinitions.Add(newRow);
+                            currRow++;
+
                             TextBox descrBox = new TextBox();
-                            descrBox.Text = PluginManager.PluginDefaults[plugin.Name][attributes.Key].Description;
+                            descrBox.Text = (!String.IsNullOrWhiteSpace(currPluginParam.Description)) ? currPluginParam.Description : String.Empty;
+                            descrBox.Text += (
+                                (String.IsNullOrEmpty(descrBox.Text) ? "" : "\n\n") + 
+                                "(Default is: " + currPluginParam.DefaultValue + ")"
+                            );
+
                             descrBox.Focusable = false;
                             descrBox.IsHitTestVisible = false;
                             descrBox.IsReadOnly = true;
@@ -1128,24 +1163,27 @@ namespace VacVIConfigurator
                             descrBox.Background = new System.Windows.Media.SolidColorBrush(Color.FromArgb(85, 159, 211, 241));
                             descrBox.Foreground = new System.Windows.Media.SolidColorBrush(Colors.White);
                             descrBox.Padding = new Thickness(5);
-                            descrBox.Margin = new Thickness(0, 0, 15, 0);
+                            descrBox.Margin = new Thickness(globalMargin.Left, globalMargin.Top, globalMargin.Right, 25);
                             descrBox.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
                             descrBox.VerticalAlignment = System.Windows.VerticalAlignment.Center;
                             descrBox.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
                             descrBox.TextWrapping = TextWrapping.Wrap;
 
+                            grid_pluginParameterGrid.Children.Add(descrBox);
+                            Grid.SetRow(descrBox, currRow);
+                            Grid.SetColumn(descrBox, 0);
                             Grid.SetColumnSpan(descrBox, 2);
-                            stck_PluginsParameters.Children.Add(descrBox);
                         }
                         #endregion
 
-                        stckPanel.InvalidateArrange();
+                        currRow++;
                     }
                 }
                 else
                 {
                     // Add the message to the configuration window
-                    grpBox_PluginsConfigWndow.Content = lbl_noParamsToConfigure;
+                    grid_pluginParameterGrid.Visibility = System.Windows.Visibility.Hidden;
+                    lbl_noParamsToConfigure.Visibility = System.Windows.Visibility.Visible;
                 }
             }
         }
