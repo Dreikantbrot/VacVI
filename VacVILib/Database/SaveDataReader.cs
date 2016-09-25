@@ -338,13 +338,14 @@ namespace VacVI.Database
 
             // File exists, but is empty
             if (
-                (fileContent.Length == 1) &&
+                (fileContent.Length < _saveData.Count) ||
                 (Regex.IsMatch(fileContent[0], @"\0"))
             )
             { return false; }
 
             // Get all in-game values and store them inside the database
-            for (int i = 0; i < Math.Min(fileContent.Length, _saveData.Count); i++)
+            int maxStepCount = Math.Min(fileContent.Length, _saveData.Count);
+            for (int i = 0; i < maxStepCount; i++)
             {
                 string currVal = fileContent[i];
                 currVal = fileContent[i].Trim();
@@ -372,6 +373,7 @@ namespace VacVI.Database
                 }
             }
 
+            // Update all databases
             PlayerData.Update();
             PlayerShipData.Update();
             HudData.Update();
