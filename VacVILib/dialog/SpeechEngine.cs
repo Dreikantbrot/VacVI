@@ -231,11 +231,13 @@ namespace VacVI.Dialog
             }
 
             /* Standard sentences */
-            DialogTreeBranch standardDialogs = new DialogTreeBranch(
-                new DialogPlayer("What did you eat for breakfast?")
+            DialogPlayer placeholder = new DialogPlayer(
+                ">> PLACEHOLDER <<",
+                DialogBase.DialogPriority.VERY_LOW,
+                () => { return false; }    
             );
-
-            DialogTreeBuilder.BuildDialogTree(null, standardDialogs);
+            placeholder.Disabled = true;
+            DialogTreeBuilder.BuildDialogTree(null, new DialogTreeBranch(placeholder));
 
             _recognizer.SpeechRecognized += onSpeechRecognized;
             _recognizer.SpeechRecognitionRejected += onSpeechRejected;
