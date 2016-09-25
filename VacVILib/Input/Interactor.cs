@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Input;
 
-// TODO: Input will not be recognized, if the game is run as administrator
+// TODO: Input will not be recognized, if the game is run as administrator (?)
 
 namespace VacVI.Input
 {

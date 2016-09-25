@@ -988,8 +988,8 @@ namespace VacVIConfigurator
             int currRow = 0;
             foreach (KeyValuePair<GameAction, ActionDetail> actionDetail in KeyboardControls.GameActions)
             {
-                // Create new row, if necessary
-                if (currRow > 0) { grid_Controls.RowDefinitions.Add(new RowDefinition()); }
+                // Create new row
+                grid_Controls.RowDefinitions.Add(new RowDefinition());
 
 
                 // Draw background row color
