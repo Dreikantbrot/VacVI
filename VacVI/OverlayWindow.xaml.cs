@@ -72,6 +72,9 @@ namespace VacVIOverlay
             Color.FromArgb(255, 255, 0, 128),   // Standard text color for green hue
             Color.FromArgb(255, 128, 255, 0)    // Standard text color for blue hue
         };
+
+        const int MIN_TIMEOUT_TIMER_INTERVAL = 100;
+        const int MIN_UPDATE_INDICATOR_INTERVAL = 50;
         #endregion
 
 
@@ -79,7 +82,7 @@ namespace VacVIOverlay
         private FileSystemWatcher _savedataWatcher;
         private FileSystemWatcher _gameConfigWatcher;
         private FileSystemWatcher _keymapConfigWatcher;
-        private DispatcherTimer _gameDataTimeoutTimer;
+        private DispatcherTimer _autoPauseVITimer;
 
         private bool _updateIndicator;
         private bool _playLoadingAnimation;
@@ -242,13 +245,13 @@ namespace VacVIOverlay
                 File.SetLastWriteTimeUtc(GameMeta.DefaultKeymapFilePath, DateTime.UtcNow);
             }
 
-            _gameDataTimeoutTimer = new DispatcherTimer(
-                TimeSpan.FromMilliseconds((SaveDataReader.UpdateInterval < 0) ? 100 : SaveDataReader.UpdateInterval),
+            _autoPauseVITimer = new DispatcherTimer(
+                TimeSpan.FromMilliseconds((SaveDataReader.UpdateInterval < 0) ? MIN_TIMEOUT_TIMER_INTERVAL : SaveDataReader.UpdateInterval),
                 DispatcherPriority.Background,
-                OnGameDataTimeoutTimerTick,
+                OnAutoPauseVITimerTick,
                 this.Dispatcher
             );
-            _gameDataTimeoutTimer.Stop();
+            _autoPauseVITimer.Stop();
 
 
             /* Initialize Systems / Start the VI */
@@ -257,7 +260,9 @@ namespace VacVIOverlay
             if (!_playLoadingAnimation)
             {
                 _initializedSystems |= InitializedSystemTypes.LOADING_ANIMATION_DONE;
-                initializeSystems();
+
+                // Start after 1 second delay, giving the overlay time to adjust the color
+                new Thread(() => { Thread.Sleep(1000); initializeSystems(); }).Start();
             }
         }
         #endregion
@@ -408,7 +413,7 @@ namespace VacVIOverlay
         }
 
 
-        /// <summary> Pauses the loading animation, resets values and attempts initialzation.
+        /// <summary> Pauses the loading animation, resets values and attempts initialization.
         /// Fires, when the loading animation has been finished.
         /// </summary>
         /// <param name="sender">The sender object.</param>
@@ -679,13 +684,13 @@ namespace VacVIOverlay
 
             if (
                 (this._updateIndicator) &&
-                (SaveDataReader.UpdateInterval > 50) &&
-                (_initializedSystems == InitializedSystemTypes.ALL_COMPONENTS)
+                (SaveDataReader.UpdateInterval > MIN_UPDATE_INDICATOR_INTERVAL) &&
+                (_initializedSystems == InitializedSystemTypes.INITIALIZATION_DONE)
             )
             {
                 Dispatcher.BeginInvoke(DispatcherPriority.Render, _imgBlinkIn);
 
-                Thread.Sleep(SaveDataReader.UpdateInterval / 2);
+                Thread.Sleep(Math.Max(MIN_UPDATE_INDICATOR_INTERVAL, SaveDataReader.UpdateInterval) / 2);
 
                 Dispatcher.BeginInvoke(DispatcherPriority.Render, _imgBlinkOut);
             }
@@ -697,7 +702,7 @@ namespace VacVIOverlay
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The event arguments.</param>
-        private void OnGameDataTimeoutTimerTick(object sender, EventArgs e)
+        private void OnAutoPauseVITimerTick(object sender, EventArgs e)
         {
             if (ConfigurationManager.StartupParams.NoIdleTimeout) { return; }
 
@@ -705,9 +710,10 @@ namespace VacVIOverlay
             if (updateDeltaTime > (2 * SaveDataReader.UpdateInterval)) { VI.Disabled = true; }
 
             // Synchronize update time intervals
-            if (SaveDataReader.UpdateInterval != _gameDataTimeoutTimer.Interval.Milliseconds)
+            if (SaveDataReader.UpdateInterval != _autoPauseVITimer.Interval.Milliseconds)
             {
-                _gameDataTimeoutTimer.Interval = TimeSpan.FromMilliseconds(SaveDataReader.UpdateInterval);
+                // Update the timeout timespan - min MIN_TIMEOUT_TIMER_INTERVAL ms
+                _autoPauseVITimer.Interval = TimeSpan.FromMilliseconds(Math.Max(MIN_TIMEOUT_TIMER_INTERVAL, SaveDataReader.UpdateInterval));
             }
         }
 
@@ -871,7 +877,12 @@ namespace VacVIOverlay
                 ) + 128) % 255
             );
             this.Resources["Foreground_Grayscale"] = new SolidColorBrush(
-                Color.FromArgb(((SolidColorBrush)backColor).Color.A, brightness, brightness, brightness)
+                Color.FromArgb(
+                    ((SolidColorBrush)backColor).Color.A, 
+                    (byte)((brightness + 64) % 255), 
+                    (byte)((brightness + 64) % 255), 
+                    (byte)((brightness + 64) % 255)
+                )
             );
 
             if (
@@ -905,12 +916,12 @@ namespace VacVIOverlay
             // Check for existence of savedatasettings.txt
             if (!File.Exists(GameMeta.CurrentSaveDataSettingsTextFilePath)) { SpeechEngine.Say(VacVI.Properties.StringTable.SAVEDATASETTINGS_FILE_NOT_FOUND); }
             
-            _gameDataTimeoutTimer.Start();
+            _autoPauseVITimer.Start();
 
             DialogTreeBuilder.DialogsActive = true;
             DialogTreeBuilder.DialogRoot.SetActive();
 
-            SpeechEngine.Say("Systems initialized - Hello World!");
+            SpeechEngine.Say(new DialogVI("Systems initialized - Hello World!"), true, SpeechEngine.VoiceModulation, null, true);
         }
 
 

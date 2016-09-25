@@ -183,7 +183,10 @@ namespace VacVIConfigurator
             txt_InstallDir.Text = GameMeta.CurrentGameDirectoryPath;
 
             // "Overlay" section
-            chckBox_Config_LoadingAnimation.IsChecked = ConfigurationManager.ConfigurationFile.ValueIsBoolAndTrue(ConfigurationManager.SECTION_OVERLAY, "Play_Intro");
+            chckBox_Config_LoadingAnimation.IsChecked = (
+                (!ConfigurationManager.ConfigurationFile.HasKey(ConfigurationManager.SECTION_OVERLAY, "Play_Intro")) ||         // <-- Set to "on", if not set
+                ConfigurationManager.ConfigurationFile.ValueIsBoolAndTrue(ConfigurationManager.SECTION_OVERLAY, "Play_Intro")
+            );
             chckBox_Config_GameDataLoadingIndicator.IsChecked = ConfigurationManager.ConfigurationFile.ValueIsBoolAndTrue(ConfigurationManager.SECTION_OVERLAY, "Display_Update_Indicator");
             txt_Config_OverlayPosX.Text = ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_OVERLAY, "X");
             txt_Config_OverlayPosY.Text = ConfigurationManager.ConfigurationFile.GetValue(ConfigurationManager.SECTION_OVERLAY, "Y");

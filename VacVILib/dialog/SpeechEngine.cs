@@ -155,6 +155,9 @@ namespace VacVI.Dialog
             if (e.Result.Confidence >= _confidenceThreshold)
             {
                 DialogPlayer recognizedNode = DialogTreeBuilder.GetPlayerDialog(e.Result.Grammar);
+                
+                if (recognizedNode == null) { return; }
+
                 if (OnVISpeechRecognized != null)
                 {
                     OnVISpeechRecognized(
