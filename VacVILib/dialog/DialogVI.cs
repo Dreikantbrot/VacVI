@@ -129,12 +129,12 @@ namespace VacVI.Dialog
                     if (currMatch.Groups["Choice"].Success)
                     {
                         string[] choices = matches[u].Groups["Choice"].Value.Split('|');
-                        result += choices[rndNr.Next(0, choices.Length)].Trim();
+                        result += choices[rndNr.Next(0, choices.Length)];
                     }
                     else if (currMatch.Groups["OptChoice"].Success)
                     {
                         string[] choices = (matches[u].Groups["OptChoice"].Value + "|").Split('|');
-                        result += choices[rndNr.Next(0, choices.Length)].Trim();
+                        result += choices[rndNr.Next(0, choices.Length)];
                     }
 
                     currIndex = matches[u].Index + currMatch.Length;
@@ -143,7 +143,7 @@ namespace VacVI.Dialog
 
             result += randBaseSentence.Substring(currIndex);
 
-            /*  Beautify the resulting phrase */
+            /* Beautify the resulting phrase */
             result = result.Trim();
             if (!String.IsNullOrEmpty(result))
             {
