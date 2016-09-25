@@ -163,7 +163,7 @@ namespace Native
 
         public void OnProgramShutdown()
         {
-
+            _autoSleepTimer.Stop();
         }
         #endregion
 

@@ -4,6 +4,7 @@ using VacVI.Database;
 using VacVI.Input;
 using VacVI.Plugins;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace Native
@@ -18,16 +19,22 @@ namespace Native
         #region Constants
         const string VI_COMMAND_ACK = "$(Aye aye|Acknowledged|Sure)";
         const int MIN_JUMP_ALTITUDE = 360000;
+
+        const string PARAM_AUTO_EJ_ENABLED = "Enable Auto Emergency Jump (Auto EJ)";
+        const string PARAM_AUTO_EJ_HULL_INTEGRITY = "Auto EJ - Min. Hull Integrity";
+        const string PARAM_AUTO_EJ_MIN_FUEL = "Auto EJ - Min. Fuel";
+        const string PARAM_AUTO_EJ_MIN_HOSTILES = "Auto EJ - Min. Hostile Count";
         #endregion
 
 
         #region Enums
         private enum JumpState
         {
+            NONE = 0,
             MANUAL = 1,
             AUTO = 2,
             EMERGENCY = 3,
-            NONE = ~(MANUAL | AUTO | EMERGENCY)
+            AUTO_EMERGENCY = 4
         }
         #endregion
 
@@ -35,15 +42,31 @@ namespace Native
         #region Variables
         private bool _autoFire = false;
         private bool _autoFireMissile = false;
+        
         private JumpState _jumpState = JumpState.NONE;
+        
         private DateTime _lastTimeFired = DateTime.Now;
+        
         private int _targetIdsMultiplier = -1;
         private int _targetHudMode = -1;
         private int _targetAutopilotState = -1;
         private string _currRecognizedPhrase;
 
+        private bool _autoEJ_enabled = false;
+        private int _autoEJ_hullThreshold = -1;
+        private int _autoEJ_minFuelThreshold = -1;
+        private int _autoEJ_minHostileCountThreshold = -1;
+
         private DialogVI _dialg_Jump = new DialogVI("Initiating $[fulcrum ]jump;Jumping...");
         private DialogVI _dialg_EmergencyJump = new DialogVI("I'm getting us out of here!;Let's get out of here!");
+        private DialogVI _dialg_EmergencyJumpAuto = new DialogVI("This is $[getting ]too dangerous. $[I'm ]$(initiating|engaging) emergency jump.");
+        #endregion
+
+
+        #region Variables (Parameters)
+        string[] _autoEJ_minHullThreshold_params = new string[98];
+        string[] _autoEJ_minFuelThreshold_params = new string[201];
+        string[] _autoEJ_minHostileCountThreshold_params = new string[23];
         #endregion
 
 
@@ -51,6 +74,27 @@ namespace Native
         private bool playerIsInAtmosphere
         {
             get { return (PlayerShipData.Altitude > 0) && (PlayerShipData.Altitude <= MIN_JUMP_ALTITUDE); }
+        }
+        #endregion
+
+
+        #region Constructor
+        public ShipSystemControl()
+        {
+            for (int i = 0; i < _autoEJ_minHullThreshold_params.Length; i++)
+            {
+                _autoEJ_minHullThreshold_params[i] = (i + 1).ToString();
+            }
+
+            for (int i = 0; i < _autoEJ_minFuelThreshold_params.Length; i++)
+            {
+                _autoEJ_minFuelThreshold_params[i] = ((i == 0) ? 1 : (i * 5)).ToString();
+            }
+
+            for (int i = 0; i < _autoEJ_minHostileCountThreshold_params.Length; i++)
+            {
+                _autoEJ_minHostileCountThreshold_params[i] = (i + 1).ToString();
+            }
         }
         #endregion
 
@@ -99,6 +143,27 @@ namespace Native
         #region Interface Functions
         public void Initialize()
         {
+            /* Set auto-emergency jump values */
+            _autoEJ_enabled = PluginManager.PluginFile.ValueIsBoolAndTrue(this.Name, PARAM_AUTO_EJ_ENABLED);
+
+            if (
+                (_autoEJ_minHullThreshold_params.Contains(PluginManager.PluginFile.GetValue(this.Name, PARAM_AUTO_EJ_HULL_INTEGRITY))) &&
+                (_autoEJ_minFuelThreshold_params.Contains(PluginManager.PluginFile.GetValue(this.Name, PARAM_AUTO_EJ_MIN_FUEL))) &&
+                (_autoEJ_minHostileCountThreshold_params.Contains(PluginManager.PluginFile.GetValue(this.Name, PARAM_AUTO_EJ_MIN_HOSTILES)))
+            )
+            {
+                Int32.TryParse(PluginManager.PluginFile.GetValue(this.Name, PARAM_AUTO_EJ_HULL_INTEGRITY), out _autoEJ_hullThreshold);
+                Int32.TryParse(PluginManager.PluginFile.GetValue(this.Name, PARAM_AUTO_EJ_MIN_FUEL), out _autoEJ_minFuelThreshold);
+                Int32.TryParse(PluginManager.PluginFile.GetValue(this.Name, PARAM_AUTO_EJ_MIN_HOSTILES), out _autoEJ_minHostileCountThreshold);
+            }
+            else
+            {
+                // Invalid value (plugins.ini file manipulated by hand) - Deactivate feature
+                _autoEJ_enabled = false;
+            }
+
+
+            /* Subscribe to events */
             SpeechEngine.OnVISpeechRecognized += SpeechEngine_OnVISpeechRecognized;
         }
 
@@ -137,15 +202,15 @@ namespace Native
 
                 #region Jumping
                 case "jump":
-                    if (_jumpState < JumpState.MANUAL) { _jumpState = JumpState.MANUAL; }
+                    _jumpState = JumpState.MANUAL;
                     emergencyJump();
                     break;
                 case "auto_jump":
-                    if (_jumpState < JumpState.AUTO) { _jumpState = JumpState.AUTO; }
+                    _jumpState = JumpState.AUTO;
                     emergencyJump();
                     break;
                 case "emergency_jump":
-                    if (_jumpState < JumpState.EMERGENCY) { _jumpState = JumpState.EMERGENCY; }
+                    _jumpState = JumpState.EMERGENCY;
                     emergencyJump();
                     break;
                 case "auto_jump_cancel":
@@ -156,6 +221,10 @@ namespace Native
                 #region Thruster
                 case "full_stop":
                     Interactor.ExecuteAction(GameAction.ZERO_THROTTLE);
+                    break;
+                case "toggle_ids":
+                    Interactor.ExecuteAction(GameAction.INERTIAL_SYSTEM_ON_OFF);
+                    updateIDSMultiplier();
                     break;
                 case "set_ids_multiplier":
                     Int32.TryParse(_currRecognizedPhrase.Substring(_currRecognizedPhrase.Length - 1), out _targetIdsMultiplier);
@@ -187,6 +256,10 @@ namespace Native
                     );
                     updateHUDMode();
                     break;
+                case "toggle_HUD_full":
+                    _targetHudMode = (int)HudData.HudStatus.FULL;
+                    updateHUDMode();
+                    break;
                 case "disable_HUD":
                     _targetHudMode = (int)HudData.HudStatus.OFF;
                     updateHUDMode();
@@ -207,8 +280,18 @@ namespace Native
         public void OnGameDataUpdate()
         {
             if (
+                (_autoEJ_enabled) &&
+                (_jumpState < JumpState.AUTO) &&
+                (PlayerShipData.FuelRemaining >= _autoEJ_minFuelThreshold) &&
+                (PlayerShipData.HullIntegrity <= _autoEJ_hullThreshold) &&
+                (HudData.TotalHostilesOnRadar >= _autoEJ_minHostileCountThreshold)
+            )
+            { _jumpState = JumpState.AUTO_EMERGENCY; }
+
+            if (
                 (_jumpState == JumpState.AUTO) ||
-                (_jumpState == JumpState.EMERGENCY)
+                (_jumpState == JumpState.EMERGENCY) ||
+                (_jumpState == JumpState.AUTO_EMERGENCY)
             )
             {
                 emergencyJump();
@@ -225,7 +308,40 @@ namespace Native
 
         public List<PluginParameterDefault> GetDefaultPluginParameters()
         {
-            return new List<PluginParameterDefault>();
+            List<PluginParameterDefault> parameters = new List<PluginParameterDefault>();
+            parameters.Add(new PluginParameterDefault(
+                PARAM_AUTO_EJ_ENABLED,
+
+                "When certain conditions are fulfilled (see \"Auto EJ\" options), the VI will attempt an automatic " + 
+                "emergency jump to save the ship. All \"Auto EJ\" conditions must be fulfilled for the jump to be triggered.\n" +
+                "Set to \"True\" to enable or to \"False\" to disable this feature.",
+                
+                "False",
+                new string[]{"True", "False"}
+            ));
+
+            parameters.Add(new PluginParameterDefault(
+                PARAM_AUTO_EJ_HULL_INTEGRITY,
+                "Determines the value the hull integrity must reach or fall below to trigger an auto emergency jump.",
+                "25",
+                _autoEJ_minHullThreshold_params
+            ));
+
+            parameters.Add(new PluginParameterDefault(
+                PARAM_AUTO_EJ_MIN_FUEL,
+                "Determines the minimum amount of fuel that must be available to trigger an auto emergency jump.",
+                "100",
+                _autoEJ_minFuelThreshold_params
+            ));
+
+            parameters.Add(new PluginParameterDefault(
+                PARAM_AUTO_EJ_MIN_HOSTILES,
+                "Determines how many hostiles (at least) must be visible on radar to trigger an auto emergency jump.",
+                "8",
+                _autoEJ_minHostileCountThreshold_params
+            ));
+
+            return parameters;
         }
 
         public void BuildDialogTree()
@@ -433,7 +549,8 @@ namespace Native
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "$[Sorry - but] $(we're unable|we don't have enough energy) to jump.", 
+                            "$[Sorry - but] $(we're unable|we don't have enough energy) to jump." + ";" + 
+                            "$[Sorry - but] Energy levels are insufficient for a jump.", 
                             DialogBase.DialogPriority.NORMAL, 
                             () => { return (PlayerShipData.EnergyLevel < 100); }
                         )
@@ -451,12 +568,13 @@ namespace Native
 
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "$[Initiate ]auto-jump;Jump $(as soon as possible|asap)!", 
+                        "$[Initiate ]auto-jump" + ";" + 
+                        "Jump $(as soon as possible|asap|when you can|when possible)!", 
                         DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            VI_COMMAND_ACK + " - I'll jump when possible!", 
+                            VI_COMMAND_ACK + " - $(I'll jump|Auto-jumping|Jumping) to the nav point $(as soon as|when) possible!", 
                             DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
@@ -467,14 +585,22 @@ namespace Native
 
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "$[Initiate ]emergency jump!;Get $(me|us) out of here!", 
+                        "$[Initiate ]emergency jump!" + ";" + 
+                        "Get $(me|us) out of here!", 
                         DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
                         new DialogVI(
-                            "We need to get out of the atmosphere first!", 
+                            String.Format(
+                                "We need to get out of the atmosphere first!" + ";" +
+                                "Not while we are within a planet's atmosphere!" + ";" + 
+                                "Jumping from within the atmosphere is too dangerous! You need to get us out of there first" + 
+                                "$[, <{0}-->{1}>]!", 
+                                VI.PlayerName,
+                                VI.PlayerPhoneticName
+                            ),
                             DialogBase.DialogPriority.VERY_HIGH, 
-                            () => { return playerIsInAtmosphere; }
+                            () => { return true || playerIsInAtmosphere; }
                         )
                     ),
                     new DialogTreeBranch(
@@ -501,7 +627,7 @@ namespace Native
                     new DialogPlayer("Cancel $[auto-]jump", DialogBase.DialogPriority.CRITICAL),
                     new DialogTreeBranch(
                         new DialogVI(
-                            VI_COMMAND_ACK + " - Cancelling jump...;Jump cancelled.", 
+                            "$[" + VI_COMMAND_ACK + " - ]$(Cancelling jump...|Jump cancelled.)",
                             DialogBase.DialogPriority.NORMAL, 
                             null, 
                             this.Name, 
@@ -530,7 +656,23 @@ namespace Native
 
                 new DialogTreeBranch(
                     new DialogPlayer(
-                        "$[Set ]IDS $[Multiplier |Factor ]to $(1|2|3|4|5)!", 
+                        "$(Enable|Activate) $(inertial dampening system|IDS).", 
+                        DialogBase.DialogPriority.CRITICAL
+                    ),
+                    new DialogTreeBranch(
+                        new DialogVI("$(Aye aye|Got it).", 
+                            DialogBase.DialogPriority.NORMAL, 
+                            null, 
+                            this.Name, 
+                            "toggle_ids"
+                        )
+                    )
+                ),
+
+                new DialogTreeBranch(
+                    new DialogPlayer(
+                        "$[Set ]IDS $[Multiplier |Factor ]to " + 
+                        "$(1|2|3|4|5" + ((GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? "|6|7|8|9" : "") + ")!", 
                         DialogBase.DialogPriority.CRITICAL
                     ),
                     new DialogTreeBranch(
@@ -701,6 +843,23 @@ namespace Native
                 
                 new DialogTreeBranch(
                     new DialogPlayer(
+                        "Enable HUD!;Turn on the HUD!;Turn the HUD $[back ]on!",
+                        DialogBase.DialogPriority.CRITICAL,
+                        () => { return (HudData.Hud != HudData.HudStatus.OFF); }
+                    ),
+                    new DialogTreeBranch(
+                        new DialogVI(
+                            "Aye aye.",
+                            DialogBase.DialogPriority.NORMAL,
+                            null, 
+                            this.Name,
+                            "toggle_HUD_full"
+                        )
+                    )
+                ),
+                
+                new DialogTreeBranch(
+                    new DialogPlayer(
                         "Disable HUD!;Turn off the HUD!",
                         DialogBase.DialogPriority.CRITICAL,
                         () => { return (HudData.Hud != HudData.HudStatus.OFF); }
@@ -792,15 +951,22 @@ namespace Native
 
             if (PlayerShipData.EnergyLevel == 100)
             {
-                if (_jumpState == JumpState.EMERGENCY)
+                switch(_jumpState)
                 {
-                    Interactor.ExecuteAction(GameAction.ENGAGE_JUMP_DRIVE_MAXIMUM_RANGE);
-                    SpeechEngine.Say(_dialg_EmergencyJump);
-                }
-                else
-                {
-                    Interactor.ExecuteAction(GameAction.ENGAGE_JUMP_DRIVE);
-                    SpeechEngine.Say(_dialg_Jump);
+                    case JumpState.AUTO_EMERGENCY:
+                        Interactor.ExecuteAction(GameAction.ENGAGE_JUMP_DRIVE_MAXIMUM_RANGE);
+                        SpeechEngine.Say(_dialg_EmergencyJumpAuto);
+                        break;
+                    
+                    case JumpState.EMERGENCY:
+                        Interactor.ExecuteAction(GameAction.ENGAGE_JUMP_DRIVE_MAXIMUM_RANGE);
+                        SpeechEngine.Say(_dialg_EmergencyJump);
+                        break;
+                    
+                    default:
+                        Interactor.ExecuteAction(GameAction.ENGAGE_JUMP_DRIVE);
+                        SpeechEngine.Say(_dialg_Jump);
+                        break;
                 }
 
                 _jumpState = JumpState.NONE;
