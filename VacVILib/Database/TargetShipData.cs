@@ -39,8 +39,8 @@ namespace VacVI.Database
 
         #region Variables - Converted values
         private static string[] _cargoBay = new string[10];
-        private static string[] _capitalShipTurret = new string[5];
-        private static Dictionary<ShieldLevelState, int> _shieldLevel = new Dictionary<ShieldLevelState, int>();
+        private static float[] _capitalShipTurret = new float[4];
+        private static Dictionary<ShieldLevelState, int> _shieldStatus = new Dictionary<ShieldLevelState, int>();
         private static ThreatLevelState _threatLevel = ThreatLevelState.LOW;
         #endregion
 
@@ -56,17 +56,17 @@ namespace VacVI.Database
 		}
 
 
-        /// <summary> [ELGCY+] Return the status of the capital ship turret, if a capital ship has been targeted.</summary>
-        public static string[] CapitalShipTurret 
+        /// <summary> [ELGCY+] Return the health of the capital ship turret or 0, if no capital ship has been targeted.</summary>
+        public static float[] CapitalShipTurret 
 		{
 			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY) ? TargetShipData._capitalShipTurret : null; }
 		}
 
 
         /// <summary> [EMERC+] Returns the ship's shield states (0 to 100).</summary>
-        public static Dictionary<ShieldLevelState, int> ShieldLevel 
+        public static Dictionary<ShieldLevelState, int> ShieldStatus 
 		{
-			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? TargetShipData._shieldLevel : null; }
+			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? TargetShipData._shieldStatus : null; }
 		}
 
 
@@ -174,11 +174,11 @@ namespace VacVI.Database
         #region (Static) Constructor
         static TargetShipData()
         {
-            _shieldLevel.Add(ShieldLevelState.FRONT, 0);
-            _shieldLevel.Add(ShieldLevelState.RIGHT, 0);
-            _shieldLevel.Add(ShieldLevelState.LEFT, 0);
-            _shieldLevel.Add(ShieldLevelState.REAR, 0);
-            _shieldLevel.Add(ShieldLevelState.TOTAL, -1);
+            _shieldStatus.Add(ShieldLevelState.FRONT, 0);
+            _shieldStatus.Add(ShieldLevelState.RIGHT, 0);
+            _shieldStatus.Add(ShieldLevelState.LEFT, 0);
+            _shieldStatus.Add(ShieldLevelState.REAR, 0);
+            _shieldStatus.Add(ShieldLevelState.TOTAL, -1);
         }
         #endregion
 
@@ -191,22 +191,22 @@ namespace VacVI.Database
             int maxCount;
 
             // Get shield levels
-            _shieldLevel[ShieldLevelState.FRONT] = (int)SaveDataReader.GetEntry(PARAM_TARGET_FRONT_SHIELD_LEVEL).Value;
-            _shieldLevel[ShieldLevelState.RIGHT] = (int)SaveDataReader.GetEntry(PARAM_TARGET_RIGHT_SHIELD_LEVEL).Value;
-            _shieldLevel[ShieldLevelState.LEFT] = (int)SaveDataReader.GetEntry(PARAM_TARGET_LEFT_SHIELD_LEVEL).Value;
-            _shieldLevel[ShieldLevelState.REAR] = (int)SaveDataReader.GetEntry(PARAM_TARGET_REAR_SHIELD_LEVEL).Value;
-            _shieldLevel[ShieldLevelState.TOTAL] = (        // <-- Total shield strength is not being output by the game, so DIY
-                _shieldLevel[ShieldLevelState.FRONT] + 
-                _shieldLevel[ShieldLevelState.RIGHT] +
-                _shieldLevel[ShieldLevelState.LEFT] +
-                _shieldLevel[ShieldLevelState.REAR]
+            _shieldStatus[ShieldLevelState.FRONT] = (int)SaveDataReader.GetEntry(PARAM_TARGET_FRONT_SHIELD_LEVEL).Value;
+            _shieldStatus[ShieldLevelState.RIGHT] = (int)SaveDataReader.GetEntry(PARAM_TARGET_RIGHT_SHIELD_LEVEL).Value;
+            _shieldStatus[ShieldLevelState.LEFT] = (int)SaveDataReader.GetEntry(PARAM_TARGET_LEFT_SHIELD_LEVEL).Value;
+            _shieldStatus[ShieldLevelState.REAR] = (int)SaveDataReader.GetEntry(PARAM_TARGET_REAR_SHIELD_LEVEL).Value;
+            _shieldStatus[ShieldLevelState.TOTAL] = (        // <-- Total shield strength is not being output by the game, so DIY
+                _shieldStatus[ShieldLevelState.FRONT] + 
+                _shieldStatus[ShieldLevelState.RIGHT] +
+                _shieldStatus[ShieldLevelState.LEFT] +
+                _shieldStatus[ShieldLevelState.REAR]
             ) / 4;
 
             if (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_LEGACY)
             {
                 // Get capital ship turrets
                 maxCount = ShipData.MaxCapShipTurrets;
-                for (int i = 0; i < maxCount; i++) { _capitalShipTurret[i] = (string)SaveDataReader.GetEntry(PARAM_CAPITAL_SHIP_WEAPON_TURRET[i]).Value; }
+                for (int i = 0; i < maxCount; i++) { _capitalShipTurret[i] = (float)SaveDataReader.GetEntry(PARAM_CAPITAL_SHIP_WEAPON_TURRET[i]).Value; }
             }
 
             // Get cargo bays

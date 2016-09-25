@@ -58,7 +58,7 @@ namespace VacVI.Database
             {
                 return (
                     (GameMeta.CurrentGame == (GameMeta.CurrentGame & GameMeta.SupportedGame.EVOCHRON_MERCENARY)) ? 0 :
-                    (GameMeta.CurrentGame == (GameMeta.CurrentGame & GameMeta.SupportedGame.EVOCHRON_LEGACY)) ? 5 :
+                    (GameMeta.CurrentGame == (GameMeta.CurrentGame & GameMeta.SupportedGame.EVOCHRON_LEGACY)) ? 4 :
                     0
                 );
             }

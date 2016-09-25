@@ -95,7 +95,7 @@ namespace VacVI.Database
         private static string[] _cargoBay = new string[10];
         private static Vector3D _position = new Vector3D();
         private static Vector3D _sectorPosition = new Vector3D();
-        private static Dictionary<ShieldLevelState, int> _shieldLevel = new Dictionary<ShieldLevelState, int>();
+        private static Dictionary<ShieldLevelState, int> _shieldStatus = new Dictionary<ShieldLevelState, int>();
         private static string[] _secWeapon = new string[8];
         private static string[] _equipmentSlot = new string[10];
         private static HeatState _heat;
@@ -157,9 +157,9 @@ namespace VacVI.Database
 
 
         /// <summary> [EMERC+] Returns the ship's shield states (0 to 100).</summary>
-        public static Dictionary<ShieldLevelState, int> ShieldLevel 
+        public static Dictionary<ShieldLevelState, int> ShieldStatus
 		{
-            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? PlayerShipData._shieldLevel : null; }
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? PlayerShipData._shieldStatus : null; }
 		}
 
 
@@ -250,6 +250,19 @@ namespace VacVI.Database
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_ENERGY_LEVEL).Value : null; }
 		}
+
+
+        /// <summary> [EMERC+] Returns the ship's shield level/hull integrity (0 to 100).</summary>
+        public static int? ShieldLevel
+        {
+            get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_SHIELD_LEVEL).Value : null; }
+        }
+
+
+        /// <summary> [EMERC+] Returns the ship's shield level/hull integrity (0 to 100).
+        /// <para>(Same as ShieldLevel)</para>
+        /// </summary>
+        public static int? HullIntegrity { get { return ShieldLevel; } }
 
 
         /// <summary> [EMERC+] Returns the damage on the ship's engines (0-100).</summary>
@@ -452,11 +465,11 @@ namespace VacVI.Database
         #region (Static) Constructor
         static PlayerShipData()
         {
-            _shieldLevel.Add(ShieldLevelState.FRONT, 0);
-            _shieldLevel.Add(ShieldLevelState.RIGHT, 0);
-            _shieldLevel.Add(ShieldLevelState.LEFT, 0);
-            _shieldLevel.Add(ShieldLevelState.REAR, 0);
-            _shieldLevel.Add(ShieldLevelState.TOTAL, 0);
+            _shieldStatus.Add(ShieldLevelState.FRONT, 0);
+            _shieldStatus.Add(ShieldLevelState.RIGHT, 0);
+            _shieldStatus.Add(ShieldLevelState.LEFT, 0);
+            _shieldStatus.Add(ShieldLevelState.REAR, 0);
+            _shieldStatus.Add(ShieldLevelState.TOTAL, 0);
         }
         #endregion
 
@@ -487,11 +500,16 @@ namespace VacVI.Database
             _sectorPosition.Z = (int)SaveDataReader.GetEntry(PARAM_PLAYER_POSITION_SZ).Value;
 
             // Get shield levels
-            _shieldLevel[ShieldLevelState.FRONT] = (int)SaveDataReader.GetEntry(PARAM_FRONT_SHIELD_LEVEL).Value;
-            _shieldLevel[ShieldLevelState.RIGHT] = (int)SaveDataReader.GetEntry(PARAM_RIGHT_SHIELD_LEVEL).Value;
-            _shieldLevel[ShieldLevelState.LEFT] = (int)SaveDataReader.GetEntry(PARAM_LEFT_SHIELD_LEVEL).Value;
-            _shieldLevel[ShieldLevelState.REAR] = (int)SaveDataReader.GetEntry(PARAM_REAR_SHIELD_LEVEL).Value;
-            _shieldLevel[ShieldLevelState.TOTAL] = (int)SaveDataReader.GetEntry(PARAM_SHIELD_LEVEL).Value;
+            _shieldStatus[ShieldLevelState.FRONT] = (int)SaveDataReader.GetEntry(PARAM_FRONT_SHIELD_LEVEL).Value;
+            _shieldStatus[ShieldLevelState.RIGHT] = (int)SaveDataReader.GetEntry(PARAM_RIGHT_SHIELD_LEVEL).Value;
+            _shieldStatus[ShieldLevelState.LEFT] = (int)SaveDataReader.GetEntry(PARAM_LEFT_SHIELD_LEVEL).Value;
+            _shieldStatus[ShieldLevelState.REAR] = (int)SaveDataReader.GetEntry(PARAM_REAR_SHIELD_LEVEL).Value;
+            _shieldStatus[ShieldLevelState.TOTAL] = (        // <-- Total shield strength is not being output by the game, so DIY
+                _shieldStatus[ShieldLevelState.FRONT] +
+                _shieldStatus[ShieldLevelState.RIGHT] +
+                _shieldStatus[ShieldLevelState.LEFT] +
+                _shieldStatus[ShieldLevelState.REAR]
+            ) / 4;
 
             // Get secondary weapons
             maxCount = PARAM_SECONDARY_WEAPON_SLOT.Length;

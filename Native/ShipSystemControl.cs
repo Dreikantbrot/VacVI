@@ -927,7 +927,7 @@ namespace Native
             return (
                 "Target: " + TargetShipData.Description + ".\n" +
                 "Faction: " + TargetShipData.Faction + ".\n" +
-                "Target Shields at " + TargetShipData.ShieldLevel[ShieldLevelState.TOTAL] + "%.\n" +
+                "Target Shields at " + TargetShipData.ShieldStatus[ShieldLevelState.TOTAL] + "%.\n" +
                 "Hull Integrity at " + TargetShipData.DamageLevel + "%.\n" +
                 "Threat Level: " + (
                     (TargetShipData.ThreatLevel == ThreatLevelState.LOW) ? "Low" :
