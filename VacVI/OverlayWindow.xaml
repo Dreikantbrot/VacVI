@@ -15,21 +15,21 @@
     </Window.Resources>
     <Grid x:Name="grid" Width="500" Margin="0,0,0,0" HorizontalAlignment="Left">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition x:Name="LogoWidthGrid" Width="78"/>
+            <ColumnDefinition x:Name="LogoWidthGrid" Width="74"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition x:Name="LogoHeightGrid" Height="78" MaxHeight="78"/>
+            <RowDefinition x:Name="LogoHeightGrid" Height="74" MaxHeight="74"/>
             <RowDefinition x:Name="LogoVITextGrid" Height="Auto"/>
             <RowDefinition x:Name="LogoAnswerTextGrid" Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Image x:Name="img_LogoBackground" gif:AnimationBehavior.SourceUri="Resources/LoadingAnimation.gif" Opacity="0.25" Stretch="UniformToFill" Margin="0" HorizontalAlignment="Left" ClipToBounds="True" MaxWidth="{Binding MaxWidth, ElementName=window}" MaxHeight="{Binding MaxHeight, ElementName=window}" Grid.RowSpan="4" Grid.ColumnSpan="2" Width="500" >
+        <Image x:Name="img_LogoBackground" gif:AnimationBehavior.SourceUri="Resources/LoadingAnimation.gif" Opacity="0.25" Margin="0,0,10,0" ClipToBounds="True" MaxWidth="{Binding MaxWidth, ElementName=window}" MaxHeight="{Binding MaxHeight, ElementName=window}" Grid.RowSpan="4" Grid.ColumnSpan="2" >
             <Image.Effect>
                 <BlurEffect x:Name="img_LogoBackground_Blur" Radius="0"/>
             </Image.Effect>
         </Image>
-        <Image x:Name="img_StatusIcon"  gif:AnimationBehavior.SourceUri="Resources/LoadingAnimation.gif" Margin="5" />
+        <Image x:Name="img_StatusIcon"  gif:AnimationBehavior.SourceUri="Resources/LoadingAnimation.gif" Margin="5" Source="Resources/Logo_rotating_small.gif" />
         <TextBox x:Name="txt_VISpeechText" Margin="10,10,0,10" TextWrapping="Wrap" Text="&lt; VI Speech Text &gt;&#x0a;...&#x0a;...&#x0a;...&#x0a;...&#x0a;..." Background="{x:Null}" BorderBrush="{x:Null}" FontWeight="Bold" Foreground="{Binding Foreground, ElementName=window}" HorizontalAlignment="Left" Width="402" Grid.Column="1" RenderTransformOrigin="0.5,0.5" Grid.RowSpan="2" VerticalContentAlignment="Center"/>
         <StackPanel x:Name="stckPnl_PlayerAnswers" Grid.Column="1" HorizontalAlignment="Left" Margin="10,10,0,10" Grid.Row="2" Width="402">
             <TextBlock FontWeight="Bold" Text="&lt; Player Answer Text &gt;&#xA;...&#xA;...&#xA;..." IsHitTestVisible="False" TextWrapping="Wrap" Height="56"/>
