@@ -913,7 +913,8 @@ namespace Native
                 "Engines at " + PlayerShipData.EngineDamage + "%.\n" +
                 "Navigations at " + PlayerShipData.NavDamage + "%.\n" +
                 "Weapons at " + PlayerShipData.WeaponDamage + "%.\n" +
-                "Shields at " + PlayerShipData.ShieldLevel[ShieldLevelState.TOTAL] + "%.\n" +
+                "Shields at " + PlayerShipData.ShieldStatus[ShieldLevelState.TOTAL] + "%.\n" +
+                "Hull Integrity at " + PlayerShipData.HullIntegrity + "%.\n" +
                 Math.Round((double)PlayerShipData.FuelPercentage * 100) + "% fuel remaining."
             );
         }
