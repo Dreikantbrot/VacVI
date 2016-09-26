@@ -127,14 +127,29 @@ namespace VacVI.Input
         /// </summary>
         /// <param name="action">The action to simulate.</param>
         /// <param name="pressTime">The time to wait in ms after pressing the key and before releasing it.</param>
-        public static void ExecuteAction(GameAction action, int pressTime = 60)
+        /// <returns>Whether the key-press was successfull.</returns>
+        public static bool ExecuteAction(GameAction action, int pressTime = 60)
         {
             if (KeyboardControls.GameActions.ContainsKey(action))
             {
-                if (KeyboardControls.GameActions[action].IsAltAction) { Interactor.PressKey(DIKCodes.Keys.LMENU, Interactor.KeyPressMode.KEY_DOWN); }
-                PressKey((int)KeyboardControls.GameActions[action].Scancode, KeyPressMode.KEY_PRESS, pressTime);
-                if (KeyboardControls.GameActions[action].IsAltAction) { Interactor.PressKey(DIKCodes.Keys.LMENU, Interactor.KeyPressMode.KEY_UP); }
+                bool keyPressSuccess = true;
+
+                if (KeyboardControls.GameActions[action].IsAltAction) 
+                { 
+                    keyPressSuccess = keyPressSuccess && Interactor.PressKey(DIKCodes.Keys.LMENU, Interactor.KeyPressMode.KEY_DOWN);
+                }
+                
+                keyPressSuccess = keyPressSuccess && PressKey((int)KeyboardControls.GameActions[action].Scancode, KeyPressMode.KEY_PRESS, pressTime);
+                
+                if (KeyboardControls.GameActions[action].IsAltAction)
+                {
+                    keyPressSuccess = keyPressSuccess && Interactor.PressKey(DIKCodes.Keys.LMENU, Interactor.KeyPressMode.KEY_UP);
+                }
+
+                return keyPressSuccess;
             }
+
+            return false;
         }
 
 
@@ -146,7 +161,8 @@ namespace VacVI.Input
         /// <param name="isScancode">Whether the key code within the input info array is a scancode or not.
         /// <para>If set to false, the key will be interpreted as a unicode character.</para>
         /// </param>
-        private static void pressKey(Input[] inputs, KeyPressMode pressMode, int pressTime, bool isScancode)
+        /// <returns>Whether the key-press was successfull.</returns>
+        private static bool pressKey(Input[] inputs, KeyPressMode pressMode, int pressTime, bool isScancode)
         {
             if (
                 (VI.State <= VI.VIState.BUSY) ||
@@ -159,7 +175,7 @@ namespace VacVI.Input
                     (GameMeta.GameProcess.MainWindowHandle != GetForegroundWindow())
                 )
             )
-            { return; }
+            { return false; }
             
             VI.State = VI.VIState.BUSY;
 
@@ -179,6 +195,8 @@ namespace VacVI.Input
             }
 
             VI.State = VI.VIState.READY;
+
+            return true;
         }
 
 
@@ -197,9 +215,10 @@ namespace VacVI.Input
         /// <param name="keyCode">The DirectInput keycode to send.</param>
         /// <param name="pressMode">The mode of the keypress. Determines how the key is pressed.</param>
         /// <param name="pressTime">The time to wait in ms after pressing the key and before releasing it.</param>
-        public static void PressKey(DIKCodes.Keys key, KeyPressMode pressMode = KeyPressMode.KEY_PRESS, int pressTime = 0)
+        /// <returns>Whether the key-press was successfull.</returns>
+        public static bool PressKey(DIKCodes.Keys key, KeyPressMode pressMode = KeyPressMode.KEY_PRESS, int pressTime = 0)
         {
-            PressKey((int)key, pressMode, pressTime, true);
+            return PressKey((int)key, pressMode, pressTime, true);
         }
 
 
@@ -208,9 +227,10 @@ namespace VacVI.Input
         /// <param name="keyCode">The virtual keycode to send.</param>
         /// <param name="pressMode">The mode of the keypress. Determines how the key is pressed.</param>
         /// <param name="pressTime">The time to wait in ms after pressing the key and before releasing it.</param>
-        public static void PressKey(VKCodes.Keys key, KeyPressMode pressMode = KeyPressMode.KEY_PRESS, int pressTime = 0)
+        /// <returns>Whether the key-press was successfull.</returns>
+        public static bool PressKey(VKCodes.Keys key, KeyPressMode pressMode = KeyPressMode.KEY_PRESS, int pressTime = 0)
         {
-            PressKey((uint)key, pressMode, pressTime, true);
+            return PressKey((uint)key, pressMode, pressTime, true);
         }
 
 
@@ -220,9 +240,10 @@ namespace VacVI.Input
         /// <param name="pressMode">The mode of the keypress. Determines how the key is pressed.</param>
         /// <param name="pressTime">The time to wait in ms after pressing the key and before releasing it.</param>
         /// <param name="isScancode">If true, the keycode will be interpreted as a scan code, else as unicode.</param>
-        public static void PressKey(uint keyCode, KeyPressMode pressMode = KeyPressMode.KEY_PRESS, int pressTime = 0, bool isScancode = true)
+        /// <returns>Whether the key-press was successfull.</returns>
+        public static bool PressKey(uint keyCode, KeyPressMode pressMode = KeyPressMode.KEY_PRESS, int pressTime = 0, bool isScancode = true)
         {
-            PressKey(MapVirtualKey(keyCode, 0), pressMode, pressTime, isScancode);
+            return PressKey(MapVirtualKey(keyCode, 0), pressMode, pressTime, isScancode);
         }
         
 
@@ -232,7 +253,8 @@ namespace VacVI.Input
         /// <param name="pressMode">The mode of the keypress. Determines how the key is pressed.</param>
         /// <param name="pressTime">The time to wait in ms after pressing the key and before releasing it.</param>
         /// <param name="isScancode">If true, the keycode will be interpreted as a scan code, else as unicode.</param>
-        public static void PressKey(int key, KeyPressMode pressMode = KeyPressMode.KEY_PRESS, int pressTime = 0, bool isScancode = true)
+        /// <returns>Whether the key-press was successfull.</returns>
+        public static bool PressKey(int key, KeyPressMode pressMode = KeyPressMode.KEY_PRESS, int pressTime = 0, bool isScancode = true)
         {
             Input[] inputs;
 
@@ -240,7 +262,7 @@ namespace VacVI.Input
             inputs[0].type = (int)InputType.Keyboard;
             inputs[0].u.ki.wScan = (ushort)key;
 
-            pressKey(inputs, pressMode, pressTime, isScancode);
+            return pressKey(inputs, pressMode, pressTime, isScancode);
         }
         #endregion
     }
