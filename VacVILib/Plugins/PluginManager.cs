@@ -68,11 +68,24 @@ namespace VacVI.Plugins
         #region Functions
         /// <summary> Gets a plugin by name.
         /// </summary>
-        public static IPlugin GetPlugin(string pluginName)
+        public static IPlugin GetPluginByName(string pluginName)
         {
             for (int i = 0; i < Plugins.Count; i++)
             {
-                if (String.Equals(Plugins[i].Name, pluginName, StringComparison.InvariantCultureIgnoreCase)) return Plugins[i];
+                if (String.Equals(Plugins[i].Name, pluginName, StringComparison.InvariantCultureIgnoreCase)) { return Plugins[i]; }
+            }
+
+            return null;
+        }
+
+
+        /// <summary> Gets a plugin by ID.
+        /// </summary>
+        public static IPlugin GetPlugin(string pluginId)
+        {
+            for (int i = 0; i < Plugins.Count; i++)
+            {
+                if (String.Equals(Plugins[i].Id.ToString(), pluginId, StringComparison.InvariantCultureIgnoreCase)) { return Plugins[i]; }
             }
 
             return null;
@@ -145,8 +158,8 @@ namespace VacVI.Plugins
                         // Plugins that have *explicitly* been disabled
                         (
                             (!loadDisabledPlugins) &&
-                            (_pluginFile.HasKey(plugin.Name, "Enabled")) &&
-                            (!_pluginFile.ValueIsBoolAndTrue(plugin.Name, "Enabled"))
+                            (_pluginFile.HasKey(plugin.Id.ToString(), "Enabled")) &&
+                            (!_pluginFile.ValueIsBoolAndTrue(plugin.Id.ToString(), "Enabled"))
                         )
                     )
                     { continue; }
@@ -171,7 +184,7 @@ namespace VacVI.Plugins
             _pluginDefaults.Clear();
             for (int i = 0; i < Plugins.Count; i++)
             {
-                string pluginName = Plugins[i].Name;
+                string pluginName = Plugins[i].Id.ToString();
 
                 /* Create entry in the default plugin db */
                 if (!_pluginDefaults.ContainsKey(pluginName)) { _pluginDefaults.Add(pluginName, new Dictionary<string, PluginParameterDefault>()); }

@@ -14,8 +14,8 @@ namespace VacVI.Plugins
         Guid Id{ get; }
 
 
-        /// <summary> Returns the plugin name.
-        /// This field must not be empty or consisting of whitespaces only!
+        /// <summary> Returns the plugin's unique name.
+        /// <para>This field must not be empty or consisting of whitespaces only!</para>
         /// </summary>
         string Name { get; }
 
@@ -40,9 +40,14 @@ namespace VacVI.Plugins
         string Description { get; }
 
 
-        /// <summary> Returns the plugin's compatibility Flags.
+        /// <summary> Returns the plugin's compatibility flags.
         /// </summary>
         GameMeta.SupportedGame CompatibilityFlags { get; }
+
+
+        /// <summary> Returns the plugin's logo.
+        /// </summary>
+        System.Drawing.Bitmap LogoImage { get; }
         #endregion
 
 

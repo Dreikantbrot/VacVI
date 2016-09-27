@@ -8,10 +8,9 @@ using System.Timers;
 
 namespace Native
 {
-    public class VIStates : IPlugin
+    public class NapTime : IPlugin
     {
         #region Variables
-        private Guid _guid = new Guid();
         private Timer _autoSleepTimer = new Timer();
         #endregion
 
@@ -19,12 +18,12 @@ namespace Native
         #region Properties
         public Guid Id
         {
-            get { return _guid; }
+            get { return Guid.Parse("0cc0f49b-f4b1-4786-9c9f-b65cc2f80194"); }
         }
 
         public string Name
         {
-            get { return "VI States"; }
+            get { return "Nap time"; }
         }
 
         public string Version
@@ -46,7 +45,8 @@ namespace Native
         {
             get
             {
-                return "A plugin for retrieving and setting the VI's state and certain properties.";
+                return "A plugin for setting the VI's sleep state.\n" + 
+                    "This allows the user to set the VI into a sleep-state and wake it up.";
             }
         }
 
@@ -54,16 +54,35 @@ namespace Native
         {
             get { return (~GameMeta.SupportedGame.NONE); }
         }
+
+        public System.Drawing.Bitmap LogoImage
+        {
+            get { return Properties.Resources.NapTime; }
+        }
         #endregion
 
 
         #region Interface Functions
+        public List<PluginParameterDefault> GetDefaultPluginParameters()
+        {
+            List<PluginParameterDefault> parameters = new List<PluginParameterDefault>();
+
+            parameters.Add(new PluginParameterDefault(
+                "Auto Sleep Timeout",
+                "Determines the time of silence (in seconds), after which the VI will go on standby automatically.",
+                "120",
+                null
+            ));
+
+            return parameters;
+        }
+
         public void Initialize()
         {
             int _timerInterval;
 
             Int32.TryParse(
-                PluginManager.PluginFile.GetValue(this.Name, "Auto Sleep Timeout"),
+                PluginManager.PluginFile.GetValue(this.Id.ToString(), "Auto Sleep Timeout"),
                 out _timerInterval
             );
             _autoSleepTimer.Interval = (_timerInterval * 1000);
@@ -74,39 +93,6 @@ namespace Native
             SpeechEngine.OnVISpeechStopped += SpeechEngine_OnVISpeechStopped;
 
             if (_autoSleepTimer.Interval > 0) { _autoSleepTimer.Start(); }
-        }
-
-        public void OnDialogAction(VacVI.Dialog.DialogBase originNode)
-        {
-            switch (originNode.Data.ToString())
-            {
-                case "sleep":
-                    VI.State = VI.VIState.SLEEPING;
-                    break;
-
-                case "wake_up":
-                    VI.State = VI.VIState.READY;
-                    break;
-            }
-        }
-
-        public void OnGameDataUpdate()
-        {
-
-        }
-
-        public List<PluginParameterDefault> GetDefaultPluginParameters()
-        {
-            List<PluginParameterDefault> parameters = new List<PluginParameterDefault>();
-
-            parameters.Add(new PluginParameterDefault(
-                "Auto Sleep Timeout", 
-                "Determines the time in seconds of silence, after which the VI will go on standby automatically.", 
-                "120", 
-                null
-            ));
-
-            return parameters;
         }
 
         public void BuildDialogTree()
@@ -122,7 +108,7 @@ namespace Native
                             "Goodnight;Nap time!;Wake me up if you need me.", 
                             DialogBase.DialogPriority.NORMAL,
                             () => { return (VI.State >= VI.VIState.READY); }, 
-                            this.Name, "sleep", 
+                            this.Id.ToString(), "sleep", 
                             DialogBase.DialogFlags.NONE,
                             true
                         )
@@ -150,7 +136,7 @@ namespace Native
                             "Hello world!;Systems online.;Returning from standby.", 
                             DialogBase.DialogPriority.CRITICAL,
                             () => { return (VI.State < VI.VIState.READY); }, 
-                            this.Name, 
+                            this.Id.ToString(), 
                             "wake_up", 
                             (DialogBase.DialogFlags.IGNORE_VI_STATE)
                         )
@@ -161,6 +147,25 @@ namespace Native
             DialogTreeBuilder.BuildDialogTree(null, dialog);
         }
 
+        public void OnDialogAction(VacVI.Dialog.DialogBase originNode)
+        {
+            switch (originNode.Data.ToString())
+            {
+                case "sleep":
+                    VI.State = VI.VIState.SLEEPING;
+                    break;
+
+                case "wake_up":
+                    VI.State = VI.VIState.READY;
+                    break;
+            }
+        }
+
+        public void OnGameDataUpdate()
+        {
+
+        }
+
         public void OnProgramShutdown()
         {
             _autoSleepTimer.Stop();
@@ -169,7 +174,6 @@ namespace Native
 
 
         #region Events
-
         void SpeechEngine_OnVISpeechRejected(SpeechEngine.VISpeechRejectedEventArgs obj)
         {
             if (_autoSleepTimer.Interval > 0) { _autoSleepTimer.Stop(); }
@@ -184,7 +188,6 @@ namespace Native
         {
             if (_autoSleepTimer.Interval > 0) { _autoSleepTimer.Start(); }
         }
-
 
         void _autoSleepTimer_Elapsed(object sender, ElapsedEventArgs e)
         {

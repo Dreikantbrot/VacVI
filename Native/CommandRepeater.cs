@@ -9,12 +9,11 @@ namespace Native
     public class CommandRepeater : IPlugin
     {
         #region Constants
-        private const string I_DID_NOT_UNDERSTAND_YOU = "I did not understand that. Did you mean \"{0}\"?";
+        private const string I_DID_NOT_UNDERSTAND_YOU = "$[Sorry, ]I did not understand $(that|what you said). Did you mean \"{0}\"?";
         #endregion
 
 
         #region Variables
-        private Guid _guid = new Guid();
         private DialogBase _jumpBackNode;
         private DialogVI _dialg_didNotUnderstand = new DialogVI("I did not understand that");
 
@@ -26,7 +25,7 @@ namespace Native
         #region Properties
         public Guid Id
         {
-            get { return _guid; }
+            get { return Guid.Parse("8ccc969a-29a8-4755-b72e-8afa5c6ea3c9"); }
         }
 
         public string Name
@@ -62,14 +61,44 @@ namespace Native
         {
             get { return (~GameMeta.SupportedGame.NONE); }
         }
+
+        public System.Drawing.Bitmap LogoImage
+        {
+            get { return Properties.Resources.CommandRepeater; }
+        }
         #endregion
 
 
         #region Interface Functions
+        public List<PluginParameterDefault> GetDefaultPluginParameters()
+        {
+            return new List<PluginParameterDefault>();
+        }
+
         public void Initialize()
         {
             SpeechEngine.OnVISpeechRejected +=SpeechEngine_OnVISpeechRejected;
             DialogBase.OnDialogNodeChanged += DialogBase_OnDialogNodeChanged;
+        }
+
+        public void BuildDialogTree()
+        {
+            DialogTreeBranch[] dialog = new DialogTreeBranch[] {
+                new DialogTreeBranch(
+                    _dialg_didNotUnderstand,
+                    new DialogTreeBranch(
+                        new DialogPlayer("Yes.", DialogBase.DialogPriority.CRITICAL, () => { return (_lastMisunderstoodDialog != null); }, this.Id.ToString(), "yes", DialogBase.DialogFlags.ALWAYS_UPDATE)
+                    ),
+                    new DialogTreeBranch(
+                        new DialogPlayer("No.", DialogBase.DialogPriority.CRITICAL, () => { return (_lastMisunderstoodDialog != null); }, this.Id.ToString(), "no", DialogBase.DialogFlags.ALWAYS_UPDATE),
+                        new DialogTreeBranch(
+                            new DialogVI("$[Oh - I see. ]What $[did you need |was it ]then?", DialogBase.DialogPriority.NORMAL, null, this.Id.ToString(), "jump_back")
+                        )
+                    )
+                )
+            };
+
+            DialogTreeBuilder.BuildDialogTree(null, dialog);
         }
 
         public void OnDialogAction(VacVI.Dialog.DialogBase originNode)
@@ -107,31 +136,6 @@ namespace Native
         public void OnGameDataUpdate()
         {
 
-        }
-
-        public List<PluginParameterDefault> GetDefaultPluginParameters()
-        {
-            return new List<PluginParameterDefault>();
-        }
-
-        public void BuildDialogTree()
-        {
-            DialogTreeBranch[] dialog = new DialogTreeBranch[] {
-                new DialogTreeBranch(
-                    _dialg_didNotUnderstand,
-                    new DialogTreeBranch(
-                        new DialogPlayer("Yes.", DialogBase.DialogPriority.CRITICAL, () => { return (_lastMisunderstoodDialog != null); }, this.Name, "yes", DialogBase.DialogFlags.ALWAYS_UPDATE)
-                    ),
-                    new DialogTreeBranch(
-                        new DialogPlayer("No.", DialogBase.DialogPriority.CRITICAL, () => { return (_lastMisunderstoodDialog != null); }, this.Name, "no", DialogBase.DialogFlags.ALWAYS_UPDATE),
-                        new DialogTreeBranch(
-                            new DialogVI("$[Oh - I see. ]What $[did you need |was it ]then?", DialogBase.DialogPriority.NORMAL, null, this.Name, "jump_back")
-                        )
-                    )
-                )
-            };
-
-            DialogTreeBuilder.BuildDialogTree(null, dialog);
         }
 
         public void OnProgramShutdown()

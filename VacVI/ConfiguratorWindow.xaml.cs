@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using VacVI.Dialog;
 using System.Windows.Input;
 using VacVI.Input;
+using System.Drawing.Imaging;
+using System.Windows.Media.Imaging;
 
 namespace VacVIConfigurator
 {
@@ -207,7 +209,7 @@ namespace VacVIConfigurator
                 {
                     comBox_PluginSelection.Items.Add(
                         new ValueLabelPair(
-                            PluginManager.Plugins[i].Name,
+                            PluginManager.Plugins[i].Id,
                             "[ " + dllPlugin.Key.Substring(0, dllPlugin.Key.LastIndexOf('.')) + " ] - " + PluginManager.Plugins[i].Name
                         )
                     );
@@ -327,7 +329,7 @@ namespace VacVIConfigurator
                 int enabledPlugins = 0;
                 for (int i = 0; i < PluginManager.Plugins.Count; i++)
                 {
-                    if (PluginManager.PluginFile.ValueIsBoolAndTrue(PluginManager.Plugins[i].Name, "Enabled")) { enabledPlugins++; }
+                    if (PluginManager.PluginFile.ValueIsBoolAndTrue(PluginManager.Plugins[i].Id.ToString(), "Enabled")) { enabledPlugins++; }
                 }
 
                 if (_openChanges)
@@ -406,6 +408,28 @@ namespace VacVIConfigurator
                 lbl_PluginAuthor.Text = !String.IsNullOrWhiteSpace(plugin.Author) ? plugin.Author : "<Unknown Author>";
                 lbl_PluginHomepage.Text = !String.IsNullOrWhiteSpace(plugin.Homepage) ? plugin.Homepage : "<Homepage N/A>";
 
+                if (plugin.LogoImage != null)
+                {
+                    using (MemoryStream memory = new MemoryStream())
+                    {
+                        System.Drawing.Bitmap bitmap = plugin.LogoImage;
+                        bitmap.Save(memory, ImageFormat.Png);
+                        memory.Position = 0;
+                        memory.Seek(0, SeekOrigin.Begin);
+                        BitmapImage bitmapImage = new BitmapImage();
+                        bitmapImage.BeginInit();
+                        bitmapImage.StreamSource = memory;
+                        bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                        bitmapImage.EndInit();
+
+                        img_PluginLogo.Source = bitmapImage;
+                    }
+                }
+                else
+                {
+                    img_PluginLogo.Source = null;
+                }
+
                 // (Un-)Check the "compatibility" checkbox and update the style
                 bool isCompatible = ((GameMeta.CurrentGame & plugin.CompatibilityFlags) == GameMeta.CurrentGame);
                 txt_PluginCompatibility.Foreground = (
@@ -419,8 +443,8 @@ namespace VacVIConfigurator
 
                 // (Un-)Check the "enabled" checkbox and trigger checked/unchecked event to do the rest
                 chck_PluginsEnabled.IsChecked = (
-                    (!PluginManager.PluginFile.HasKey(plugin.Name, "Enabled")) ||
-                    (PluginManager.PluginFile.ValueIsBoolAndTrue(plugin.Name, "Enabled"))
+                    (!PluginManager.PluginFile.HasKey(plugin.Id.ToString(), "Enabled")) ||
+                    (PluginManager.PluginFile.ValueIsBoolAndTrue(plugin.Id.ToString(), "Enabled"))
                 );
                 chck_PluginsEnabled_CheckedUnchecked(null, null);
             }
@@ -1057,9 +1081,9 @@ namespace VacVIConfigurator
             grid_pluginParameterGrid.RowDefinitions.Clear();
             grid_pluginParameterGrid.Children.Clear();
 
-            if (PluginManager.PluginDefaults.ContainsKey(plugin.Name))
+            if (PluginManager.PluginDefaults.ContainsKey(plugin.Id.ToString()))
             {
-                Dictionary<string, PluginParameterDefault> pluginParams = PluginManager.PluginDefaults[plugin.Name];
+                Dictionary<string, PluginParameterDefault> pluginParams = PluginManager.PluginDefaults[plugin.Id.ToString()];
 
                 if (pluginParams.Count > 0)
                 {
@@ -1074,7 +1098,7 @@ namespace VacVIConfigurator
                     foreach (KeyValuePair<string, PluginParameterDefault> pluginDefault in pluginParams)
                     {
                         PluginParameterDefault currPluginParam = pluginDefault.Value;
-                        string currSetVal = PluginManager.PluginFile.GetValue(plugin.Name, currPluginParam.Key);
+                        string currSetVal = PluginManager.PluginFile.GetValue(plugin.Id.ToString(), currPluginParam.Key);
 
                         #region Create the configuration stack
                         newRow = new RowDefinition();
@@ -1204,7 +1228,7 @@ namespace VacVIConfigurator
             string currParamValue = ((ComboBox)sender).SelectedValue.ToString();
             string currParamKey = ((ComboBox)sender).Tag.ToString();
 
-            PluginManager.PluginFile.SetValue(plugin.Name, currParamKey, currParamValue);
+            PluginManager.PluginFile.SetValue(plugin.Id.ToString(), currParamKey, currParamValue);
             PluginManager.PluginFile.Write(PluginManager.PluginConfigPath);
         }
 
@@ -1221,7 +1245,7 @@ namespace VacVIConfigurator
 
             string currParamKey = ((TextBox)sender).Tag.ToString();
 
-            PluginManager.PluginFile.SetValue(plugin.Name, currParamKey, ((TextBox)sender).Text);
+            PluginManager.PluginFile.SetValue(plugin.Id.ToString(), currParamKey, ((TextBox)sender).Text);
             PluginManager.PluginFile.Write(PluginManager.PluginConfigPath);
         }
 
@@ -1239,7 +1263,7 @@ namespace VacVIConfigurator
             if (plugin != null)
             {
                 // Update the enabled state for this plugin inside the plugins.ini
-                PluginManager.PluginFile.SetValue(plugin.Name, "Enabled", (chck_PluginsEnabled.IsChecked == true) ? "True" : "False");
+                PluginManager.PluginFile.SetValue(plugin.Id.ToString(), "Enabled", (chck_PluginsEnabled.IsChecked == true) ? "True" : "False");
                 PluginManager.PluginFile.Write(PluginManager.PluginConfigPath);
             }
 
