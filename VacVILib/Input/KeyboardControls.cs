@@ -7,148 +7,430 @@ using System.Text.RegularExpressions;
 namespace VacVI.Input
 {
     #region Public Enums
+    /// <summary> Contains in-game controls/actions, that can be passed as simulated key-presses.</summary>
     public enum GameAction
     {
+        /// <summary>[EMERC+]</summary>
         TURN_RIGHT,
+
+		/// <summary>[EMERC+]</summary>
         TURN_LEFT,
+
+		/// <summary>[EMERC+]</summary>
         PITCH_DOWN,
+
+		/// <summary>[EMERC+]</summary>
         PITCH_UP,
+
+		/// <summary>[EMERC+]</summary>
         ROLL_RIGHT,
+
+		/// <summary>[EMERC+]</summary>
         ROLL_LEFT,
+
+		/// <summary>[EMERC+]</summary>
         STRAFE_RIGHT,
+
+		/// <summary>[EMERC+]</summary>
         STRAFE_LEFT,
+
+		/// <summary>[EMERC+]</summary>
         AFTERBURNER,
+
+		/// <summary>[EMERC+]</summary>
         INERTIAL_SYSTEM_ON_OFF,
+
+		/// <summary>[EMERC+]</summary>
         MATCH_TARGET_SPEED,
+
+		/// <summary>[EMERC+]</summary>
         FIRE_PRIMARY_WEAPON,
+
+		/// <summary>[EMERC+]</summary>
         FIRE_SECONDARY_WEAPON,
+
+		/// <summary>[EMERC+]</summary>
         SELECT_NEXT_SECONDARY_WEAPON,
+
+		/// <summary>[EMERC+]</summary>
         SELECT_PREVIOUS_SECONDARY_WEAPON,
+
+		/// <summary>[EMERC+]</summary>
         COUNTERMEASURES,
+
+		/// <summary>[EMERC+]</summary>
         TARGET_NEAREST_SHIP,
+
+		/// <summary>[EMERC+]</summary>
         TARGET_NEAREST_HOSTILE,
+
+		/// <summary>[EMERC+]</summary>
         TARGET_NEXT_SHIP,
+
+		/// <summary>[EMERC+]</summary>
         TARGET_NEXT_HOSTILE,
+
+		/// <summary>[EMERC+]</summary>
         BOOST_ENERGY_TO_SHIELDS,
+
+		/// <summary>[EMERC+]</summary>
         BOOST_ENERGY_TO_WEAPONS,
+
+		/// <summary>[EMERC+]</summary>
         HUD_MODE,
+
+		/// <summary>[EMERC+]</summary>
         MDTS_ON_OFF,
+
+		/// <summary>[EMERC+]</summary>
         TOGGLE_3RD_PERSON_VIEWS,
+
+		/// <summary>[EMERC+]</summary>
         PADLOCK_ON_OFF,
+
+		/// <summary>[EMERC+]</summary>
         FLY_BY_VIEW,
+
+		/// <summary>[EMERC+]</summary>
         CINEMATIC_MODE,
+
+		/// <summary>[EMERC+]</summary>
         VIEW_RIGHT,
+
+		/// <summary>[EMERC+]</summary>
         PAN_RIGHT,
+
+		/// <summary>[EMERC+]</summary>
         VIEW_LEFT,
+
+		/// <summary>[EMERC+]</summary>
         PAN_LEFT,
+
+		/// <summary>[EMERC+]</summary>
         VIEW_UP,
+
+		/// <summary>[EMERC+]</summary>
         PAN_UP,
+
+		/// <summary>[EMERC+]</summary>
         VIEW_BEHIND,
+
+		/// <summary>[EMERC+]</summary>
         PAN_DOWN,
+
+		/// <summary>[EMERC+]</summary>
         NAVIGATION_CONSOLE,
+
+		/// <summary>[EMERC+]</summary>
         ENGAGE_JUMP_DRIVE,
+
+		/// <summary>[EMERC+]</summary>
         ENGAGE_JUMP_DRIVE_MAXIMUM_RANGE,
+
+		/// <summary>[EMERC+]</summary>
         BUILD_AND_DEPLOY_CONSOLE,
+
+		/// <summary>[EMERC+]</summary>
         INVENTORY_CONSOLE,
+
+		/// <summary>[EMERC+]</summary>
         DOCKING_CONTROL_ON_OFF,
+
+		/// <summary>[EMERC+]</summary>
         TRADE_CONSOLE,
+
+		/// <summary>[EMERC+]</summary>
         STRAFE_UP,
+
+		/// <summary>[EMERC+]</summary>
         STRAFE_DOWN,
+
+		/// <summary>[EMERC]</summary>
         TRACTOR_MINING_BEAM_ON_OFF,
+
+        /// <summary>[EMERC]</summary>
         TRACTOR_MINING_BEAM_TOGGLE,
+
+        /// <summary>[ELGCY]</summary>
         TRACTOR_MINING_REPAIR_BEAM_ON_OFF,
+
+        /// <summary>[ELGCY]</summary>
         TRACTOR_MINING_REPAIR_BEAM_TOGGLE,
+
+		/// <summary>[EMERC+]</summary>
         REVERSE_ENGINE_THRUST,
+
+		/// <summary>[EMERC+]</summary>
         FORM_ON_TARGET,
+
+		/// <summary>[EMERC+]</summary>
         NAV_AUTOPILOT,
+
+		/// <summary>[EMERC]</summary>
         TOGGLE_TARGET_DETAIL_AND_RANGED_LIST,
+
+        /// <summary>[ELGCY]</summary>
         TARGET_DISPLAY_MODE,
+
+		/// <summary>[EMERC+]</summary>
         QUIT,
+
+		/// <summary>[EMERC+]</summary>
         QUICK_SAVE,
+
+		/// <summary>[EMERC+]</summary>
         DELETE_MESSAGE,
+
+		/// <summary>[EMERC+]</summary>
         RECALL_MESSAGE,
+
+		/// <summary>[EMERC+]</summary>
         DELETE_ALL_MESSAGE_LINES,
+
+		/// <summary>[EMERC+]</summary>
         JETTISON_CARGO,
+
+		/// <summary>[EMERC+]</summary>
         INERTIAL_FORWARD,
+
+		/// <summary>[EMERC+]</summary>
         INERTIAL_REVERSE,
+
+		/// <summary>[EMERC+]</summary>
         TARGET_SHIP_IN_GUNSIGHT,
+
+		/// <summary>[EMERC+]</summary>
         THROTTLE_UP_SECONDARY_CONTROL,
+
+        /// <summary>[ELGCY]</summary>
         THROTTLE_UP,
+
+		/// <summary>[EMERC+]</summary>
         THROTTLE_DOWN_SECONDARY_CONTROL,
+
+        /// <summary>[ELGCY]</summary>
         THROTTLE_DOWN,
+
+		/// <summary>[EMERC+]</summary>
         AUGMENT_FRONT_SHIELD,
+
+		/// <summary>[EMERC+]</summary>
         AUGMENT_REAR_SHIELD,
+
+		/// <summary>[EMERC+]</summary>
         AUGMENT_RIGHT_SHIELD,
+
+		/// <summary>[EMERC+]</summary>
         AUGMENT_LEFT_SHIELD,
+
+		/// <summary>[EMERC+]</summary>
         EQUALIZE_SHIELDS,
+
+		/// <summary>[EMERC+]</summary>
         EJECT_AND_SELF_DESTRUCT_SHIP,
+
+		/// <summary>[EMERC+]</summary>
         NEAREST_HOSTILE_SECONDARY_CONTROL,
+
+		/// <summary>[EMERC+]</summary>
         NEXT_HOSTILE_SECONDARY_CONTROL,
+
+		/// <summary>[EMERC+]</summary>
         CYCLE_PRIMARY_WEAPON,
+
+		/// <summary>[EMERC+]</summary>
         FIRE_PARTICLE_WEAPON_ONLY,
+
+		/// <summary>[EMERC+]</summary>
         FIRE_BEAM_WEAPON_ONLY,
+
+		/// <summary>[EMERC+]</summary>
         CYCLE_TARGET_SUBSYSTEM,
+
+		/// <summary>[EMERC]</summary>
         MULTIPLAYER_CLAN_LINK,
+
+		/// <summary>[EMERC]</summary>
         MULIPLAYER_CLEAR_LINK,
+
+        /// <summary>[ELGCY]</summary>
         HOSTILE_CONTACT_RADAR_MODE,
+
+		/// <summary>[EMERC+]</summary>
         STEALTH_GENERATOR,
+
+		/// <summary>[EMERC+]</summary>
         MOUSE_LOOK_ON_OFF,
+
+		/// <summary>[EMERC+]</summary>
         MULTIPLAYER_VOICE_CHAT,
+
+		/// <summary>[EMERC+]</summary>
         SEND_ORDER_FORM_UP,
+
+		/// <summary>[EMERC]</summary>
         SEND_ORDER_DEFEND_ME,
+
+        /// <summary>[ELGCY]</summary>
         SEND_ORDER_ATTACK_TARGET,
+
+		/// <summary>[EMERC+]</summary>
         SEND_ORDER_ATTACK_HOSTILES,
+
+		/// <summary>[EMERC+]</summary>
         SEND_ORDER_MINE_ASTEROIDS,
+
+		/// <summary>[EMERC+]</summary>
         SEND_ORDER_RELOAD_REFUEL,
+
+		/// <summary>[EMERC+]</summary>
         SEND_ORDER_DISMISS_ALL,
+
+		/// <summary>[EMERC+]</summary>
         SEND_ORDER_DISMISS,
+
+		/// <summary>[EMERC]</summary>
         DEPLOY_ITEM_ENERGY_STATION,
+
+		/// <summary>[EMERC]</summary>
         DEPLOY_ITEM_REPAIR_STATION,
+
+		/// <summary>[EMERC]</summary>
         DEPLOY_ITEM_SENSOR_STATION,
+
+		/// <summary>[EMERC]</summary>
         DEPLOY_ITEM_FUEL_PROCESSOR,
+
+		/// <summary>[EMERC]</summary>
         DEPLOY_ITEM_SHIELD_ARRAY,
+
+		/// <summary>[EMERC]</summary>
         DEPLOY_ITEM_MINING_PROBE,
+
+		/// <summary>[EMERC]</summary>
         BUILD_TRADE_STATION,
+
+		/// <summary>[EMERC]</summary>
         BUILD_CONSTRUCTOR,
+
+		/// <summary>[EMERC]</summary>
         BUILD_RESEARCH,
+
+		/// <summary>[EMERC]</summary>
         BUILD_ENERGY_STATION,
+
+		/// <summary>[EMERC]</summary>
         BUILD_ORE_PROCESSOR,
+
+		/// <summary>[ELGCY]</summary>
         LOW_LIGHT_VISION_MODE,
+
+		/// <summary>[ELGCY]</summary>
         TARGET_NEAREST_OBJECT,
+
+		/// <summary>[ELGCY]</summary>
         TARGET_NEXT_OBJECT,
+
+		/// <summary>[ELGCY]</summary>
         TARGET_OBJECT_IN_GUNSIGHT,
+
+		/// <summary>[ELGCY]</summary>
         RADAR_MODE,
+
+		/// <summary>[ELGCY]</summary>
         RADAR_RANGE,
+
+		/// <summary>[ELGCY]</summary>
         FLEET_STATUS,
+
+		/// <summary>[ELGCY]</summary>
         TOGGLE_FORWARD_FULL_RANGE_THROTTLE_CONTROL,
+
+		/// <summary>[ELGCY]</summary>
         AUTO_LEVEL,
+
+		/// <summary>[ELGCY]</summary>
         PING_LOCATION,
+
+		/// <summary>[ELGCY]</summary>
         TRANSMIT_LOCATION,
+
+		/// <summary>[EMERC+]</summary>
         QUICK_SAVE_SECONDARY_CONTROL,
+
+		/// <summary>[EMERC+]</summary>
         AUTOPILOT_SECONDARY_CONTROL,
+
+		/// <summary>[EMERC]</summary>
         LOCK_MINING_TRACTOR_BEAM_ON_SECONDARY_CONTROL,
+
+        /// <summary>[ELGCY]</summary>
         LOCK_MINING_TRACTOR_REPAIR_BEAM_ON_SECONDARY_CONTROL,
+
+		/// <summary>[EMERC+]</summary>
         PADLOCK_VIEW_SECONDARY_CONTROL,
+
+		/// <summary>[EMERC+]</summary>
         CINEMATIC_VIEW_SECONDARY_CONTROL,
+
+		/// <summary>[EMERC+]</summary>
         INCREASE_IDS_THOTTLE_SCALE,
+
+		/// <summary>[EMERC+]</summary>
         DECREASE_IDS_THOTTLE_SCALE,
+
+		/// <summary>[EMERC+]</summary>
         TERRAIN_WALKER_MOVE_FORWARD,
+
+		/// <summary>[EMERC+]</summary>
         TERRAIN_WALKER_MOVE_BACKWARD,
+
+		/// <summary>[EMERC+]</summary>
         TERRAIN_WALKER_MOVE_RIGHT,
+
+		/// <summary>[EMERC+]</summary>
         TERRAIN_WALKER_MOVE_LEFT,
+
+		/// <summary>[EMERC+]</summary>
         TERRAIN_WALKER_JUMP_JETS,
+
+		/// <summary>[EMERC+]</summary>
         TERRAIN_WALKER_FIRE_CANNONS,
+
+		/// <summary>[EMERC+]</summary>
         TERRAIN_WALKER_ACTIVATE_DEACTIVATE_TERRAIN_WALKER,
+
+		/// <summary>[ELGCY]</summary>
         THROTTLE_10_PERCENT,
+
+		/// <summary>[ELGCY]</summary>
         THROTTLE_20_PERCENT,
+
+		/// <summary>[ELGCY]</summary>
         THROTTLE_30_PERCENT,
+
+		/// <summary>[ELGCY]</summary>
         THROTTLE_40_PERCENT,
+
+		/// <summary>[ELGCY]</summary>
         THROTTLE_50_PERCENT,
+
+		/// <summary>[ELGCY]</summary>
         THROTTLE_60_PERCENT,
+
+		/// <summary>[ELGCY]</summary>
         THROTTLE_70_PERCENT,
+
+		/// <summary>[ELGCY]</summary>
         THROTTLE_80_PERCENT,
+
+		/// <summary>[ELGCY]</summary>
         THROTTLE_90_PERCENT,
+
+		/// <summary>[ELGCY]</summary>
         THROTTLE_100_PERCENT,
+
+		/// <summary>[EMERC+]</summary>
         ZERO_THROTTLE
     }
     #endregion
