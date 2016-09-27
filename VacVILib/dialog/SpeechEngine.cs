@@ -379,8 +379,9 @@ namespace VacVI.Dialog
             if (modulation == VoiceModulationModes.DEFAULT) { modulation = _voiceModulation; }
             if (modulation == VoiceModulationModes.ROBOTIC)
             {
-                DmoChorusEffect echoSource = new DmoChorusEffect(_soundSource);
-                echoSource.Delay = 20;
+                DmoEchoEffect echoSource = new DmoEchoEffect(_soundSource);
+                echoSource.LeftDelay = 25;
+                echoSource.RightDelay = 25;
                 _soundOutput.Initialize(echoSource);
             }
 
