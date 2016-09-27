@@ -707,7 +707,11 @@ namespace VacVIOverlay
             if (ConfigurationManager.StartupParams.NoIdleTimeout) { return; }
 
             double updateDeltaTime = (DateTime.Now - SaveDataReader.LastUpdateTime).TotalMilliseconds;
-            if (updateDeltaTime > (2 * SaveDataReader.UpdateInterval)) { VI.Disabled = true; }
+            if (
+                (updateDeltaTime > MIN_TIMEOUT_TIMER_INTERVAL) && 
+                (updateDeltaTime > (2 * SaveDataReader.UpdateInterval))
+            )
+            { VI.Disabled = true; }
 
             // Synchronize update time intervals
             if (SaveDataReader.UpdateInterval != _autoPauseVITimer.Interval.Milliseconds)
