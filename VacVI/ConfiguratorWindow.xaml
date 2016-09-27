@@ -1,7 +1,7 @@
 ﻿<Window x:Name="Configurator_Window" x:Class="VacVIConfigurator.ConfiguratorWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Vac VI Configurator" Height="600" Width="750" ResizeMode="CanResizeWithGrip" MaxWidth="850" MaxHeight="650" MinWidth="750" MinHeight="550" Icon="Resources/Icon.ico" SnapsToDevicePixels="True" Closing="Configurator_Window_Closing">
+        Title="VācVI Configurator" Height="600" Width="750" ResizeMode="CanResizeWithGrip" MaxWidth="850" MaxHeight="650" MinWidth="750" MinHeight="550" Icon="Resources/Icon.ico" SnapsToDevicePixels="True" Closing="Configurator_Window_Closing">
     <Window.Resources>
         <SolidColorBrush x:Key="BackgroundBrush" Color="#44ffffff" />
 
@@ -32,7 +32,7 @@
                     <RowDefinition Height="133*"/>
                     <RowDefinition Height="24*"/>
                 </Grid.RowDefinitions>
-                <Button x:Name="btn_StartGame" Content="Start VacVI" Margin="0,0,10,10" BorderBrush="#FF3C6C8D" Background="#BF66BFF1" Padding="0" FontWeight="Bold" HorizontalAlignment="Right" Width="120" Grid.Row="2" Height="26" VerticalAlignment="Bottom" Click="btn_StartGame_Click">
+                <Button x:Name="btn_StartGame" Content="Start VācVI" Margin="0,0,10,10" BorderBrush="#FF3C6C8D" Background="#BF66BFF1" Padding="0" FontWeight="Bold" HorizontalAlignment="Right" Width="120" Grid.Row="2" Height="26" VerticalAlignment="Bottom" Click="btn_StartGame_Click">
                     <Button.Foreground>
                         <SolidColorBrush Color="White"/>
                     </Button.Foreground>
@@ -240,7 +240,7 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <CheckBox x:Name="chck_PluginsEnabled" Content="Enabled?" Margin="99,11,0,0" FontSize="14" FontWeight="Bold" BorderThickness="2" BorderBrush="#FFACACAC" Foreground="White" Background="White" IsHitTestVisible="True" Grid.Column="2" HorizontalAlignment="Left" Width="110" Height="24" VerticalAlignment="Top" Checked="chck_PluginsEnabled_CheckedUnchecked" Unchecked="chck_PluginsEnabled_CheckedUnchecked" VerticalContentAlignment="Center"/>
+                <CheckBox x:Name="chck_PluginsEnabled" Content="Enabled" Margin="99,11,0,0" FontSize="14" FontWeight="Bold" BorderThickness="2" BorderBrush="#FFACACAC" Foreground="White" Background="White" IsHitTestVisible="True" Grid.Column="2" HorizontalAlignment="Left" Width="110" Height="24" VerticalAlignment="Top" Checked="chck_PluginsEnabled_CheckedUnchecked" Unchecked="chck_PluginsEnabled_CheckedUnchecked" VerticalContentAlignment="Center" IsEnabled="False"/>
                 <TextBox x:Name="lbl_PluginName" Margin="10,10,10,0" TextWrapping="Wrap" Text="Plugin Name" Grid.Row="1" Background="{DynamicResource BackgroundBrush}" Foreground="White" FontWeight="Normal" VerticalContentAlignment="Center" IsReadOnly="True" MaxLines="1" VerticalAlignment="Top" Padding="3" ScrollViewer.CanContentScroll="True" Height="24" IsHitTestVisible="False" Focusable="False"/>
                 <TextBox x:Name="lbl_PluginAuthor" Margin="10,39,10,0" TextWrapping="Wrap" Text="Author" VerticalAlignment="Top" Grid.Row="1" Background="{DynamicResource BackgroundBrush}" Foreground="White" FontWeight="Normal" VerticalContentAlignment="Center" IsReadOnly="True" MaxLines="1" Padding="3" ScrollViewer.CanContentScroll="True" Height="24" IsHitTestVisible="False" Focusable="False"/>
                 <TextBox x:Name="lbl_PluginHomepage" Margin="10,68,10,0" TextWrapping="Wrap" Text="Homepage" Grid.Row="1" Background="{DynamicResource BackgroundBrush}" Foreground="White" FontWeight="Normal" VerticalContentAlignment="Center" IsReadOnly="True" MaxLines="1" Padding="3" ScrollViewer.CanContentScroll="True" Height="24" VerticalAlignment="Top" IsHitTestVisible="False" Focusable="False"/>
@@ -266,7 +266,7 @@
                         <Label x:Name="lbl_noParamsToConfigure" Content="No parameters to configure!" Margin="10,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Grid.ColumnSpan="2" Background="#7FC8C8C8" Foreground="#FFF0F0F0" VerticalAlignment="Center" />
                     </Grid>
                 </GroupBox>
-                <TextBox x:Name="txt_PluginCompatibility" Grid.Column="2" HorizontalAlignment="Left" Height="26" Margin="214,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="150" Background="#7F00C800" CaretBrush="{Binding SelectionBrush, ElementName=txt_PluginCompatibility}" VerticalContentAlignment="Center" Foreground="White" HorizontalContentAlignment="Center" IsReadOnly="True" FontWeight="Bold" BorderThickness="0" FontSize="14" Text="Compatible"/>
+                <TextBox x:Name="txt_PluginCompatibility" Grid.Column="2" HorizontalAlignment="Left" Height="26" Margin="214,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="150" Background="#7FC8C8C8" CaretBrush="{Binding SelectionBrush, ElementName=txt_PluginCompatibility}" VerticalContentAlignment="Center" Foreground="White" HorizontalContentAlignment="Center" IsReadOnly="True" FontWeight="Bold" BorderThickness="0" FontSize="14" Text="Compatible"/>
             </Grid>
         </TabItem>
 
@@ -285,14 +285,14 @@
                         <Run Text="&#x0a;Disclaimer"/>
                         <Run Text="&#x0a;-------------------------------------------"/>
                         <Run Text="&#x0a;"/>
-                        <Run Text="&#x0a;Evochron, including Evochron Mercenary and Evochron Legacy, as well as the Arvoch Series and all title images (except for the VacVI Logo, pictured above) within the &quot;Overview&quot; tab are property of StarWraith3D Games."/>
+                        <Run Text="&#x0a;Evochron, including Evochron Mercenary and Evochron Legacy, as well as the Arvoch Series and all title images (except for the VācVI logo, pictured above) within the &quot;Overview&quot; tab are property of StarWraith3D Games."/>
                         <Run Text="&#x0a;"/>
                         <Run Text="&#x0a;"/>
                         <Run Text="&#x0a;Visit "/><Hyperlink NavigateUri="http://www.starwraith.com/" RequestNavigate="OnNavigateURL" Foreground="SkyBlue"><Run Text="SarWraith3D Games"/></Hyperlink><Run Text=" for more information!"/>
                 </TextBlock>
                 <ScrollViewer Margin="10" Grid.Column="1" Grid.RowSpan="2" VerticalScrollBarVisibility="Auto">
                     <TextBlock Background="{DynamicResource BackgroundBrush}" Foreground="White" Padding="5,5,5,5" TextWrapping="Wrap" FontWeight="Bold" TextAlignment="Center" TextTrimming="CharacterEllipsis" IsHitTestVisible="True">
-                            <Run Text="&#x0a;VacVI:"/>
+                            <Run Text="&#x0a;VācVI:"/>
                             <Run Text="&#x0a;-----------------------"/>
                             <Run Text="&#x0a;"/>
                             <Run Text="&#x0a;Progam written by:"/>
@@ -303,7 +303,7 @@
                             <Run Text="&#x0a;"/>
                             <Run Text="&#x0a;----"/>
                             <Run Text="&#x0a;"/>     
-                            <Run Text="&#x0a;VacVI-Logo by:"/>
+                            <Run Text="&#x0a;VācVI logo by:"/>
                             <Run Text="&#x0a;"/>
                             <Run Text="&#x0a;André Krauß"/>
                             <Run Text="&#x0a;Nickname: Nhilus66"/>

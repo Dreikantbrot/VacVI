@@ -137,6 +137,7 @@ namespace VacVIConfigurator
             PluginManager.LoadPlugins(true);
             ConfigurationManager.LoadConfiguration();
 
+            if (PluginManager.Plugins.Count > 0) { chck_PluginsEnabled.IsEnabled = true; }
 
             /* Fill VI voice list */
             comBox_Config_VIVoice.Items.Clear();
