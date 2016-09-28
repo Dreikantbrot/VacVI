@@ -4,7 +4,7 @@ Space is large, dangerous and lonely. Ship systems are increasingly complex, mak
 
 So whether you are overwhelmed by the mechanisms of your ship or simply long for some company along your journey, **Vāc VI** is at your service!
 
-Capable of managing your ship systems and reacting to sensor data *autonomously* or *on your command*, this ship assistant can greatly help you to overcome any obstacle and make your life in space that much easier.
+Capable of managing your ship systems and reacting to sensor data *autonomously* or *on your command*, this ship assistant can greatly help you overcome any obstacle and make your life in space that much easier.
 
 > I am Vāc - your personal ship assistant and companion on your journey through the Evochron universe!
 
