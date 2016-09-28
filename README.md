@@ -10,7 +10,7 @@ Capable of managing your ship systems and reacting to sensor data *autonomously*
 
 
 # What is it?
-Vāc is a board computer for designed for *StarWraith3D Game*'s *Evochron* series. It can process voice commands and give audible feeback via text-to-speech. Through the usage of in-game data, Vāc can automatially react to events within the game, even without player input.
+Vāc is a board computer for designed for *StarWraith3D Game*'s *Evochron* series. It can process voice commands and give audible feeback via text-to-speech. Through the usage of in-game data, Vāc can automatically react to events within the game, even without player input.
 
 Functionality comes in the form of plugins, which can easily be developed with Visual Studio.
 
