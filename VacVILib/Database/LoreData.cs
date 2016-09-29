@@ -133,13 +133,22 @@ namespace VacVI.Database
                 @"[\s\S]+?(?=\s*(?:\n){2}[+-]?\d|\s*$))"
             );
 
-            readonly private static Regex SYSTEM_DETAIL_REGEX = new Regex(
+            readonly private static Regex SYSTEM_DETAIL_REGEX_EMERC = new Regex(
                 @"(?<X>[+-]?\d+)\s+" + 
                 @"(?<Y>[+-]?\d+)\s+" +
                 @"(?<Name>.*?):\s*" +
                 @"(?<Description>[\S\s]+?(?=$|\n\n))" + 
                 @"(?:Economy Classes:\s*(?<Economy>.*?\n))?\s*" +
                 @"(?:Faction Details:\s*(?<Factions>[\S\s]*?(?=\s*$|\s*[+-]?\d+)))?"
+            );
+
+            readonly private static Regex SYSTEM_DETAIL_REGEX_ELGCY = new Regex(
+                @"(?<X>[+-]?\d+)\s+" +
+                @"(?<Y>[+-]?\d+)\s+" +
+                @"(?<Name>.*?) System Information:\s*" +
+                @"(?<Description>[\S\s]+?)" +
+                @"(?:Alerts:\s*(?<Alerts>.*?(?=$|\n\n)))\s*" +
+                @"(?:Economy Classes:\s*(?<Economy>.*?\n))?"
             );
 
             readonly private static Regex FACTION_DETAILS_PARSE_REGEX = new Regex(
@@ -158,11 +167,12 @@ namespace VacVI.Database
                 private string _description;
                 private string[] _economyClasses;
                 private Dictionary<string, string> _factions;
+                private string _alerts;
                 #endregion
 
 
                 #region Properties
-                /// <summary> Returns the system name.
+                /// <summary>[EMERC+] Returns the system name.
                 /// </summary>
                 public string Name
                 {
@@ -170,7 +180,7 @@ namespace VacVI.Database
                 }
 
 
-                /// <summary> Returns the system sector coordinates.
+                /// <summary>[EMERC+] Returns the system sector coordinates.
                 /// </summary>
                 public Vector3D SectorCordinates
                 {
@@ -178,25 +188,32 @@ namespace VacVI.Database
                 }
 
 
-                /// <summary> Returns the system description
+                /// <summary>[EMERC+] Returns the system description
                 /// </summary>
                 public string Description
                 {
                     get { return _description; }
                 }
 
-                /// <summary> Returns a list of economy classes.
+                /// <summary>[EMERC+] Returns a list of economy classes.
                 /// </summary>
                 public string[] EconomyClasses
                 {
                     get { return _economyClasses; }
                 }
 
-                /// <summary> Returns the factions within the system (key) and their status insinde it (value).
+                /// <summary>[EMERC] Returns the factions within the system (key) and their status inside it (value).
                 /// </summary>
                 public Dictionary<string, string> Factions
                 {
                     get { return _factions; }
+                }
+
+                /// <summary>[ELGCY] Returns alerts about the system (e.g. nearby black holes).
+                /// </summary>
+                public string Alerts
+                {
+                    get { return _alerts; }
                 }
                 #endregion
 
@@ -209,17 +226,18 @@ namespace VacVI.Database
                 /// <param name="pSectorCoordinates">The sector coordinates.</param>
                 /// <param name="pEconomyClasses">The list of economy tags for this system.</param>
                 /// <param name="pFactions">A dictionary containing present factions as key and their satus within the system as value.</param>
-                public SystemEntry(string pName, string pDescription, Vector3D pSectorCoordinates, string[] pEconomyClasses, Dictionary<string, string> pFactions)
+                public SystemEntry(string pName, string pDescription, Vector3D pSectorCoordinates, string[] pEconomyClasses, Dictionary<string, string> pFactions, string pAlerts)
                 {
                     this._name = pName;
                     this._sectorCoordinates = pSectorCoordinates;
                     this._description = pDescription;
                     this._economyClasses = pEconomyClasses;
                     this._factions = pFactions;
+                    this._alerts = pAlerts;
                 }
 
-                public SystemEntry(string pName, string pDescription, double pSectorX, double pSectorY, string[] pEconomyClasses, Dictionary<string, string> pFactions) :
-                    this(pName, pDescription, new Vector3D(pSectorX, pSectorY), pEconomyClasses, pFactions) { }
+                public SystemEntry(string pName, string pDescription, double pSectorX, double pSectorY, string[] pEconomyClasses, Dictionary<string, string> pFactions, string pAlerts) :
+                    this(pName, pDescription, new Vector3D(pSectorX, pSectorY), pEconomyClasses, pFactions, pAlerts) { }
                 #endregion
             }
             #endregion
@@ -252,7 +270,11 @@ namespace VacVI.Database
 
                 for (int i = 0; i < systemMatches.Count; i++)
                 {
-                    Match systemDetails = SYSTEM_DETAIL_REGEX.Match(systemMatches[i].Value);
+                    Match systemDetails = (
+                        (GameMeta.CurrentGame == GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? SYSTEM_DETAIL_REGEX_EMERC.Match(systemMatches[i].Value) : 
+                        (GameMeta.CurrentGame == GameMeta.SupportedGame.EVOCHRON_LEGACY) ? SYSTEM_DETAIL_REGEX_ELGCY.Match(systemMatches[i].Value) :
+                        SYSTEM_DETAIL_REGEX_EMERC.Match(systemMatches[i].Value)     // <-- Use Mercenary's patern as the fallback default
+                    );
 
                     double x = 0;
                     double y = 0;
@@ -277,7 +299,8 @@ namespace VacVI.Database
                             x,
                             y,
                             economyClasses,
-                            factionDetails
+                            factionDetails,
+                            systemDetails.Groups["Alerts"].Value
                         )
                     );
                 }
