@@ -20,21 +20,6 @@ namespace VacVI.Plugins
         string Name { get; }
 
 
-        /// <summary> Returns the plugin version.
-        /// </summary>
-        string Version { get; }
-
-
-        /// <summary> Returns the author of the plugin.
-        /// </summary>
-        string Author { get; }
-
-
-        /// <summary> Returns the homepage of the author / plugin forum thread.
-        /// </summary>
-        string Homepage { get; }
-
-
         /// <summary> Returns the plugin's description.
         /// </summary>
         string Description { get; }
@@ -45,16 +30,43 @@ namespace VacVI.Plugins
         GameMeta.SupportedGame CompatibilityFlags { get; }
 
 
+        /// <summary> Returns the plugin version.
+        /// </summary>
+        string Version { get; }
+
+
         /// <summary> Returns the plugin's logo.
         /// </summary>
         System.Drawing.Bitmap LogoImage { get; }
+
+
+        /// <summary> Returns the author of the plugin.
+        /// </summary>
+        string Author { get; }
+
+
+        /// <summary> Returns the homepage of the author / plugin forum thread.
+        /// </summary>
+        string Homepage { get; }
         #endregion
 
 
         #region Interface Functions
+        /// <summary> Gets the default parameters for the plugin.
+        /// This function is being called by the PluginLoader before plugin initialization.
+        /// </summary>
+        List<PluginParameterDefault> GetDefaultPluginParameters();
+
+
         /// <summary> Initializes the plugin.
         /// </summary>
         void Initialize();
+
+
+        /// <summary> Gets the dialog tree used by the plugin.
+        /// This function is being called by the PluginLoader before plugin initialization.
+        /// </summary>
+        void BuildDialogTree();
 
 
         /// <summary> Is called, when the plugin is being fired by a dialog.
@@ -69,18 +81,6 @@ namespace VacVI.Plugins
         /// The interval is dependant on the user's savedatasettings.txt file content.
         /// </summary>
         void OnGameDataUpdate();
-
-
-        /// <summary> Gets the default parameters for the plugin.
-        /// This function is being called by the PluginLoader before plugin initialization.
-        /// </summary>
-        List<PluginParameterDefault> GetDefaultPluginParameters();
-
-
-        /// <summary> Gets the dialog tree used by the plugin.
-        /// This function is being called by the PluginLoader before plugin initialization.
-        /// </summary>
-        void BuildDialogTree();
 
 
         /// <summary> Gets called each time, the main application has been.
