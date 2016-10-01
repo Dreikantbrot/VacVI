@@ -11,7 +11,7 @@ namespace VacVI.Dialog
     {
         #region Regexes (readonly)
         /// <summary> Regex for filtering out word writings and pronunciations.</summary>
-        private static readonly Regex WORD_PRONUNCIATION_REGEX = new Regex(@"<\s*(?<RawText>.+?)\s*-->\s*(?<SpokenText>.+?)\s*>");
+        private static readonly Regex WORD_PRONUNCIATION_REGEX = new Regex(@"<\s*(?<RawText>[\s\S]+?)\s*-->\s*(?<SpokenText>[\s\S]+?)\s*>");
 
         /// <summary> Regex for recognizing lower case letters, followed by a punctuation mark or ":".</summary>
         private static readonly Regex UPPERCASE_LETTER_SENTENCE_REGEX = new Regex(@"(?:^|[.:!?])\s*([a-z])");
@@ -152,7 +152,7 @@ namespace VacVI.Dialog
             {
                 result = Regex.Replace(result, @"(^|\w)\s*,", "$1,");   // trim spaces before commas
                 result = Regex.Replace(result, @"(;|\s|,)\1+", "$1");   // remove excessive semi-colons, commas and whitespaces
-                if (!Regex.IsMatch(result, @"[!.?]\s*$")) { result += "."; }    // Add punctuation mark
+                if (!Regex.IsMatch(result, @"[!.?](?:\s*>)?\s*$")) { result += "."; }    // Add punctuation mark
                 result = UPPERCASE_LETTER_SENTENCE_REGEX.Replace(result, match => match.ToString().ToUpper());    // ToUpper 1st letter after a punctuation mark
             }
             return result;

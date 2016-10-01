@@ -14,7 +14,7 @@ namespace VacVI.Dialog
         protected readonly Regex INVALIDATION_REGEX = new Regex(@"^(?:\s|\.|,|;|:)*$");
 
         /// <summary> Regex used to extract the different kinds of choice words and phrases in a node.</summary>
-        internal static readonly Regex CHOICES_REGEX = new Regex(@"(?:\$\((?<Choice>.*?)\))|(?:\$\[(?<OptChoice>.*?)\])");
+        internal static readonly Regex CHOICES_REGEX = new Regex(@"(?:\$\((?<Choice>[\s\S]*?)\))|(?:\$\[(?<OptChoice>[\s\S]*?)\])");
         #endregion
 
 
