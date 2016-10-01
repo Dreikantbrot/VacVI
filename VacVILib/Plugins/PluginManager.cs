@@ -184,24 +184,24 @@ namespace VacVI.Plugins
             _pluginDefaults.Clear();
             for (int i = 0; i < Plugins.Count; i++)
             {
-                string pluginName = Plugins[i].Id.ToString();
+                string pluginId = Plugins[i].Id.ToString();
 
                 /* Create entry in the default plugin db */
-                if (!_pluginDefaults.ContainsKey(pluginName)) { _pluginDefaults.Add(pluginName, new Dictionary<string, PluginParameterDefault>()); }
+                if (!_pluginDefaults.ContainsKey(pluginId)) { _pluginDefaults.Add(pluginId, new Dictionary<string, PluginParameterDefault>()); }
 
                 /* Global plugin parameters */
-                if (!_pluginFile.HasKey(pluginName, "Enabled")) { _pluginFile.SetValue(pluginName, "Enabled", "False"); }
+                if (!_pluginFile.HasKey(pluginId, "Enabled")) { _pluginFile.SetValue(pluginId, "Enabled", "False"); }
 
                 /* Fill in custom plugin parameters */
                 List<PluginParameterDefault> pluginParams = Plugins[i].GetDefaultPluginParameters();
                 for (int u = 0; u < pluginParams.Count; u++)
                 {
                     PluginParameterDefault currParam = pluginParams[u];
-                    if (!_pluginDefaults[pluginName].ContainsKey(currParam.Key)) { _pluginDefaults[pluginName].Add(currParam.Key, currParam); }
+                    if (!_pluginDefaults[pluginId].ContainsKey(currParam.Key)) { _pluginDefaults[pluginId].Add(currParam.Key, currParam); }
 
-                    if (!_pluginFile.HasKey(pluginName, currParam.Key))
+                    if (!_pluginFile.HasKey(pluginId, currParam.Key))
                     {
-                        _pluginFile.SetValue(pluginName, currParam.Key, currParam.DefaultValue);
+                        _pluginFile.SetValue(pluginId, currParam.Key, currParam.DefaultValue);
                     }
                 }
             }

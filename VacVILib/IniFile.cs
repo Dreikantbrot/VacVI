@@ -12,7 +12,7 @@ namespace VacVI
     {
         #region Constants
         /// <summary> Regex that identifies a section in an INI file.</summary>
-        private readonly Regex SECTION_VALIDATOR = new Regex(@"^\s*\[\s*(?<Section>[A-Za-z0-9_ ]+)\s*\]\s*$");
+        private readonly Regex SECTION_VALIDATOR = new Regex(@"^\s*\[\s*(?<Section>[A-Za-z0-9_\- ]+)\s*\]\s*$");
 
         /// <summary> Regex that identifies a key-value pair in an INI file.</summary>
         private readonly Regex KEY_VALUE_VALIDATIOR = new Regex(@"^\s*(?<Key>.*?)\s*=\s*(?<Value>.*?)\s*$");
