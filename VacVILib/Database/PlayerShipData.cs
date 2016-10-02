@@ -265,22 +265,22 @@ namespace VacVI.Database
         public static int? HullIntegrity { get { return ShieldLevel; } }
 
 
-        /// <summary> [EMERC+] Returns the damage on the ship's engines (0-100).</summary>
-        public static int? EngineDamage 
+        /// <summary> [EMERC+] Returns the health of the ship's engines (0-100).</summary>
+        public static int? EngineHealth 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_ENGINE_DAMAGE).Value : null; }
 		}
 
 
-        /// <summary> [EMERC+] Returns the damage on the ship's weapon systems (0-100).</summary>
-        public static int? WeaponDamage 
+        /// <summary> [EMERC+] Returns the health of the ship's weapon systems (0-100).</summary>
+        public static int? WeaponHealth 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_WEAPON_DAMAGE).Value : null; }
 		}
 
 
-        /// <summary> [EMERC+] Returns the damage on the ship's nav-systems (0-100).</summary>
-        public static int? NavDamage 
+        /// <summary> [EMERC+] Returns the health of the ship's nav-systems (0-100).</summary>
+        public static int? NavHealth 
 		{
             get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_NAV_DAMAGE).Value : null; }
 		}

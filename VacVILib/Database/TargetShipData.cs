@@ -93,22 +93,22 @@ namespace VacVI.Database
 		}
 
 
-        /// <summary> [EMERC+] Returns the damage on the target ship's engines (0-100).</summary>
-        public static int? EngineDamage 
+        /// <summary> [EMERC+] Returns the health of the target ship's engines (0-100).</summary>
+        public static int? EngineHealth 
 		{
 			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_TARGET_ENGINE_DAMAGE).Value : null; }
 		}
 
 
-        /// <summary> [EMERC+] Returns the damage on the target ship's weapon systems (0-100).</summary>
-        public static int? WeaponDamage 
+        /// <summary> [EMERC+] Returns the health of the target ship's weapon systems (0-100).</summary>
+        public static int? WeaponHealth 
 		{
 			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_TARGET_WEAPON_DAMAGE).Value : null; }
 		}
 
 
-        /// <summary> [EMERC+] Returns the damage on the target ship's nav-systems (0-100).</summary>
-        public static int? NavDamage 
+        /// <summary> [EMERC+] Returns the health of the target ship's nav-systems (0-100).</summary>
+        public static int? NavHealth 
 		{
 			get { return (GameMeta.CurrentGame >= GameMeta.SupportedGame.EVOCHRON_MERCENARY) ? (int?)SaveDataReader.GetEntry(PARAM_TARGET_NAV_DAMAGE).Value : null; }
 		}
