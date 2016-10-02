@@ -50,17 +50,30 @@ namespace VacVI.Dialog
 
 
         public static event Action<VISpeechStartedEventArgs> OnVISpeechStarted = null;
+        internal static event Action<VISpeechStartedEventArgs> OnVISpeechManipulated = null;
         public class VISpeechStartedEventArgs
         {
             public DialogVI SpokenDialog { get; private set; }
-            public string SpokenPhrase { get; private set; }
-            public string DisplayedPhrase { get; private set; }
+            public string SpokenPhrase { get; set; }
+            public string DisplayedPhrase { get; set; }
 
             internal VISpeechStartedEventArgs(DialogVI pSpokenDialog, string pSpokenPhrase, string pDisplayedPhrase)
             {
                 this.SpokenDialog = pSpokenDialog;
                 this.SpokenPhrase = pSpokenPhrase;
                 this.DisplayedPhrase = pDisplayedPhrase;
+            }
+        }
+
+
+        public static event Action<SoundOutputInitializedEventArgs> OnSoundOutputInitialized = null;
+        public class SoundOutputInitializedEventArgs
+        {
+            public ISoundOut SoundOutput { get; private set; }
+
+            internal SoundOutputInitializedEventArgs(ISoundOut pSoundOutput)
+            {
+                this.SoundOutput = pSoundOutput;
             }
         }
 
@@ -355,7 +368,20 @@ namespace VacVI.Dialog
             string textToSpeak = dialogNode.ResolvePronunciationSyntax(randomText, true);
             string textToDisplay = dialogNode.ResolvePronunciationSyntax(randomText, false);
 
-            if (OnVISpeechStarted != null) { OnVISpeechStarted(new VISpeechStartedEventArgs(dialogNode, textToSpeak, textToDisplay)); }
+            // Start the events and apply the manipulation results
+            if (
+                (OnVISpeechStarted != null) ||
+                (OnVISpeechManipulated != null)
+            )
+            {    
+                VISpeechStartedEventArgs args = new VISpeechStartedEventArgs(dialogNode, textToSpeak, textToDisplay);
+                
+                if (OnVISpeechStarted != null) { OnVISpeechStarted(args); }
+                if (OnVISpeechManipulated != null) { OnVISpeechManipulated(args); }
+
+                textToSpeak = args.SpokenPhrase;
+                textToDisplay = args.DisplayedPhrase;
+            }
             
             // TODO: Set emphasis and break lengths
             PromptBuilder prmptBuilder = new PromptBuilder();
@@ -379,11 +405,13 @@ namespace VacVI.Dialog
             if (modulation == VoiceModulationModes.DEFAULT) { modulation = _voiceModulation; }
             if (modulation == VoiceModulationModes.ROBOTIC)
             {
-                DmoEchoEffect echoSource = new DmoEchoEffect(_soundSource);
+                DmoEchoEffect echoSource = new DmoEchoEffect(_soundOutput.WaveSource);
                 echoSource.LeftDelay = 25;
                 echoSource.RightDelay = 25;
                 _soundOutput.Initialize(echoSource);
             }
+
+            if (OnSoundOutputInitialized != null) { OnSoundOutputInitialized(new SoundOutputInitializedEventArgs(_soundOutput)); }
 
             try
             {
@@ -393,7 +421,7 @@ namespace VacVI.Dialog
                     _soundOutput.Play();
 
                     while ((!async) && (_soundOutput.PlaybackState == PlaybackState.Playing)) { }
-                    //if (!async) { _soundOutput.WaitForStopped(); }    // <-- This function does NOT WORK! - Check at CSCore, whether it's fixed yet
+                    //if (!async) { _soundOutput.WaitForStopped(); }    // <-- This function does NOT WORK! - Check CSCore source code, whether it's fixed yet
                 }
                 else
                 {
@@ -402,7 +430,10 @@ namespace VacVI.Dialog
                     soundOutput_Stopped(null, null);
                 }
             }
-            catch { }
+            catch (CSCore.MmException e)
+            {
+
+            }
         }
 
 
@@ -433,9 +464,16 @@ namespace VacVI.Dialog
                 Thread starter = new Thread(n => { Say(_queue[0]); });
                 starter.Start();
             }
+            
+            try
+            {
+                _soundSource.Dispose();
+                _audioStream.Dispose();
+            }
+            catch (CSCore.MmException exc)
+            {
 
-            _soundSource.Dispose();
-            _audioStream.Dispose();
+            }
 
             // Start a new thread to prevent another VI or Command dialog to remove this 
             // object while it's still in use

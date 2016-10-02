@@ -113,7 +113,7 @@ namespace VacVIOverlay
             /* Initialize the Overlay */
             VI.Disabled = true; // Disable VI beforehand to prevent VI_OnVIStateChanged from firing
 
-            SpeechEngine.OnVISpeechStarted += SpeechEngine_OnVISpeechStarted;
+            SpeechEngine.OnVISpeechManipulated += SpeechEngine_OnOnVISpeechManipulated;
             SpeechEngine.OnVISpeechStopped += SpeechEngine_OnVISpeechStopped;
             VI.OnVIStateChanged += VI_OnVIStateChanged;
 
@@ -513,7 +513,7 @@ namespace VacVIOverlay
         /// Fires each time the VI started to speak.
         /// </summary>
         /// <param name="obj">The VI speech started event arguments.</param>
-        private void SpeechEngine_OnVISpeechStarted(SpeechEngine.VISpeechStartedEventArgs obj)
+        private void SpeechEngine_OnOnVISpeechManipulated(SpeechEngine.VISpeechStartedEventArgs obj)
         {
             this.Dispatcher.InvokeAsync(
                 () =>
