@@ -65,6 +65,14 @@ namespace VacVI.Plugins
         #endregion
 
 
+        #region Static Contructor
+        static PluginManager()
+        {
+            VacVI.Database.SaveDataReader.OnGameDataUpdate += CallGameDataUpdateOnPlugins;
+        }
+        #endregion
+
+
         #region Functions
         /// <summary> Gets a plugin by name.
         /// </summary>
@@ -270,7 +278,7 @@ namespace VacVI.Plugins
 
         /// <summary> Calls OnGameDataUpdate on each plugin (parallel, threaded).
         /// </summary>
-        internal static void CallGameDataUpdateOnPlugins()
+        private static void CallGameDataUpdateOnPlugins()
         {
             for (int i = 0; i < Plugins.Count; i++)
             {

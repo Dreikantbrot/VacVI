@@ -73,6 +73,11 @@ namespace VacVI.Database
     /// <summary> Reads, parses and stores data from "savedata.txt".</summary>
     internal static class SaveDataReader
     {
+        #region Custom Actions
+        public static event Action OnGameDataUpdate = null;
+        #endregion
+
+
         #region Classes
         [System.Diagnostics.DebuggerDisplay("<{_type}> {_name}")]
         public class DataEntry
@@ -380,8 +385,8 @@ namespace VacVI.Database
             TargetShipData.Update();
             EnvironmentalData.Update();
 
-            // Call IPlugin.OnGameDataUpdate on all plugins
-            PluginManager.CallGameDataUpdateOnPlugins();
+            // Call the "on game data update" event (also calls IPlugin.OnGameDataUpdate on all plugins)
+            if (OnGameDataUpdate != null) { OnGameDataUpdate(); }
 
             // Update the last update time
             _lastUpdateTime = DateTime.Now;
