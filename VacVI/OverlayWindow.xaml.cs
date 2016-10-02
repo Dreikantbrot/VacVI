@@ -73,7 +73,7 @@ namespace VacVIOverlay
             Color.FromArgb(255, 128, 255, 0)    // Standard text color for blue hue
         };
 
-        const int MIN_TIMEOUT_TIMER_INTERVAL = 100;
+        const int MIN_TIMEOUT_TIMER_INTERVAL = 500;
         const int MIN_UPDATE_INDICATOR_INTERVAL = 50;
         #endregion
 
@@ -418,7 +418,7 @@ namespace VacVIOverlay
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The ecent arguments.</param>
-        void onLoadAnimationCompleted(object sender, EventArgs e)
+        private void onLoadAnimationCompleted(object sender, EventArgs e)
         {
             AnimationBehavior.GetAnimator(img_LogoBackground).Pause();
             AnimationBehavior.GetAnimator(img_LogoBackground).Rewind();
@@ -636,7 +636,7 @@ namespace VacVIOverlay
         /// Fires each time the VI started to speak.
         /// </summary>
         /// <param name="obj">The VI speech stopped event arguments.</param>
-        void SpeechEngine_OnVISpeechStopped(SpeechEngine.VISpeechStoppedEventArgs obj)
+        private void SpeechEngine_OnVISpeechStopped(SpeechEngine.VISpeechStoppedEventArgs obj)
         {
             this.Dispatcher.Invoke(
                 () =>
@@ -679,7 +679,7 @@ namespace VacVIOverlay
         /// <param name="e">The file system event arguments.</param>
         private void OnSaveDataChanged(object sender, System.IO.FileSystemEventArgs e)
         {
-            VI.Disabled = false;
+            if (VI.Disabled) { VI.Disabled = false; }
             SaveDataReader.ReadGameData();
 
             if (
@@ -767,7 +767,7 @@ namespace VacVIOverlay
         /// </summary>
         /// <param name="sender">The sender object.</param>
         /// <param name="e">The event arguments.</param>
-        void GameProcess_Exited(object sender, EventArgs e)
+        private void GameProcess_Exited(object sender, EventArgs e)
         {
             // Close the overlay together with the game.
             if (this.Dispatcher.CheckAccess())
