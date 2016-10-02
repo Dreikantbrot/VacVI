@@ -275,6 +275,18 @@ namespace VacVI.Dialog
         }
 
 
+        /// <summary> Removes all dialog ndoes from the queues, that have exceeded their maximal lifespan.
+        /// </summary>
+        private static void PurgeDialogQueue()
+        {
+            // Remove dialog nodes that are too old
+            for (int i = _queue.Count - 1; i >= 0; i--)
+            {
+                if ((DateTime.Now - _queue[i].SpeechRegisteredInQueue).TotalMilliseconds > _maxSpeechNodeAge) { _queue.RemoveAt(i); }
+            }
+        }
+
+
         /// <summary> Registers a dialog node's answers to the speech recognition engine.
         /// </summary>
         /// <param name="node">The dialog node, which answers to add.</param>
@@ -348,17 +360,22 @@ namespace VacVI.Dialog
             if (!_queue.Contains(dialogNode))
             {
                 _queue.Add(dialogNode);
-                dialogNode.SpeechRegisteredInQueue = DateTime.Now; 
+                dialogNode.SpeechRegisteredInQueue = DateTime.Now;
             }
+
+            PurgeDialogQueue();
 
             // Check whether it's time to speak the dialog
             if (
-                (_queue[0] != dialogNode) ||
                 (_synthesizer.State != SynthesizerState.Ready) ||
                 (
                     (!forceSpeech) &&
                     (VI.State <= VI.VIState.TALKING) &&
                     (dialogNode.Priority < DialogBase.DialogPriority.CRITICAL)
+                ) ||
+                (
+                    (!forceSpeech) &&
+                    (_queue[0] != dialogNode)
                 )
             )
             { return; }
@@ -392,6 +409,11 @@ namespace VacVI.Dialog
             prmptBuilder.EndVoice();
 
 
+            // Dispose old object instances
+            if (_soundSource != null) { _soundSource.Dispose(); _soundSource = null; }
+            if (_soundOutput != null) { _soundOutput.Dispose(); _soundOutput = null; }
+            if (_audioStream != null) { _audioStream.Dispose(); _audioStream = null; }
+
             // Create the modulated sound file by speaking "into RAM"
             _audioStream = new MemoryStream();
             _synthesizer.SetOutputToWaveStream(_audioStream);
@@ -413,26 +435,19 @@ namespace VacVI.Dialog
 
             if (OnSoundOutputInitialized != null) { OnSoundOutputInitialized(new SoundOutputInitializedEventArgs(_soundOutput)); }
 
-            try
+            if (outputFilepath == null)
             {
-                if (outputFilepath == null)
-                {
-                    _soundOutput.Stopped += soundOutput_Stopped;
-                    _soundOutput.Play();
+                _soundOutput.Stopped += soundOutput_Stopped;
+                _soundOutput.Play();
 
-                    while ((!async) && (_soundOutput.PlaybackState == PlaybackState.Playing)) { }
-                    //if (!async) { _soundOutput.WaitForStopped(); }    // <-- This function does NOT WORK! - Check CSCore source code, whether it's fixed yet
-                }
-                else
-                {
-                    if (!Directory.Exists(Path.GetDirectoryName(outputFilepath))) { Directory.CreateDirectory(Path.GetDirectoryName(outputFilepath)); }
-                    _soundOutput.WaveSource.WriteToFile(outputFilepath);
-                    soundOutput_Stopped(null, null);
-                }
+                while ((!async) && (_soundOutput.PlaybackState == PlaybackState.Playing)) { }
+                //if (!async) { _soundOutput.WaitForStopped(); }    // <-- This function does NOT WORK! - Check CSCore source code, whether it's fixed yet
             }
-            catch (CSCore.MmException e)
+            else
             {
-
+                if (!Directory.Exists(Path.GetDirectoryName(outputFilepath))) { Directory.CreateDirectory(Path.GetDirectoryName(outputFilepath)); }
+                _soundOutput.WaveSource.WriteToFile(outputFilepath);
+                soundOutput_Stopped(null, null);
             }
         }
 
@@ -450,12 +465,9 @@ namespace VacVI.Dialog
             DialogVI currNode = _queue[0];
 
             if (OnVISpeechStopped != null) { OnVISpeechStopped(new VISpeechStoppedEventArgs(currNode)); }
-
+            
             // Remove dialog nodes that are too old
-            for (int i = _queue.Count - 1; i >= 0; i--)
-            {
-                if ((DateTime.Now - _queue[i].SpeechRegisteredInQueue).TotalMilliseconds > _maxSpeechNodeAge) { _queue.RemoveAt(i); }
-            }
+            PurgeDialogQueue();
 
             // Remove current dialog node and start the next one
             if (_queue.Count > 0) { _queue.RemoveAt(0); }
@@ -464,19 +476,8 @@ namespace VacVI.Dialog
                 Thread starter = new Thread(n => { Say(_queue[0]); });
                 starter.Start();
             }
-            
-            try
-            {
-                _soundSource.Dispose();
-                _audioStream.Dispose();
-            }
-            catch (CSCore.MmException exc)
-            {
 
-            }
-
-            // Start a new thread to prevent another VI or Command dialog to remove this 
-            // object while it's still in use
+            // Start a new thread to prevent another VI or Command dialog to remove this object while it's still in use
             new Thread(n => { currNode.NextNode(); }).Start();
         }
         #endregion
