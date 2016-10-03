@@ -123,7 +123,7 @@ namespace VacVI.Input
 
 
         #region Functions
-        /// <summary> Executes a game action via simulated keypresses.
+        /// <summary> Executes a game action via simulated keypresses, if available in the game.
         /// </summary>
         /// <param name="action">The action to simulate.</param>
         /// <param name="pressTime">The time to wait in ms after pressing the key and before releasing it.</param>

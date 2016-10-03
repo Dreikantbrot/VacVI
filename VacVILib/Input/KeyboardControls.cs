@@ -566,7 +566,7 @@ namespace VacVI.Input
 
 
         #region Properties
-        /// <summary> Returns the current action database.
+        /// <summary> Returns the current  (game dependant) action database.
         /// </summary>
         public static Dictionary<GameAction, ActionDetail> GameActions
         {
