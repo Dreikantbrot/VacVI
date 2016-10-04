@@ -292,7 +292,7 @@
                 </TextBlock>
                 <ScrollViewer Margin="10" Grid.Column="1" Grid.RowSpan="2" VerticalScrollBarVisibility="Auto">
                     <TextBlock Background="{DynamicResource BackgroundBrush}" Foreground="White" Padding="5,5,5,5" TextWrapping="Wrap" FontWeight="Bold" TextAlignment="Center" TextTrimming="CharacterEllipsis" IsHitTestVisible="True">
-                            <Run Text="&#x0a;VācVI:"/>
+                            <Run Text="&#x0a;VācVI (v0.96-beta.1):"/>
                             <Run Text="&#x0a;-----------------------"/>
                             <Run Text="&#x0a;"/>
                             <Run Text="&#x0a;Progam written by:"/>
