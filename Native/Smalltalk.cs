@@ -37,7 +37,7 @@ namespace Native
 
         public string Version
         {
-            get { return "0.1"; }
+            get { return "0.4"; }
         }
 
         public string Author
@@ -132,7 +132,7 @@ namespace Native
                 ),
 
                 new DialogTreeBranch(
-                    new DialogPlayer("What is your favourite food"),
+                    new DialogPlayer("What is your favourite food?"),
                     new DialogTreeBranch(
                         new DialogVI("I like $(muffins|cornflakes|pizza|pancakes|small children for breakfast). What do you like most?"),
                         new DialogTreeBranch(

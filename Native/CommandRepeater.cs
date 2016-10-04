@@ -35,7 +35,7 @@ namespace Native
 
         public string Version
         {
-            get { return "0.1"; }
+            get { return "1.0"; }
         }
 
         public string Author
@@ -45,7 +45,7 @@ namespace Native
 
         public string Homepage
         {
-            get { return ""; }
+            get { return String.Empty; }
         }
 
         public string Description
@@ -53,7 +53,7 @@ namespace Native
             get
             {
                 return "Repeats the last command, if it has not been understood by the VI.\n" +
-                    "Simply say \"Yes\" or \"No\", when the VI asks your whether you meant the speicifed command.";
+                    "Simply say \"Yes\" or \"No\", when the VI asks your whether you meant the specified command.";
             }
         }
 

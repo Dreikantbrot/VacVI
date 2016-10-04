@@ -36,6 +36,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CSCore">
+      <HintPath>..\packages\CSCore.1.1.0\lib\net35-client\CSCore.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -46,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Lore.cs" />
     <Compile Include="NapTime.cs" />
     <Compile Include="CommandRepeater.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -56,6 +61,7 @@
     </Compile>
     <Compile Include="ShipSystemControl.cs" />
     <Compile Include="Smalltalk.cs" />
+    <Compile Include="VIHealth.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VacVILib\VacVILib.csproj">

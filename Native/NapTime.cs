@@ -28,7 +28,7 @@ namespace Native
 
         public string Version
         {
-            get { return "0.1"; }
+            get { return "1.0"; }
         }
 
         public string Author
@@ -38,7 +38,7 @@ namespace Native
 
         public string Homepage
         {
-            get { return ""; }
+            get { return String.Empty; }
         }
 
         public string Description
