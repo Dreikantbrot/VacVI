@@ -1409,14 +1409,11 @@ namespace Native
         {
             if (
                 (TargetShipData.ThreatLevel > ThreatLevelState.LOW) &&
-                (
-                    (GameMeta.CurrentGame == GameMeta.SupportedGame.EVOCHRON_LEGACY) || // <-- DIRTY FIX! - In ELGCY, the MDTS state does not seem to get updated. Guess we'll have to wait for Vice to fix that.
-                    (PlayerShipData.Mtds == PlayerShipData.MTDSState.LOCKED)
-                ) &&
+                (PlayerShipData.Mtds == PlayerShipData.MTDSState.LOCKED) &&
                 ((DateTime.Now - _lastTimeFired).TotalMilliseconds >= 1000)
             )
             {
-                Interactor.ExecuteAction(GameAction.FIRE_PRIMARY_WEAPON, 500);
+                Interactor.ExecuteAction(GameAction.FIRE_PRIMARY_WEAPON, 400);
                 _lastTimeFired = DateTime.Now;
             }
         }
